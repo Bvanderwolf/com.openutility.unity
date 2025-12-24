@@ -1,0 +1,28 @@
+{
+  "name": "com.openutility.unity",
+  "displayName": "OpenUtility",
+  "description": "A public library of utility code, usefull for the unity game engine.",
+  "keywords": [],
+  "version": "0.0.1",
+  "dependencies": {
+    "com.unity.localization": "1.5.9",
+    "com.unity.addressables": "2.7.6"
+  },
+  "samples": [
+        {
+            "displayName": "Pooling Out Of The Box",
+            "description": "Contains sample scripts demonstrating simple use cases for game object pooling",
+            "path": "Samples~/OutOfTheBoxPooling"
+        },
+        {
+            "displayName": "Custom Pooling",
+            "description": "Contains more complex sample scripts demonstrating more advanced use cases for game object pooling",
+            "path": "Samples~/CustomPooling"
+        },
+        {
+            "displayName": "Pooling Between Scenes",
+            "description": "Contains sample scripts demonstrating how pooling is handled between scenes.",
+            "path": "Samples~/PoolingBetweenScenes"
+        }
+    ]
+}

@@ -1,0 +1,19 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 54b05b7b1f16afa46b7b2fac135274c7, type: 3}
+  m_Name: EntityPool
+  m_EditorClassIdentifier: 
+  _collectionCheck: 0
+  _defaultCapacity: 10
+  _maxSize: 100
+  _prefab: {fileID: 3678373227821952857, guid: c4eb640ecba795a4e8b348b510b3fc9e, type: 3}
+  _settings: {fileID: 11400000, guid: 46590f73a0bf8c24b90fbb18a6cadd1f, type: 2}
