@@ -23,7 +23,7 @@ This package requires the following Unity official packages to function correctl
 ### Via Unity Package Manager (Git URL)
 1. Open the **Package Manager** (`Window > Package Manager`).
 2. Click the **+** icon > **"Add package from git URL..."**.
-3. Paste: `https://github.com/YourUsername/YourRepoName.git`
+3. Paste: `https://github.com/Bvanderwolf/com.openutility.unity.git`
 
 ---
 
