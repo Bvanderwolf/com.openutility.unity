@@ -43,6 +43,7 @@ Get started quickly without writing custom pool logic:
 ---
 
 #### 🛠 Custom Pooling Setup
+Create your own custom pool ogic:
 
 1. **Create Pool MonoBehaviour:** Create or select a MonoBehaviour you want to put on a game object to pool (e.g. EntityBehaviour : MonoBehaviour)
 2. **Create Pool Asset:** Create a new script that inherits from ScriptableObjectBase\<T> that you want to use as pool asset (e.g. EntityPool : ScriptablePoolBase\<EntityBehaviour>)
