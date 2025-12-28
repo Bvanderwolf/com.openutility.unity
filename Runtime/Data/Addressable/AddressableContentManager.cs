@@ -3,10 +3,14 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using OpenUtility.DelayedExecution;
+using OpenUtility.Exceptions;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
 using UnityEngine.AddressableAssets.ResourceLocators;
+using UnityEngine.Networking;
 using UnityEngine.ResourceManagement.AsyncOperations;
+using UnityEngine.ResourceManagement.ResourceLocations;
+using UnityEngine.ResourceManagement.ResourceProviders;
 
 namespace OpenUtility.Data.Addressable
 {
@@ -15,6 +19,23 @@ namespace OpenUtility.Data.Addressable
     /// </summary>
     public static class AddressableContentManager
     {
+        private struct SasToken
+        {
+            public Func<string> factoryMethod;
+            public string[] baseUrls;
+            
+            public SasToken(Func<string> factoryMethod, string[] baseUrls)
+            {
+                this.factoryMethod = factoryMethod;
+                this.baseUrls = baseUrls;
+            }
+        }
+
+        /// <summary>
+        /// Set if sas token usage is enabled to append sas tokens to web requests.
+        /// </summary>
+        private static SasToken? _sasToken;
+        
         /// <summary>
         /// The list of loaded catalogs.
         /// </summary>
@@ -24,18 +45,77 @@ namespace OpenUtility.Data.Addressable
         /// Returns whether any content catalogs have been loaded.
         /// </summary>
         public static bool HasLoadedCatalogs => _catalogs.Count > 0;
+
+        /// <summary>
+        /// Enables the usage of SAS tokens for asset bundle requests. Provide your complete sas token and the base
+        /// urls (e.g. "https://prodcontainer.blob.core.windows.net/" and https://devcontainer.blob.core.windows.net/).
+        /// </summary>
+        public static void EnableSasTokenUsage(string sasToken, params string[] baseUrls)
+        {
+            EnableSasTokenUsage(FactoryMethod, baseUrls);
+
+            string FactoryMethod() => sasToken;
+        }
         
         /// <summary>
-        /// Returns an enumeration of all keys in the loaded catalogs. Use this to filter which content to download
-        /// before calling GetDownloadSize(keys) or DownloadContent(keys).
+        /// Enables the usage of SAS tokens for asset bundle requests. Provide your sas token factory method and the base
+        /// urls (e.g. "https://prodcontainer.blob.core.windows.net/" and https://devcontainer.blob.core.windows.net/).
         /// </summary>
-        /// <returns></returns>
-        public static IEnumerable GetLoadedCatalogKeys()
+        public static void EnableSasTokenUsage(Func<string> sasTokenFactory, params string[] baseUrls)
+        {
+            ThrowIf.Null(sasTokenFactory);
+            ThrowIf.EmptyArray(baseUrls);
+
+            _sasToken = new SasToken(sasTokenFactory, baseUrls);
+            
+            Addressables.WebRequestOverride = WebRequestOverride;
+        }
+        
+        /// <summary>
+        /// Returns an enumeration of all keys in the loaded catalogs.
+        /// </summary>
+        public static IEnumerable GetCatalogKeys()
         {
             if (_catalogs.Count == 0)
                 return (Enumerable.Empty<object>());
 
             return (_catalogs.SelectMany(catalog => catalog.Keys));
+        }
+
+        /// <summary>
+        /// Returns an enumeration of all keys in the loaded catalogs. Use this overload if you want
+        /// to filter which content to download before calling GetDownloadSize(keys) or DownloadContent(keys).
+        /// </summary>
+        public static IEnumerable GetCatalogKeys(string[] filter)
+        {
+            List<string> keys = new List<string>();
+            foreach (object key in GetCatalogKeys())
+            {
+                if (!Array.Exists(filter, k => k.Equals(key)))
+                    continue;
+                
+                keys.Add(key.ToString());
+            }
+
+            return (keys);
+        }
+        
+        /// <summary>
+        /// Returns an enumeration of all keys in the loaded catalogs. Use this overload if you want
+        /// to filter which content to download before calling GetDownloadSize(keys) or DownloadContent(keys).
+        /// </summary>
+        public static IEnumerable GetCatalogKeys(Predicate<object> predicate)
+        {
+            List<object> keys = new List<object>();
+            foreach (object key in GetCatalogKeys())
+            {
+                if (!predicate(key))
+                    continue;
+                
+                keys.Add(key);
+            }
+
+            return (keys);
         }
         
         /// <summary>
@@ -274,6 +354,22 @@ namespace OpenUtility.Data.Addressable
                 Addressables.RemoveResourceLocator(_catalogs[i]);
                 _catalogs.RemoveAt(i);
             }
+        }
+        
+        /// <summary>
+        /// Appends the SAS token to the web request if the request url starts with one of the base urls.
+        /// </summary>
+        private static void WebRequestOverride(UnityWebRequest request)
+        {
+            if (!_sasToken.HasValue)
+                return;
+            
+            SasToken token = _sasToken.Value;
+            if (!token.baseUrls.Any(url => request.url.StartsWith(url)))
+                return;
+                
+            string sasToken = token.factoryMethod.Invoke();
+            request.url += sasToken;
         }
     }
 }

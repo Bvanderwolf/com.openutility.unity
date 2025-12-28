@@ -26,6 +26,75 @@ This package requires the following Unity official packages to function correctl
 3. Paste: `https://github.com/Bvanderwolf/com.openutility.unity.git`
 
 ---
+## 🚀 Scriptable Variables for Unity
+A robust, lightweight architecture for managing project-wide variables using Unity's ScriptableObjects.
+
+#### 💡 The USP (Unique Selling Point)
+The core strength of this system is its ability to decouple data from specific scenes or scripts. By storing variables as Assets in your project folder, they can be shared across systems effortlessly without the need for complex Singletons, DontDestroyOnLoad, or rigid hard-references.
+
+#### ✨ Key Features
+- 🌍 Global Persistence – Data persists across scene changes without extra code.
+- 🔗 Clean Decoupling – Scripts talk to data containers rather than directly to each other.
+- 🛠️ Runtime Debugging – Modify values in the Inspector during play mode and see changes reflected instantly.
+- 🔔 Event-Driven – Built-in UnityEvents allow UI elements or logic to react to data changes automatically.
+- ⚙️ Highly Extensible – Easily create custom variables for any data type (Int, Vector3, or even custom Classes).
+
+#### 🛠️ How It Works
+##### 1. The Foundation (Abstraction)
+The system is built on a generic base class, ensuring a consistent API across all your variable types.
+
+```csharp
+public abstract class ScriptableVariable<T> : ScriptableObject
+{
+    public abstract T GetValue();
+    public virtual void SetValue(T newValue) => 
+        throw new NotImplementedException($"Setter for {typeof(T)} is not implemented.");
+}
+```
+
+##### 2. Practical Implementation
+Want to track a bool that toggles your game's "Hard Mode"?
+- Step 1: Create a ScriptableBool variable in your DifficultyManager and your EnemyAI.
+- Step 2: Press the plus icon in the inspector to create a new asset for your variable.
+- Step 3: Subscribe to the events!
+
+```csharp
+public class EnemyAI : MonoBehaviour 
+{
+    [SerializeField] private ScriptableBool isHardMode;
+
+    void OnEnable() => isHardMode.ValueChanged.AddListener(AdjustDifficulty);
+    void OnDisable() => isHardMode.ValueChanged.RemoveListener(AdjustDifficulty);
+
+    void AdjustDifficulty(bool hardModeActive) 
+    {
+        attackSpeed = hardModeActive ? 2.0f : 1.0f;
+    }
+}
+```
+
+#### 📊 Comparison Table
+
+| Feature | Local Variable | Scriptable Variable |
+| :--- | :---: | :---: |
+| **Scene Persistence** | ❌ No | ✅ Yes |
+| **Inspector Debugging** | ⚠️ Local Only | ✅ Global Asset |
+| **UI Decoupling** | ❌ Hard-coded | ✅ Event-driven |
+| **Memory Overhead** | Minimal | Minimal |
+| **Architecture** | Spagetti-prone | Modular & Clean |
+
+#### 🚀 Extension
+Need a specific type? Just inherit from the base:
+
+```csharp
+[CreateAssetMenu(fileName = "New Float", menuName = "Variables/Scriptable Float")]
+public class ScriptableFloat : ScriptableVariable<float> 
+{
+    // Add custom logic like Clamping or Math operations here
+}
+```
+
+---
 
 ## 🌊 Pooling
 
@@ -87,6 +156,7 @@ public class EntityBehaviour : PoolGameObjectBase<EntityBehaviour>
         }
     }
 ```
+---
 
 ## 🤝 Contributing
 Working on making this possible..

@@ -23,6 +23,11 @@
             "displayName": "Pooling Between Scenes",
             "description": "Contains sample scripts demonstrating how pooling is handled between scenes.",
             "path": "Samples~/PoolingBetweenScenes"
+        },
+        {
+           "displayName": "Script a variable",
+           "description": "Contains a sample script demonstrating how to use Scriptable Variables.",
+           "path": "Samples~/ScriptAVariable"
         }
     ]
 }
