@@ -176,7 +176,7 @@ A streamlined, high-level wrapper for the Unity Addressables Resource Management
 #### ✨ Key Features
 - ⚡ Simplified Workflow: Single-line methods for downloading catalogs and content.
 - 🔐 SAS Token Integration: Built-in support for Azure Blob Storage SAS tokens with automatic URL appending.
-- update Checks: Easy-to-use methods to detect and download catalog updates.
+- &#128260; Update Checks: Easy-to-use methods to detect and download catalog updates.
 - 📊 Progress Tracking: Built-in support for download status and progress callbacks.
 - 🧹 Cache Management: Advanced utilities to check, clear, and verify local caches.
 
