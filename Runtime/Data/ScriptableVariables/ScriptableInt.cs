@@ -1,4 +1,5 @@
 using System;
+using OpenUtility.Exceptions;
 using UnityEngine;
 
 namespace OpenUtility.Data
@@ -41,8 +42,7 @@ namespace OpenUtility.Data
 
         public virtual void SetValue(string newValue)
         {
-            if (!int.TryParse(newValue, out int result))
-                throw new FormatException($"The provided string '{newValue}' is not a valid integer.");
+            ThrowIf.NotInt(newValue, out int result);
             
             SetValue(result);
         }
@@ -54,8 +54,7 @@ namespace OpenUtility.Data
         
         public void SetValueWithoutNotify(string newValue)
         {
-            if (!int.TryParse(newValue, out int result))
-                throw new FormatException($"The provided string '{newValue}' is not a valid integer.");
+            ThrowIf.NotInt(newValue, out int result);
             
             SetValueWithoutNotify(result);
         }

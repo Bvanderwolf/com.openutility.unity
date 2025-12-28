@@ -1,4 +1,5 @@
 using System;
+using OpenUtility.Exceptions;
 using UnityEngine;
 
 namespace OpenUtility.Data
@@ -41,8 +42,7 @@ namespace OpenUtility.Data
         
         public virtual void SetValue(string newValue)
         {
-            if (!float.TryParse(newValue, out float result))
-                throw new FormatException($"The provided string '{newValue}' is not a valid float.");
+            ThrowIf.NotFloat(newValue, out float result);
             
             SetValue(result);
         }
@@ -54,8 +54,7 @@ namespace OpenUtility.Data
         
         public void SetValueWithoutNotify(string newValue)
         {
-            if (!float.TryParse(newValue, out float result))
-                throw new FormatException($"The provided string '{newValue}' is not a valid float.");
+            ThrowIf.NotFloat(newValue, out float result);
             
             SetValueWithoutNotify(result);
         }

@@ -7,6 +7,18 @@ namespace OpenUtility.Exceptions
 {
     public static class ThrowIf
     {
+        public static void NotInt(string str, out int result)
+        {
+            if (!int.TryParse(str, out result))
+                throw new FormatException($"The provided string '{str}' is not a valid integer.");
+        }
+        
+        public static void NotFloat(string str, out float result)
+        {
+            if (!float.TryParse(str, out result))
+                throw new FormatException($"The provided string '{str}' is not a valid float.");
+        }
+        
         public static void NullOrEmpty(string str)
         {
             if (string.IsNullOrEmpty(str))

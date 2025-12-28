@@ -15,6 +15,7 @@ This package requires the following Unity official packages to function correctl
 | :--- | :--- |
 | **Localization** (`com.unity.localization`) | `1.5.9` |
 | **Addressables** (`com.unity.addressables`) | `2.7.6` |
+| **Newtonsoft** (`com.unity.nuget.newtonsoft-json`) | `3.2.1` |
 
 ---
 
@@ -55,7 +56,7 @@ public abstract class ScriptableVariable<T> : ScriptableObject
 
 ##### 2. Practical Implementation
 Want to track a bool that toggles your game's "Hard Mode"?
-- Step 1: Create a ScriptableBool variable in your DifficultyManager and your EnemyAI.
+- Step 1: Create a `ScriptableBool` variable in your DifficultyManager and your EnemyAI MonoBehaviour classes.
 - Step 2: Press the plus icon in the inspector to create a new asset for your variable.
 - Step 3: Subscribe to the events!
 
@@ -126,11 +127,11 @@ Get started quickly without writing custom pool logic:
 Create your own custom pool ogic:
 
 1. **Create Pool MonoBehaviour:** Create or select a MonoBehaviour you want to put on a game object to pool (e.g. EntityBehaviour : MonoBehaviour)
-2. **Create Pool Asset:** Create a new script that inherits from ScriptableObjectBase\<T> that you want to use as pool asset (e.g. EntityPool : ScriptablePoolBase\<EntityBehaviour>)
-3. **Implement:** Implement OnCreateInstance, OnGetInstance and OnReleaseInstance. See the ScriptablePool.cs script and Out Of The Box workflow as an example.
+2. **Create Pool Asset:** Create a new script that inherits from `ScriptableObjectBase<T>` that you want to use as pool asset (e.g. EntityPool : `ScriptablePoolBase\<EntityBehaviour>)
+3. **Implement:** Implement `OnCreateInstance`, `OnGetInstance` and `OnReleaseInstance`. See the ScriptablePool.cs script and Out Of The Box workflow as an example.
 4. **Use:** Reference your custom pool asset from anywhere to start creating pooled instances.
 
-##### IPoolGameObject\<T>
+##### `IPoolGameObject<T>`
 - Implement this interface on a MonoBehaviour to receive notification upon creation (after Awake and before Start) and add the opportunity to implement release behaviour.
 - Note T should always be the type of the implementer (e.g. EntityBehaviour : MonoBehaviour, IPoolGameObject\<EntityBehaviour>)
 ```csharp
@@ -149,7 +150,7 @@ public class EntityBehaviour : MonoBehaviour, IPoolGameObject<EntityBehaviour>
 }
 ```
 
-##### PoolGameObjectBase\<T>
+##### `PoolGameObjectBase<T>`
 - Derive from this class to receive notification upon creation (after Awake and before Start). It implements default release behaviour which can be overriden.
 - Note T should always be the type of the implementer (e.g. EntityBehaviour : PoolGameObjectBase\<EntityBehaviour>)
 ```csharp
@@ -167,6 +168,69 @@ public class EntityBehaviour : PoolGameObjectBase<EntityBehaviour>
         }
     }
 ```
+---
+
+## 📦 Unity Addressables Simplified
+A streamlined, high-level wrapper for the Unity Addressables Resource Management System. This library lowers the entry barrier for developers by providing a clean, static interface for catalog management, content downloading, and secure web requests.
+
+#### ✨ Key Features
+- ⚡ Simplified Workflow: Single-line methods for downloading catalogs and content.
+- 🔐 SAS Token Integration: Built-in support for Azure Blob Storage SAS tokens with automatic URL appending.
+- update Checks: Easy-to-use methods to detect and download catalog updates.
+- 📊 Progress Tracking: Built-in support for download status and progress callbacks.
+- 🧹 Cache Management: Advanced utilities to check, clear, and verify local caches.
+
+#### 🚀 Getting Started
+1. Initialize with SAS Tokens (Optional)
+If your assets are hosted on private cloud storage (like Azure), enable SAS tokens globally:
+
+```csharp
+// Use a static token or a factory method for refreshing tokens
+AddressableContentManager.EnableSasTokenUsage(
+    () => MyBackend.GetFreshToken(), 
+    "https://yourstorage.blob.core.windows.net/"
+);
+```
+
+2. Downloading a Catalog
+Load or download a remote catalog to see what content is available:
+
+```csharp
+AddressableContentManager.DownloadContentCatalog(catalogUrl, (result) => {
+    if (result.success) {
+        Debug.Log("Catalog ready for use!");
+    }
+});
+```
+
+3. Downloading Content
+Once the catalog is loaded, you can download all content or filter by specific keys:
+
+```csharp
+// Download everything in the loaded catalogs
+AddressableContentManager.DownloadContent(
+    result => Debug.Log("Download Complete"),
+    status => Debug.Log($"Progress: {status.Percent * 100}%")
+);
+```
+
+#### 🛠 API Overview
+`AddressableContentManager`
+
+The primary entry point for most developers.
+- `DownloadContentCatalog`: Fetch remote catalogs.
+- `GetDownloadSize`: Calculate how many bytes need to be downloaded.
+- `GetCatalogKeys`: Filter and retrieve keys available for download.
+- `DownloadUpdatedCatalogs`: Synchronize local catalogs with remote changes.
+
+`AddressableContent`
+
+Lower-level utility methods for fine-grained control.
+
+- `DeleteCacheFiles`: Completely wipe addressable data from the device.
+- `CacheExists`: Check if a specific catalog or its dependencies are already stored locally.
+- `IsContentCatalogLoaded`: Verify if a specific path is already registered.
+
 ---
 
 ## 🤝 Contributing
