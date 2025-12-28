@@ -37,7 +37,8 @@ The core strength of this system is its ability to decouple data from specific s
 - 🔗 Clean Decoupling – Scripts talk to data containers rather than directly to each other.
 - 🛠️ Runtime Debugging – Modify values in the Inspector during play mode and see changes reflected instantly.
 - 🔔 Event-Driven – Built-in UnityEvents allow UI elements or logic to react to data changes automatically.
-- ⚙️ Highly Extensible – Easily create custom variables for any data type (Int, Vector3, or even custom Classes).
+- ⚙️ Highly Extensible – Easily create custom variables for any data type (Int, Vector3, or even custom data structures).
+- ⚡ One-Click Creation – Create new variables instantly using the plus button in the inspector.
 
 #### 🛠️ How It Works
 ##### 1. The Foundation (Abstraction)
@@ -69,6 +70,16 @@ public class EnemyAI : MonoBehaviour
     void AdjustDifficulty(bool hardModeActive) 
     {
         attackSpeed = hardModeActive ? 2.0f : 1.0f;
+    }
+}
+
+public class DifficultyManager : MonoBehaviour
+{
+    [SerializeField] private ScriptableBool isHardMode;
+
+    public void ToggleHardMode(bool newValue)
+    {
+        isHardMode.SetValue(newValue);
     }
 }
 ```
