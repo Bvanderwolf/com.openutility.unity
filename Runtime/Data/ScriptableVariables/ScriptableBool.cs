@@ -32,12 +32,16 @@ namespace OpenUtility.Data
         }
 
         public override bool GetValue() => value;
+        
+        public void Toggle() => SetValue(!value);
 
         public override void SetValue(bool newValue)
         {
             value = newValue;
             _valueChanged.Invoke(value);
         }
+        
+        public void ToggleWithoutNotify() => SetValueWithoutNotify(!value);
         
         public virtual void SetValueWithoutNotify(bool newValue)
         {
