@@ -1,10 +1,10 @@
 using System;
-using OpenUtility.Exceptions;
 using UnityEngine;
 
 namespace OpenUtility.Data
 {
-    public class ScriptableInt : ScriptableVariable<int>
+    [CreateAssetMenu(fileName = "ScriptableBool", menuName = "OpenUtility/Scriptable Variable/Int")]
+    public class ScriptableInt : ScriptableVariable<int>, ICanLoadValueFromPlayerPrefs
     {
         [Serializable]
         public class ChangedEvent : UnityEngine.Events.UnityEvent<int> { }
@@ -12,51 +12,77 @@ namespace OpenUtility.Data
         [SerializeField]
         private int _value;
 
+        [Header("Optional")]
+        [SerializeField]
+        private Optional<string> _playerPref;
+        
+        [Header("Events")]
         [SerializeField]
         private ChangedEvent _valueChanged;
 
         public ChangedEvent ValueChanged => _valueChanged;
+        public Optional<string> PlayerPref => _playerPref;
         
         protected int value { get; private set; }
 
         protected virtual void OnEnable()
         {
-            SetValueWithoutNotify(_value);
+            if (_playerPref.HasValue)
+            {
+                SetValueFromPlayerPref(_value);
+            }
+            else
+            {
+                SetValueWithoutNotify(_value);
+            }
         }
-        
+
         protected void OnValidate()
         {
             if (Application.isPlaying)
+            {
                 SetValue(_value);
+            }
             else
+            {
                 SetValueWithoutNotify(_value);
+            }
         }
 
         public override int GetValue() => value;
 
         public override void SetValue(int newValue)
         {
-            value = newValue;
-            _valueChanged.Invoke(value);
+            SetValueWithoutNotify(newValue);
+            OnValueChanged(newValue);
         }
 
-        public virtual void SetValue(string newValue)
-        {
-            ThrowIf.NotInt(newValue, out int result);
-            
-            SetValue(result);
-        }
-        
         public void SetValueWithoutNotify(int newValue)
         {
-            value = newValue;
+            SetValueInternal(newValue);
+            SetPlayerPrefIfNeeded();
+        }
+
+        private void SetValueFromPlayerPref(int defaultValue)
+        {
+            var key = _playerPref.Value;
+            var data = PlayerPrefs.GetInt(key, defaultValue);
+            SetValueInternal(data);
+        }
+
+        private void SetPlayerPrefIfNeeded()
+        {
+            if (!_playerPref.HasValue)
+                return;
+
+            var key = _playerPref.Value;
+            PlayerPrefs.SetInt(key, value);
         }
         
-        public void SetValueWithoutNotify(string newValue)
-        {
-            ThrowIf.NotInt(newValue, out int result);
-            
-            SetValueWithoutNotify(result);
-        }
+        private void SetValueInternal(int newValue) => value = newValue;
+
+        private void OnValueChanged(int newValue) => _valueChanged.Invoke(newValue);
+
+        public override string ToString() => value.ToString();
     }
 }

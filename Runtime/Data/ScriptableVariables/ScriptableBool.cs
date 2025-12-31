@@ -3,7 +3,8 @@ using UnityEngine;
 
 namespace OpenUtility.Data
 {
-    public class ScriptableBool : ScriptableVariable<bool>
+    [CreateAssetMenu(fileName = "ScriptableBool", menuName = "OpenUtility/Scriptable Variable/Bool")]
+    public class ScriptableBool : ScriptableVariable<bool>, ICanLoadValueFromPlayerPrefs
     {
         [Serializable]
         public class ChangedEvent : UnityEngine.Events.UnityEvent<bool> { }
@@ -11,41 +12,80 @@ namespace OpenUtility.Data
         [SerializeField]
         private bool _value;
 
+        [Header("Optional")]
         [SerializeField]
+        private Optional<string> _playerPref;
+
+        [Header("Events")]
+        [SerializeField, Space]
         private ChangedEvent _valueChanged;
 
         public ChangedEvent ValueChanged => _valueChanged;
+        public Optional<string> PlayerPref => _playerPref;
         
         protected bool value { get; private set; }
 
         protected virtual void OnEnable()
         {
-            SetValueWithoutNotify(_value);
+            if (_playerPref.HasValue)
+            {
+                SetValueFromPlayerPref(_value);
+            }
+            else
+            {
+                SetValueWithoutNotify(_value);
+            }
         }
 
         protected void OnValidate()
         {
             if (Application.isPlaying)
+            {
                 SetValue(_value);
+            }
             else
+            {
                 SetValueWithoutNotify(_value);
+            }
         }
 
         public override bool GetValue() => value;
-        
-        public void Toggle() => SetValue(!value);
 
         public override void SetValue(bool newValue)
         {
-            value = newValue;
-            _valueChanged.Invoke(value);
+            SetValueWithoutNotify(newValue);
+            OnValueChanged(newValue);
         }
-        
-        public void ToggleWithoutNotify() => SetValueWithoutNotify(!value);
         
         public virtual void SetValueWithoutNotify(bool newValue)
         {
-            value = newValue;
+            SetValueInternal(newValue);
+            SetPlayerPrefIfNeeded();
         }
+
+        private void SetValueInternal(bool newValue) => value = newValue;
+
+        private void OnValueChanged(bool newValue) => _valueChanged.Invoke(newValue);
+
+        private void SetPlayerPrefIfNeeded()
+        {
+            if (!_playerPref.HasValue)
+                return;
+            
+            var key = _playerPref.Value;
+            var data = value ? 1 : 0;
+            PlayerPrefs.SetInt(key, data);
+        }
+
+        private void SetValueFromPlayerPref(bool defaultValue)
+        {
+            var defaultIntValue = defaultValue ? 1 : 0;
+            var key = _playerPref.Value;
+            var data = PlayerPrefs.GetInt(key, defaultIntValue);
+            var newValue = data != 0;
+            SetValueInternal(newValue);
+        }
+
+        public override string ToString() => value.ToString();
     }
 }

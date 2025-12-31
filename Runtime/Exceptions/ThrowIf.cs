@@ -91,5 +91,27 @@ namespace OpenUtility.Exceptions
             if (!collection.Any())
                 throw new ArgumentException("Collection is empty.");
         }
+
+        public static void NotDerivedFrom<T>(Type type)
+        {
+            if (!typeof(T).IsAssignableFrom(type))
+                throw new ArgumentException($"Type {type.FullName} is not derived from {typeof(T).FullName}.");
+        }
+
+        public static void NotBool(int value, out bool result)
+        {
+            if (value == 0)
+            {
+                result = false;
+            }
+            else if (value == 1)
+            {
+                result = true;
+            }
+            else
+            {
+                throw new FormatException($"The provided integer '{value}' is not a valid boolean representation. Use 0 for false and 1 for true.");
+            }
+        }
     }
 }

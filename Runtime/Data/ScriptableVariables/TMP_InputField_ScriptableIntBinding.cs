@@ -1,0 +1,27 @@
+using OpenUtility.Exceptions;
+using TMPro;
+using UnityEngine;
+
+namespace OpenUtility.Data
+{
+    [ScriptableVariableBinder(typeof(TMP_InputField), typeof(int), DisplayName = "Default Binding")]
+    public class TMP_InputField_ScriptableIntBinding : MonoBehaviour
+    {
+        [SerializeField]
+        private ScriptableInt _variable;
+
+        public void SetValue(string newValue)
+        {
+            ThrowIf.NotInt(newValue, out int result);
+            
+            _variable.SetValue(result);
+        }
+        
+        public void SetValueWithoutNotify(string newValue)
+        {
+            ThrowIf.NotInt(newValue, out int result);
+            
+            _variable.SetValueWithoutNotify(result);
+        }
+    }
+}
