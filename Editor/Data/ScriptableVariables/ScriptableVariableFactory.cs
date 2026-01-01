@@ -9,6 +9,7 @@ using UnityEditor.Events;
 using UnityEditor.ProjectWindowCallback;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 using Object = UnityEngine.Object;
 
 namespace OpenUtility.Data.Editor
@@ -44,7 +45,64 @@ namespace OpenUtility.Data.Editor
                 _callback?.Invoke(asset, _target, _propertyName);
             }
         }
+        
+        public static void AssignIntVariableForSlider(Slider slider, Object variableAsset, Type bindingType)
+        {
+            var scriptableInt = (ScriptableInt)variableAsset;
+            var scriptableIntBinder = (Slider_ScriptableIntBinding)slider.gameObject.AddComponent(bindingType);
+            var serializedBinder = new SerializedObject(scriptableIntBinder);
+            var variableProperty = serializedBinder.FindProperty("_variable");
 
+            variableProperty.objectReferenceValue = scriptableInt;
+
+            serializedBinder.ApplyModifiedProperties();
+            serializedBinder.Dispose();
+                
+            UnityEventTools.AddPersistentListener(slider.onValueChanged, scriptableIntBinder.SetValue);
+        }
+        
+        public static void CreateAndAssignIntVariableForSlider(Slider slider, Type variableType, Type bindingType)
+        {
+            ThrowIf.NotDerivedFrom<ScriptableInt>(variableType);
+            ThrowIf.NotDerivedFrom<Slider_ScriptableIntBinding>(bindingType);
+            
+            var serializedObject = new SerializedObject(slider);
+            var valueChangedProperty = serializedObject.FindProperty("m_OnValueChanged");
+            
+            CreateNewAsset(valueChangedProperty, variableType, OnAssetCreated);
+            
+            serializedObject.Dispose();
+            
+            void OnAssetCreated(Object asset, Object target, string propertyName)
+            {
+                AssignIntVariableForInputField((TMP_InputField)target, asset, bindingType);
+            }
+        }
+        
+        public static void AssignFloatVariableForSlider(Slider slider, Object variableAsset)
+        {
+            var scriptableFloat = (ScriptableFloat)variableAsset;
+                
+            UnityEventTools.AddPersistentListener(slider.onValueChanged, scriptableFloat.SetValue);
+        }
+        
+        public static void CreateAndAssignFloatVariableForSlider(Slider slider, Type variableType)
+        {
+            ThrowIf.NotDerivedFrom<ScriptableFloat>(variableType);
+            
+            var serializedObject = new SerializedObject(slider);
+            var valueChangedProperty = serializedObject.FindProperty("m_OnValueChanged");
+            
+            CreateNewAsset(valueChangedProperty, variableType, OnAssetCreated);
+            
+            serializedObject.Dispose();
+            
+            void OnAssetCreated(Object asset, Object target, string propertyName)
+            {
+                AssignFloatVariableForSlider(slider, asset);
+            }
+        }
+        
         public static void AssignStringVariableForInputField(TMP_InputField inputField, Object variableAsset)
         {
             var scriptableString = (ScriptableString)variableAsset;
@@ -73,13 +131,13 @@ namespace OpenUtility.Data.Editor
         {
             var scriptableInt = (ScriptableInt)variableAsset;
             var scriptableIntBinder = (TMP_InputField_ScriptableIntBinding)inputField.gameObject.AddComponent(bindingType);
-            var serializedAdapter = new SerializedObject(scriptableIntBinder);
-            var variableProperty = serializedAdapter.FindProperty("_variable");
+            var serializedBinder = new SerializedObject(scriptableIntBinder);
+            var variableProperty = serializedBinder.FindProperty("_variable");
 
             variableProperty.objectReferenceValue = scriptableInt;
 
-            serializedAdapter.ApplyModifiedProperties();
-            serializedAdapter.Dispose();
+            serializedBinder.ApplyModifiedProperties();
+            serializedBinder.Dispose();
                 
             UnityEventTools.AddPersistentListener(inputField.onValueChanged, scriptableIntBinder.SetValue);
         }
@@ -106,13 +164,13 @@ namespace OpenUtility.Data.Editor
         {
             var scriptableFloat = (ScriptableFloat)variableAsset;
             var scriptableFloatBinding = (TMP_InputField_ScriptableFloatBinding)inputField.gameObject.AddComponent(bindingType);
-            var serializedAdapter = new SerializedObject(scriptableFloatBinding);
-            var variableProperty = serializedAdapter.FindProperty("_variable");
+            var serializedBinder = new SerializedObject(scriptableFloatBinding);
+            var variableProperty = serializedBinder.FindProperty("_variable");
 
             variableProperty.objectReferenceValue = scriptableFloat;
 
-            serializedAdapter.ApplyModifiedProperties();
-            serializedAdapter.Dispose();
+            serializedBinder.ApplyModifiedProperties();
+            serializedBinder.Dispose();
                 
             UnityEventTools.AddPersistentListener(inputField.onValueChanged, scriptableFloatBinding.SetValue);
         }

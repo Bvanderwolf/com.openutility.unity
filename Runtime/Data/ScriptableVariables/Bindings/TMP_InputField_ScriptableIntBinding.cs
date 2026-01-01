@@ -16,12 +16,5 @@ namespace OpenUtility.Data
             
             _variable.SetValue(result);
         }
-        
-        public void SetValueWithoutNotify(string newValue)
-        {
-            ThrowIf.NotInt(newValue, out int result);
-            
-            _variable.SetValueWithoutNotify(result);
-        }
     }
 }

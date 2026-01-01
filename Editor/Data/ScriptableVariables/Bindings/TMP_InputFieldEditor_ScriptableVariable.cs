@@ -17,30 +17,6 @@ namespace OpenUtility.Data.Editor
     [CustomEditor(typeof(TMP_InputField), true)]
     public class TMP_InputFieldEditor_ScriptableVariable : TMP_InputFieldEditor
     {
-        private struct BindingData
-        {
-            public Type variableType;
-            public Type bindingType;
-
-            public BindingData(Type variableType, Type bindingType)
-            {
-                this.variableType = variableType;
-                this.bindingType = bindingType;
-            }
-        }
-
-        private struct SelectionData
-        {
-            public Object variableAsset;
-            public Type bindingType;
-            
-            public SelectionData(Object variableAsset, Type bindingType)
-            {
-                this.variableAsset = variableAsset;
-                this.bindingType = bindingType;
-            }
-        }
-        
         private static readonly Dictionary<string, BindingData> _bindingDataCache = new Dictionary<string, BindingData>();
         private static readonly Dictionary<string, SelectionData> _selectionDataCache = new Dictionary<string, SelectionData>();
         
@@ -293,7 +269,7 @@ namespace OpenUtility.Data.Editor
             }
             builder.EndIndent();
 
-            var maxItemsPerColumn = Mathf.Max(3, stringItems.Length, intItems.Length, floatItems.Length);
+            var maxItemsPerColumn = Mathf.Max(SupportedVariableTypes.Length, stringItems.Length, intItems.Length, floatItems.Length);
             var minimumHeight = (maxItemsPerColumn + 3) * 20f;
             var minimumSize = new Vector2(rect.width, minimumHeight);
             builder.AddMinimumSize(minimumSize).GetResult().Show();

@@ -6,7 +6,7 @@ namespace OpenUtility.Data
     /// Use to mark a binding class for a ScriptableVariableBinding type. Add the type of component
     /// to bind to in the constructor (e.g. TMP_InputField).
     /// </summary>
-    [AttributeUsage(AttributeTargets.Class, Inherited = true)]
+    [AttributeUsage(AttributeTargets.Class, Inherited = false, AllowMultiple = true)]
     public class ScriptableVariableBinder : Attribute
     {
         public Type TypeOfComponentToBindTo { get; }
@@ -21,8 +21,8 @@ namespace OpenUtility.Data
         {
             get
             {
-                if (_typeOfScriptableVariable != null)
-                    return (_typeOfScriptableVariable);
+                if (_customScriptableVariableType != null)
+                    return (_customScriptableVariableType);
 
                 if (TypeOfValue == typeof(int))
                     return (typeof(ScriptableInt));
@@ -37,13 +37,28 @@ namespace OpenUtility.Data
             }
         }
         
-        private readonly Type _typeOfScriptableVariable;
+        private readonly Type _customScriptableVariableType;
         
-        public ScriptableVariableBinder(Type typeOfComponentToBindTo, Type typeOfValue, Type typeOfScriptableVariable = null)
+        /// <summary>
+        /// Constructor for ScriptableVariableBinder attribute.
+        /// </summary>
+        /// <param name="typeOfComponentToBindTo">The component the binder is used on (e.g. Slider)</param>
+        /// <param name="typeOfValue">The type of value that is being converted to (e.g. int)</param>
+        public ScriptableVariableBinder(Type typeOfComponentToBindTo, Type typeOfValue) : this(typeOfComponentToBindTo, typeOfValue, null)
+        {
+        }
+        
+        /// <summary>
+        /// Constructor for ScriptableVariableBinder attribute.
+        /// </summary>
+        /// <param name="typeOfComponentToBindTo">The component the binder is used on (e.g. Slider)</param>
+        /// <param name="typeOfValue">The type of value that is being converted to (e.g. int)</param>
+        /// <param name="customScriptableVariableType">The type of scriptable variable. Set this when you are using a custom type of scriptable variable.</param>
+        public ScriptableVariableBinder(Type typeOfComponentToBindTo, Type typeOfValue, Type customScriptableVariableType)
         {
             TypeOfComponentToBindTo = typeOfComponentToBindTo;
             TypeOfValue = typeOfValue;
-            _typeOfScriptableVariable = typeOfScriptableVariable;
+            _customScriptableVariableType = customScriptableVariableType;
         }
     }
 }
