@@ -12,6 +12,9 @@ namespace OpenUtility.Data
         public Type TypeOfComponentToBindTo { get; }
         public Type TypeOfValue { get; }
         
+        /// <summary>
+        /// A display name for the binding option in the inspector. Should be unique compered to other display names.
+        /// </summary>
         public string DisplayName { get; set; }
 
         public Type TypeOfScriptableVariable

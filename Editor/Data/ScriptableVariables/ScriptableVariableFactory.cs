@@ -44,6 +44,13 @@ namespace OpenUtility.Data.Editor
                 _callback?.Invoke(asset, _target, _propertyName);
             }
         }
+
+        public static void AssignStringVariableForInputField(TMP_InputField inputField, Object variableAsset)
+        {
+            var scriptableString = (ScriptableString)variableAsset;
+                
+            UnityEventTools.AddPersistentListener(inputField.onValueChanged, scriptableString.SetValue);
+        }
         
         public static void CreateAndAssignStringVariableForInputField(TMP_InputField inputField, Type variableType)
         {
@@ -58,10 +65,23 @@ namespace OpenUtility.Data.Editor
             
             void OnAssetCreated(Object asset, Object target, string propertyName)
             {
-                var scriptableString = (ScriptableString)asset;
-                
-                UnityEventTools.AddPersistentListener(inputField.onValueChanged, scriptableString.SetValue);
+                AssignStringVariableForInputField(inputField, asset);
             }
+        }
+
+        public static void AssignIntVariableForInputField(TMP_InputField inputField, Object variableAsset, Type bindingType)
+        {
+            var scriptableInt = (ScriptableInt)variableAsset;
+            var scriptableIntBinder = (TMP_InputField_ScriptableIntBinding)inputField.gameObject.AddComponent(bindingType);
+            var serializedAdapter = new SerializedObject(scriptableIntBinder);
+            var variableProperty = serializedAdapter.FindProperty("_variable");
+
+            variableProperty.objectReferenceValue = scriptableInt;
+
+            serializedAdapter.ApplyModifiedProperties();
+            serializedAdapter.Dispose();
+                
+            UnityEventTools.AddPersistentListener(inputField.onValueChanged, scriptableIntBinder.SetValue);
         }
         
         public static void CreateAndAssignIntVariableForInputField(TMP_InputField inputField, Type variableType, Type bindingType)
@@ -78,18 +98,23 @@ namespace OpenUtility.Data.Editor
             
             void OnAssetCreated(Object asset, Object target, string propertyName)
             {
-                var scriptableInt = (ScriptableInt)asset;
-                var scriptableIntBinder = (TMP_InputField_ScriptableIntBinding)((TMP_InputField)target).gameObject.AddComponent(bindingType);
-                var serializedAdapter = new SerializedObject(scriptableIntBinder);
-                var variableProperty = serializedAdapter.FindProperty("_variable");
-
-                variableProperty.objectReferenceValue = scriptableInt;
-
-                serializedAdapter.ApplyModifiedProperties();
-                serializedAdapter.Dispose();
-                
-                UnityEventTools.AddPersistentListener(inputField.onValueChanged, scriptableIntBinder.SetValue);
+                AssignIntVariableForInputField((TMP_InputField)target, asset, bindingType);
             }
+        }
+
+        public static void AssignFloatVariableForInputField(TMP_InputField inputField, Object variableAsset, Type bindingType)
+        {
+            var scriptableFloat = (ScriptableFloat)variableAsset;
+            var scriptableFloatBinding = (TMP_InputField_ScriptableFloatBinding)inputField.gameObject.AddComponent(bindingType);
+            var serializedAdapter = new SerializedObject(scriptableFloatBinding);
+            var variableProperty = serializedAdapter.FindProperty("_variable");
+
+            variableProperty.objectReferenceValue = scriptableFloat;
+
+            serializedAdapter.ApplyModifiedProperties();
+            serializedAdapter.Dispose();
+                
+            UnityEventTools.AddPersistentListener(inputField.onValueChanged, scriptableFloatBinding.SetValue);
         }
         
         public static void CreateAndAssignFloatVariableForInputField(TMP_InputField inputField, Type variableType, Type bindingType)
@@ -106,17 +131,7 @@ namespace OpenUtility.Data.Editor
             
             void OnAssetCreated(Object asset, Object target, string propertyName)
             {
-                var scriptableFloat = (ScriptableFloat)asset;
-                var scriptableFloatBinding = (TMP_InputField_ScriptableFloatBinding)((TMP_InputField)target).gameObject.AddComponent(bindingType);
-                var serializedAdapter = new SerializedObject(scriptableFloatBinding);
-                var variableProperty = serializedAdapter.FindProperty("_variable");
-
-                variableProperty.objectReferenceValue = scriptableFloat;
-
-                serializedAdapter.ApplyModifiedProperties();
-                serializedAdapter.Dispose();
-                
-                UnityEventTools.AddPersistentListener(inputField.onValueChanged, scriptableFloatBinding.SetValue);
+                AssignFloatVariableForInputField((TMP_InputField)target, asset, bindingType);
             }
         }
         

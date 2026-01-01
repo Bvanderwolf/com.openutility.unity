@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace OpenUtility.Data
 {
-    [ScriptableVariableBinder(typeof(TMP_InputField), typeof(float), DisplayName = "Default Binding")]
+    [ScriptableVariableBinder(typeof(TMP_InputField), typeof(float), DisplayName = "Default Float Binding")]
     public class TMP_InputField_ScriptableFloatBinding : MonoBehaviour
     {
         [SerializeField]

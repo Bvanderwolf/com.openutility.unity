@@ -9,6 +9,7 @@ using TMPro.EditorUtilities;
 using UnityEditor;
 using UnityEditor.Callbacks;
 using UnityEngine;
+using Object = UnityEngine.Object;
 
 namespace OpenUtility.Data.Editor
 {
@@ -27,19 +28,93 @@ namespace OpenUtility.Data.Editor
                 this.bindingType = bindingType;
             }
         }
+
+        private struct SelectionData
+        {
+            public Object variableAsset;
+            public Type bindingType;
+            
+            public SelectionData(Object asset, Type bindingType)
+            {
+                this.variableAsset = asset;
+                this.bindingType = bindingType;
+            }
+        }
         
         private static readonly Dictionary<string, BindingData> _bindingDataCache = new Dictionary<string, BindingData>();
+        private static readonly Dictionary<string, SelectionData> _selectionDataCache = new Dictionary<string, SelectionData>();
+        
+        private static Type[] SupportedVariableTypes { get; } = new Type[]
+        {
+            typeof(ScriptableString),
+            typeof(ScriptableInt),
+            typeof(ScriptableFloat)
+        };
 
         [DidReloadScripts]
-        private static void ClearBindingDataCache() => _bindingDataCache.Clear();
+        private static void ClearBindingDataCache()
+        {
+            _bindingDataCache.Clear();
+            _selectionDataCache.Clear();
+        }
         
-        private static UnityEngine.Object[] GetScriptableVariableAssets() // TODO: implementeren voor selecteren van bestaande variabelen
+        private static Dictionary<Type, List<Object>> GetScriptableVariableAssetData() 
         {
             var guids = AssetDatabase.FindAssets("t:ScriptableVariable`1");
             if (guids.Length == 0)
                 return (null);
 
-            return null;
+            var assets = guids.Select(AssetDatabase.GUIDToAssetPath).Select(AssetDatabase.LoadAssetAtPath<Object>);
+            var dictionary = new Dictionary<Type, List<Object>>();
+
+            foreach (var asset in assets)
+            {
+                var typeOfAsset = asset.GetType();
+                if (!ArrayUtility.Contains(SupportedVariableTypes, typeOfAsset))
+                    continue;
+                
+                var attribute = typeOfAsset.GetCustomAttribute<ScriptableVariableBinder>();
+                if (attribute != null && attribute.TypeOfComponentToBindTo != typeof(TMP_InputField))
+                    continue;
+                
+                if (!dictionary.TryGetValue(typeOfAsset, out List<Object> list))
+                {
+                    list = new List<Object>();
+                    dictionary[typeOfAsset] = list;
+                }
+                
+                var assignableTypes = dictionary.Keys.Where(t => t.IsAssignableFrom(typeOfAsset));
+                foreach (var type in assignableTypes)
+                    dictionary[type].Add(asset);
+            }
+
+            return (dictionary);
+        }
+        
+        private static Dictionary<string, SelectionData> GetSelectableItems()
+        {
+            if (_selectionDataCache.Count != 0)
+                return (_selectionDataCache);
+
+            Dictionary<string, BindingData> bindingData = GetBindingData();
+            Dictionary<Type, List<Object>> assetData = GetScriptableVariableAssetData();
+            foreach (KeyValuePair<string, BindingData> dataPoint in bindingData)
+            {
+                var nameOfOption = dataPoint.Key;
+                var data = dataPoint.Value;
+                
+                if (!assetData.TryGetValue(data.variableType, out List<Object> assets))
+                    continue;
+                
+                foreach (Object asset in assets)
+                {
+                    string nameOfSubOption = asset.name;
+                    string path = $"{nameOfOption}/{nameOfSubOption}";
+                    _selectionDataCache.Add(path, new SelectionData(asset, data.bindingType));
+                }
+            }
+
+            return (_selectionDataCache);
         }
 
         private static Dictionary<string, BindingData> GetBindingData()
@@ -87,18 +162,103 @@ namespace OpenUtility.Data.Editor
             EditorGUILayout.LabelField("Scriptable Variables", new GUIStyle(EditorStyles.boldLabel) { fontSize = 12 });
             
             GUIContent content = new GUIContent("Bind Scriptable Variable");
-            GUIStyle style = new GUIStyle(GUI.skin.button) { fontSize = 11 };
-            Rect rect = GUILayoutUtility.GetRect(content, style);
-            rect.height *= 1.25f;
+            GUIStyle selectButtonStyle = new GUIStyle(GUI.skin.button) { fontSize = 11 };
+            Rect selectRect = GUILayoutUtility.GetRect(content, selectButtonStyle);
+            selectRect.height = 20;
+            selectRect.width -= 24;
             
-            if (GUI.Button(rect, content, style))
-                OnBindScriptableVariableButtonClicked(rect, content);
+            if (GUI.Button(selectRect, content, selectButtonStyle))
+                OnSelectButtonClicked(selectRect);
+            
+            Rect createRect = new Rect(selectRect.xMax + 4, selectRect.y, 20, selectRect.height);
+            GUIContent buttonContent = EditorGUIUtility.IconContent("Toolbar Plus");
+            GUIStyle buttonStyle = new GUIStyle(GUI.skin.button)
+            {
+                padding = new RectOffset(0, 0, 0, 0),
+                margin = new RectOffset(0, 0, 0, 0),
+                alignment = TextAnchor.MiddleCenter
+            };  
+            
+            if (GUI.Button(createRect, buttonContent, buttonStyle))
+                OnCreateButtonClicked(selectRect);
         }
 
-        private void OnBindScriptableVariableButtonClicked(Rect rect, GUIContent content)
+        private void OnSelectButtonClicked(Rect rect)
+        {
+            Dictionary<string, SelectionData> selectionData = GetSelectableItems();
+            ExtendedDropdownBuilder builder = new ExtendedDropdownBuilder("Select Binding", rect);
+
+            var stringItems = selectionData.Where(bd => bd.Key.StartsWith("String/")).ToArray();
+            builder.StartIndent("String");
+            for (int i = 0; i < stringItems.Length; i++)
+            {
+                var item = stringItems[i];
+                var path = item.Key;
+                var itemName = path.Substring(path.IndexOf('/') + 1);
+                
+                builder.AddItem(itemName, false, item.Value, OnSelectStringVariableBinding);
+            }
+            builder.EndIndent();
+            
+            var intItems = selectionData.Where(bd => bd.Key.StartsWith("Int32/")).ToArray();
+            builder.StartIndent("Int");
+            for (int i = 0; i < intItems.Length; i++)
+            {
+                var item = intItems[i];
+                var path = item.Key;
+                var itemName = path.Substring(path.IndexOf('/') + 1);
+                
+                builder.AddItem(itemName, false, item.Value, OnSelectIntegerVariableBinding);
+            }
+            builder.EndIndent();
+            
+            var floatItems = selectionData.Where(bd => bd.Key.StartsWith("Single/")).ToArray();
+            builder.StartIndent("Float");
+            for (int i = 0; i < floatItems.Length; i++)
+            {
+                var item = floatItems[i];
+                var path = item.Key;
+                var itemName = path.Substring(path.IndexOf('/') + 1);
+                
+                builder.AddItem(itemName, false, item.Value, OnSelectFloatVariableBinding);
+            }
+            builder.EndIndent();
+            
+            int maxItemsPerColumn = Mathf.Max(stringItems.Length, intItems.Length, floatItems.Length);
+            float minimumHeight = (maxItemsPerColumn + 3) * 20f;
+            Vector2 minimumSize = new Vector2(rect.width, minimumHeight);
+            builder.AddMinimumSize(minimumSize).GetResult().Show();
+        }
+        
+        private void OnSelectStringVariableBinding(object data)
+        {
+            SelectionData selectionData = (SelectionData)data;
+            Object variableAsset = selectionData.variableAsset;
+            TMP_InputField inputField = (TMP_InputField)target;
+            
+            ScriptableVariableFactory.AssignStringVariableForInputField(inputField, variableAsset);
+        }
+        
+        private void OnSelectIntegerVariableBinding(object data)
+        {
+            SelectionData selectionData = (SelectionData)data;
+            TMP_InputField inputField = (TMP_InputField)target;
+            
+            ScriptableVariableFactory.AssignIntVariableForInputField(inputField, selectionData.variableAsset, selectionData.bindingType);
+        }
+
+        private void OnSelectFloatVariableBinding(object data)
+        {
+            SelectionData selectionData = (SelectionData)data;
+            TMP_InputField inputField = (TMP_InputField)target;
+            
+            ScriptableVariableFactory.AssignFloatVariableForInputField(inputField, selectionData.variableAsset, selectionData.bindingType);
+        }
+
+        private void OnCreateButtonClicked(Rect rect)
         {
             Dictionary<string, BindingData> bindingData = GetBindingData();
-            ExtendedDropdownBuilder builder = new ExtendedDropdownBuilder(content.text, rect);
+            ExtendedDropdownBuilder builder = new ExtendedDropdownBuilder("Create Binding", rect);
 
             var stringItems = bindingData.Where(bd => bd.Key.StartsWith("String/")).ToArray();
             builder.StartIndent("String");
@@ -107,7 +267,7 @@ namespace OpenUtility.Data.Editor
                 var item = stringItems[i];
                 var itemName = item.Key.Split('/')[1];
                 
-                builder.AddItem(itemName, false, item.Value, OnStringVariableSelected);
+                builder.AddItem(itemName, false, item.Value, OnCreateStringVariableBinding);
             }
             builder.EndIndent();
             
@@ -118,7 +278,7 @@ namespace OpenUtility.Data.Editor
                 var item = intItems[i];
                 var itemName = item.Key.Split('/')[1];
                 
-                builder.AddItem(itemName, false, item.Value, OnIntegerVariableSelected);
+                builder.AddItem(itemName, false, item.Value, OnCreateIntegerVariableBinding);
             }
             builder.EndIndent();
             
@@ -129,14 +289,17 @@ namespace OpenUtility.Data.Editor
                 var item = floatItems[i];
                 var itemName = item.Key.Split('/')[1];
                 
-                builder.AddItem(itemName, false, item.Value, OnFloatVariableSelected);
+                builder.AddItem(itemName, false, item.Value, OnCreateFloatVariableBinding);
             }
             builder.EndIndent();
-            
-            builder.GetResult().Show();
+
+            int maxItemsPerColumn = Mathf.Max(3, stringItems.Length, intItems.Length, floatItems.Length);
+            float minimumHeight = (maxItemsPerColumn + 3) * 20f;
+            Vector2 minimumSize = new Vector2(rect.width, minimumHeight);
+            builder.AddMinimumSize(minimumSize).GetResult().Show();
         }
 
-        private void OnStringVariableSelected(object data)
+        private void OnCreateStringVariableBinding(object data)
         {
             BindingData bindingData = (BindingData)data;
             Type variableType = bindingData.variableType;
@@ -145,7 +308,7 @@ namespace OpenUtility.Data.Editor
             ScriptableVariableFactory.CreateAndAssignStringVariableForInputField(inputField, variableType);
         }
         
-        private void OnIntegerVariableSelected(object data)
+        private void OnCreateIntegerVariableBinding(object data)
         {
             BindingData bindingData = (BindingData)data;
             TMP_InputField inputField = (TMP_InputField)target;
@@ -153,7 +316,7 @@ namespace OpenUtility.Data.Editor
             ScriptableVariableFactory.CreateAndAssignIntVariableForInputField(inputField, bindingData.variableType, bindingData.bindingType);
         }
 
-        private void OnFloatVariableSelected(object data)
+        private void OnCreateFloatVariableBinding(object data)
         {
             BindingData bindingData = (BindingData)data;
             TMP_InputField inputField = (TMP_InputField)target;
