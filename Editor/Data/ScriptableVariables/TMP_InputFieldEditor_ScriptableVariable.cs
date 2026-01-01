@@ -34,9 +34,9 @@ namespace OpenUtility.Data.Editor
             public Object variableAsset;
             public Type bindingType;
             
-            public SelectionData(Object asset, Type bindingType)
+            public SelectionData(Object variableAsset, Type bindingType)
             {
-                this.variableAsset = asset;
+                this.variableAsset = variableAsset;
                 this.bindingType = bindingType;
             }
         }
@@ -161,18 +161,18 @@ namespace OpenUtility.Data.Editor
             EditorGUILayout.Space();
             EditorGUILayout.LabelField("Scriptable Variables", new GUIStyle(EditorStyles.boldLabel) { fontSize = 12 });
             
-            GUIContent content = new GUIContent("Bind Scriptable Variable");
-            GUIStyle selectButtonStyle = new GUIStyle(GUI.skin.button) { fontSize = 11 };
-            Rect selectRect = GUILayoutUtility.GetRect(content, selectButtonStyle);
+            var content = new GUIContent("Bind Scriptable Variable");
+            var selectButtonStyle = new GUIStyle(GUI.skin.button) { fontSize = 11 };
+            var selectRect = GUILayoutUtility.GetRect(content, selectButtonStyle);
             selectRect.height = 20;
             selectRect.width -= 24;
             
             if (GUI.Button(selectRect, content, selectButtonStyle))
                 OnSelectButtonClicked(selectRect);
             
-            Rect createRect = new Rect(selectRect.xMax + 4, selectRect.y, 20, selectRect.height);
-            GUIContent buttonContent = EditorGUIUtility.IconContent("Toolbar Plus");
-            GUIStyle buttonStyle = new GUIStyle(GUI.skin.button)
+            var createRect = new Rect(selectRect.xMax + 4, selectRect.y, 20, selectRect.height);
+            var buttonContent = EditorGUIUtility.IconContent("Toolbar Plus");
+            var buttonStyle = new GUIStyle(GUI.skin.button)
             {
                 padding = new RectOffset(0, 0, 0, 0),
                 margin = new RectOffset(0, 0, 0, 0),
@@ -224,33 +224,33 @@ namespace OpenUtility.Data.Editor
             }
             builder.EndIndent();
             
-            int maxItemsPerColumn = Mathf.Max(stringItems.Length, intItems.Length, floatItems.Length);
-            float minimumHeight = (maxItemsPerColumn + 3) * 20f;
-            Vector2 minimumSize = new Vector2(rect.width, minimumHeight);
+            var maxItemsPerColumn = Mathf.Max(stringItems.Length, intItems.Length, floatItems.Length);
+            var minimumHeight = (maxItemsPerColumn + 3) * 20f;
+            var minimumSize = new Vector2(rect.width, minimumHeight);
             builder.AddMinimumSize(minimumSize).GetResult().Show();
         }
         
         private void OnSelectStringVariableBinding(object data)
         {
-            SelectionData selectionData = (SelectionData)data;
-            Object variableAsset = selectionData.variableAsset;
-            TMP_InputField inputField = (TMP_InputField)target;
+            var selectionData = (SelectionData)data;
+            var variableAsset = selectionData.variableAsset;
+            var inputField = (TMP_InputField)target;
             
             ScriptableVariableFactory.AssignStringVariableForInputField(inputField, variableAsset);
         }
         
         private void OnSelectIntegerVariableBinding(object data)
         {
-            SelectionData selectionData = (SelectionData)data;
-            TMP_InputField inputField = (TMP_InputField)target;
+            var selectionData = (SelectionData)data;
+            var inputField = (TMP_InputField)target;
             
             ScriptableVariableFactory.AssignIntVariableForInputField(inputField, selectionData.variableAsset, selectionData.bindingType);
         }
 
         private void OnSelectFloatVariableBinding(object data)
         {
-            SelectionData selectionData = (SelectionData)data;
-            TMP_InputField inputField = (TMP_InputField)target;
+            var selectionData = (SelectionData)data;
+            var inputField = (TMP_InputField)target;
             
             ScriptableVariableFactory.AssignFloatVariableForInputField(inputField, selectionData.variableAsset, selectionData.bindingType);
         }
@@ -293,33 +293,33 @@ namespace OpenUtility.Data.Editor
             }
             builder.EndIndent();
 
-            int maxItemsPerColumn = Mathf.Max(3, stringItems.Length, intItems.Length, floatItems.Length);
-            float minimumHeight = (maxItemsPerColumn + 3) * 20f;
-            Vector2 minimumSize = new Vector2(rect.width, minimumHeight);
+            var maxItemsPerColumn = Mathf.Max(3, stringItems.Length, intItems.Length, floatItems.Length);
+            var minimumHeight = (maxItemsPerColumn + 3) * 20f;
+            var minimumSize = new Vector2(rect.width, minimumHeight);
             builder.AddMinimumSize(minimumSize).GetResult().Show();
         }
 
         private void OnCreateStringVariableBinding(object data)
         {
-            BindingData bindingData = (BindingData)data;
-            Type variableType = bindingData.variableType;
-            TMP_InputField inputField = (TMP_InputField)target;
+            var bindingData = (BindingData)data;
+            var variableType = bindingData.variableType;
+            var inputField = (TMP_InputField)target;
             
             ScriptableVariableFactory.CreateAndAssignStringVariableForInputField(inputField, variableType);
         }
         
         private void OnCreateIntegerVariableBinding(object data)
         {
-            BindingData bindingData = (BindingData)data;
-            TMP_InputField inputField = (TMP_InputField)target;
+            var bindingData = (BindingData)data;
+            var inputField = (TMP_InputField)target;
             
             ScriptableVariableFactory.CreateAndAssignIntVariableForInputField(inputField, bindingData.variableType, bindingData.bindingType);
         }
 
         private void OnCreateFloatVariableBinding(object data)
         {
-            BindingData bindingData = (BindingData)data;
-            TMP_InputField inputField = (TMP_InputField)target;
+            var bindingData = (BindingData)data;
+            var inputField = (TMP_InputField)target;
             
             ScriptableVariableFactory.CreateAndAssignFloatVariableForInputField(inputField, bindingData.variableType, bindingData.bindingType);
         }
