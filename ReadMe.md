@@ -23,8 +23,11 @@ This package requires the following Unity official packages to function correctl
 
 ### Via Unity Package Manager (Git URL)
 1. Open the **Package Manager** (`Window > Package Manager`).
-2. Click the **+** icon > **"Add package from git URL..."**.
-3. Paste: `https://github.com/Bvanderwolf/com.openutility.unity.git`
+2. Click the **+** icon > **"Install package from git URL..."**.
+3. Paste: 
+```
+https://github.com/Bvanderwolf/com.openutility.unity.git
+```
 
 ---
 ## 🚀 Scriptable Variables for Unity
@@ -38,11 +41,12 @@ The core strength of this system is its ability to decouple data from specific s
 - 🔗 Clean Decoupling – Scripts talk to data containers rather than directly to each other.
 - 🛠️ Runtime Debugging – Modify values in the Inspector during play mode and see changes reflected instantly.
 - 🔔 Event-Driven – Built-in UnityEvents allow UI elements or logic to react to data changes automatically.
-- ⚙️ Highly Extensible – Easily create custom variables for any data type (Int, Vector3, or even custom data structures).
+- ⚙️ Highly Extensible – Easily create custom variables for any data type (Quaternion, Vector3, or even custom data structures).
 - ⚡ One-Click Creation – Create new variables instantly using the plus button in the inspector.
+- 🔗 Data binding - Keep your UI and logic in perfect sync without a single line of "glue code" using ScriptableObjects as the bridge between your logic and your UI.
 
 #### 🛠️ How It Works
-##### 1. The Foundation (Abstraction)
+##### 1. The Foundation
 The system is built on a generic base class, ensuring a consistent API across all your variable types.
 
 ```csharp
@@ -85,16 +89,6 @@ public class DifficultyManager : MonoBehaviour
 }
 ```
 
-#### 📊 Comparison Table
-
-| Feature | Local Variable | Scriptable Variable |
-| :--- | :---: | :---: |
-| **Scene Persistence** | ❌ No | ✅ Yes |
-| **Inspector Debugging** | ⚠️ Local Only | ✅ Global Asset |
-| **UI Decoupling** | ❌ Hard-coded | ✅ Event-driven |
-| **Memory Overhead** | Minimal | Minimal |
-| **Architecture** | Spagetti-prone | Modular & Clean |
-
 #### 🚀 Extension
 Need a new type? Inherit from the base:
 
@@ -124,7 +118,7 @@ Instead of hard-coding references between UI elements and scripts, you use Scrip
 component's inspector, scroll down, and either press 'bind scriptable variable' to bind an existing variable or the '+' button to create and
 bind a new one.
 
-##### 🚀 Direct Binding
+##### 🚀 Creating a direct binding
 If your variable type is directly compatible with the UI element, you can use the [ScriptableVariableBinder] attribute. For example, the ScriptableFloat can be bound to a standard Unity Slider out of the box:
 
 ```csharp
@@ -136,8 +130,8 @@ public class ScriptableFloat : ScriptableVariable<float>
 }
 ```
 
-##### 🛠️ Custom Type Bindings
-Sometimes the UI data type doesn't match your variable type (e.g., a Slider outputs a float, but you want to save it as an int). No problem! You can easily create a custom binding implementation (choosing from a select list of types (see **binding types table**)):
+##### 🛠️ Creating custom bindings
+Sometimes the UI data type doesn't match your variable type (e.g., a Slider outputs a float, but you want to save it as an int). No problem! You can easily select or create a custom binding implementation (choosing from a select list of types (see **binding types table**)):
 
 ```csharp
 [ScriptableVariableBinder(typeof(Slider), typeof(int), DisplayName = "Default Int Binding")]
