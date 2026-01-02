@@ -6,6 +6,13 @@ using UnityEngine;
 
 namespace OpenUtility.Data.Addressable.Editor
 {
+    /*
+     * Properties can be referenced in the addressable profile using the following syntax:
+     * [OpenUtility.Data.Addressable.Editor.AddressableBuildProperties.buildTarget]
+     * [OpenUtility.Data.Addressable.Editor.AddressableBuildProperties.storageUrl]
+     * [OpenUtility.Data.Addressable.Editor.AddressableBuildProperties.storageName]
+     */
+    
     /// <summary>
     /// Holds properties used for the addressable profile to build the asset bundles with the correct url's.
     /// </summary>
