@@ -1,3 +1,5 @@
+#if UNITY_EDITOR
+
 using System;
 using Object = UnityEngine.Object;
 
@@ -27,3 +29,5 @@ namespace OpenUtility.Data.Editor
         }
     }
 }
+
+#endif
