@@ -120,7 +120,7 @@ public class ClampableFloatVariable : ScriptableFloat
 Keep your UI and logic in perfect sync without a single line of "glue code" in your features. This package facilitates a robust Data Binding system using ScriptableObjects as the bridge between your logic and your UI.
 
 ##### 💡 The Core Concept
-Instead of hard-coding references between UI elements and scripts, you use ScriptableVariables. These are assets in your project that hold data. With a simple MonoBehaviour binder script, you can link a UI component (like a Slider) directly to one of these assets. Go to your ui
+Instead of hard-coding references between UI elements and scripts, you use ScriptableVariables. Go to your ui
 component's inspector, scroll down, and either press 'bind scriptable variable' to bind an existing variable or the '+' button to create and
 bind a new one.
 
