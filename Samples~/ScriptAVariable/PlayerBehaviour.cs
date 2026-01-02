@@ -1,6 +1,7 @@
 using OpenUtility.Data;
 using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace OpenUtility.Samples.Data
 {
@@ -19,12 +20,25 @@ namespace OpenUtility.Samples.Data
         [SerializeField]
         private ScriptableBool _shiftToSprint;
 
+        [Header("Theme")]
+        [SerializeField]
+        private ScriptableFloat _alpha;
+
+        [SerializeField]
+        private ScriptableInt _shadow;
+
         [Header("UI Elements")]
         [SerializeField]
         private TMP_Text _nameRenderer;
 
         [SerializeField]
         private RectTransform _playingArea;
+        
+        [SerializeField]
+        private Image _backgroundImage;
+
+        [SerializeField]
+        private Image _playerImage;
 
         private int _startingHealth;
 
@@ -38,12 +52,16 @@ namespace OpenUtility.Samples.Data
         {
             _name.ValueChanged.AddListener(OnNameValueChanged);
             _health.ValueChanged.AddListener(OnHealthValueChanged);
+            _alpha.ValueChanged.AddListener(OnAlphaValueChanged);
+            _shadow.ValueChanged.AddListener(OnShadowValueChanged);
         }
 
         private void OnDisable()
         {
             _name.ValueChanged.RemoveListener(OnNameValueChanged);
             _health.ValueChanged.RemoveListener(OnHealthValueChanged);
+            _alpha.ValueChanged.RemoveListener(OnAlphaValueChanged);
+            _shadow.ValueChanged.RemoveListener(OnShadowValueChanged);
         }
 
         private void Update()
@@ -80,6 +98,24 @@ namespace OpenUtility.Samples.Data
         {
             string currentName = _name.GetValue();
             _nameRenderer.text = $"[{currentName}][{newValue}/{_startingHealth}]";
+        }
+        
+        private void OnShadowValueChanged(int newValue)
+        {
+            Color color = _backgroundImage.color;
+            color.r = (255 - newValue) / 255f;
+            color.g = (255 - newValue) / 255f;
+            color.b = (255 - newValue) / 255f;
+            
+            _backgroundImage.color = color;
+        }
+
+        private void OnAlphaValueChanged(float newValue)
+        {
+            Color color = _playerImage.color;
+            color.a = newValue;
+            
+            _playerImage.color = color;
         }
 
         private static bool IsFullyContainedBy(RectTransform rect1, RectTransform containerRect)
