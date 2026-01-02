@@ -42,12 +42,6 @@ namespace OpenUtility.Samples.Data
 
         private int _startingHealth;
 
-        private void Awake()
-        {
-            _startingHealth = _health.GetValue();
-            OnNameValueChanged(_name.GetValue());
-        }
-
         private void OnEnable()
         {
             _name.ValueChanged.AddListener(OnNameValueChanged);
@@ -62,6 +56,12 @@ namespace OpenUtility.Samples.Data
             _health.ValueChanged.RemoveListener(OnHealthValueChanged);
             _alpha.ValueChanged.RemoveListener(OnAlphaValueChanged);
             _shadow.ValueChanged.RemoveListener(OnShadowValueChanged);
+        }
+        
+        private void Start()
+        {
+            _startingHealth = _health.GetValue();
+            OnNameValueChanged(_name.GetValue());
         }
 
         private void Update()
