@@ -128,6 +128,7 @@ namespace OpenUtility.Data.Addressable
         /// <summary>
         /// Retrieves the download size of the content of referenced by given keys. Use the catalog references received
         /// by the <see cref="DownloadContentCatalog"/> method. Provides the download size in bytes.
+        /// Note: selective downloading only works if you create seperate addressable groups for the content you want to download separately.
         /// </summary>
         public static void GetDownloadSize(IEnumerable keys, Action<DataRequestResult<long?>> callback)
         {
@@ -166,6 +167,7 @@ namespace OpenUtility.Data.Addressable
         /// Downloads the content referenced by the given keys. Use the catalog references received by the <see cref="DownloadContentCatalog"/>
         /// method. Provides the download operation handle. Make sure to check the "IsDone" property of the operation handle before using
         /// any of its other properties as this handle will be released after completion.
+        /// Note: selective downloading only works if you create seperate addressable groups for the content you want to download separately.
         /// </summary>
         public static AsyncOperationHandle DownloadContent(IEnumerable keys, Action<RequestResult> callback = null)
         {

@@ -236,6 +236,7 @@ namespace OpenUtility.Data.Addressable
         /// <summary>
         /// Downloads content for the specified keys. Use the GetLoadedCatalogKeys() method to get all keys in the loaded catalogs.
         /// Returns false if no catalogs are loaded.
+        /// Note: selective downloading only works if you create seperate addressable groups for the content you want to download separately.
         /// </summary>
         public static bool DownloadContent(IEnumerable keys, Action<RequestResult> resultCallback, Action<DownloadStatus> statusCallback = null)
         {
