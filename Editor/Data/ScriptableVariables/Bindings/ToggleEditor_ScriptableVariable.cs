@@ -37,6 +37,8 @@ namespace OpenUtility.Data.Editor
             var guids = AssetDatabase.FindAssets("t:ScriptableVariable`1");
             if (guids.Length == 0)
                 return (null);
+            
+            Dictionary<string, BindingData> bindingData = GetBindingData();
 
             var assets = guids.Select(AssetDatabase.GUIDToAssetPath).Select(AssetDatabase.LoadAssetAtPath<Object>);
             var dictionary = new Dictionary<Type, List<Object>>();
@@ -47,8 +49,7 @@ namespace OpenUtility.Data.Editor
                 if (!ArrayUtility.Contains(SupportedVariableTypes, typeOfAsset))
                     continue;
                 
-                var attribute = typeOfAsset.GetCustomAttribute<ScriptableVariableBinder>();
-                if (attribute != null && attribute.TypeOfComponentToBindTo != typeof(Toggle))
+                if (bindingData.All(bd => bd.Value.variableType != typeOfAsset))
                     continue;
                 
                 if (!dictionary.TryGetValue(typeOfAsset, out List<Object> list))
@@ -119,7 +120,6 @@ namespace OpenUtility.Data.Editor
                 }
                 
                 string nameOfOption = CultureInfo.CurrentCulture.TextInfo.ToTitleCase(valueType.Name);
-                Debug.Log(nameOfOption);
                 string nameOfSubOption = attribute.DisplayName ?? bindingType?.Name ?? variableType.Name;
                 string path = $"{nameOfOption}/{nameOfSubOption}";
                 

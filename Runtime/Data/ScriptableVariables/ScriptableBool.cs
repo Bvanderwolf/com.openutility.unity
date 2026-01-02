@@ -11,6 +11,7 @@ namespace OpenUtility.Data
         [Serializable]
         public class ChangedEvent : UnityEngine.Events.UnityEvent<bool> { }
 
+        [Header("State")]
         [SerializeField]
         private bool _value;
 

@@ -25,10 +25,7 @@ namespace OpenUtility.Data.Pooling.Editor
             if (_scriptablePoolBaseType == null)
                 return;
 
-            _poolProperty = _scriptablePoolBaseType.GetProperty(
-                "pool",
-                BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);
-
+            _poolProperty = _scriptablePoolBaseType.GetProperty("pool", BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);
             _maxSize = serializedObject.FindProperty("_maxSize");
 
             EditorApplication.update += RepaintWhilePlaying;

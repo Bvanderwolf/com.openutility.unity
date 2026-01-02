@@ -39,6 +39,8 @@ namespace OpenUtility.Data.Editor
             if (guids.Length == 0)
                 return (null);
 
+            Dictionary<string, BindingData> bindingData = GetBindingData();
+            
             var assets = guids.Select(AssetDatabase.GUIDToAssetPath).Select(AssetDatabase.LoadAssetAtPath<Object>);
             var dictionary = new Dictionary<Type, List<Object>>();
 
@@ -48,8 +50,7 @@ namespace OpenUtility.Data.Editor
                 if (!ArrayUtility.Contains(SupportedVariableTypes, typeOfAsset))
                     continue;
                 
-                var attribute = typeOfAsset.GetCustomAttribute<ScriptableVariableBinder>();
-                if (attribute != null && attribute.TypeOfComponentToBindTo != typeof(Slider))
+                if (bindingData.All(bd => bd.Value.variableType != typeOfAsset))
                     continue;
                 
                 if (!dictionary.TryGetValue(typeOfAsset, out List<Object> list))

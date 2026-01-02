@@ -9,6 +9,7 @@ namespace OpenUtility.Data
         [Serializable]
         public class ChangedEvent : UnityEngine.Events.UnityEvent<int> { }
 
+        [Header("State")]
         [SerializeField]
         private int _value;
 

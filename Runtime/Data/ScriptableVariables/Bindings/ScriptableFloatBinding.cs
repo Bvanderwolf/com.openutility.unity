@@ -11,7 +11,9 @@ namespace OpenUtility.Data
     {
         [SerializeField]
         private ScriptableFloat _variable;
-
+        
+        protected ScriptableFloat variable => _variable;
+        
         public abstract void SetValue(TElementData newValue);
     }
 }

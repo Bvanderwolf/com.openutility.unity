@@ -11,6 +11,7 @@ namespace OpenUtility.Data
         [Serializable]
         public class ChangedEvent : UnityEngine.Events.UnityEvent<float> { }
 
+        [Header("State")]
         [SerializeField]
         private float _value;
         

@@ -154,7 +154,7 @@ namespace OpenUtility.Data.Editor
         public static void AssignIntVariableForInputField(TMP_InputField inputField, Object variableAsset, Type bindingType)
         {
             var scriptableInt = (ScriptableInt)variableAsset;
-            var scriptableIntBinder = (TMP_InputField_ScriptableIntBinding)inputField.gameObject.AddComponent(bindingType);
+            var scriptableIntBinder = (InputFieldIntBinding)inputField.gameObject.AddComponent(bindingType);
             var serializedBinder = new SerializedObject(scriptableIntBinder);
             var variableProperty = serializedBinder.FindProperty("_variable");
 
@@ -169,7 +169,7 @@ namespace OpenUtility.Data.Editor
         public static void CreateAndAssignIntVariableForInputField(TMP_InputField inputField, Type variableType, Type bindingType)
         {
             ThrowIf.NotDerivedFrom<ScriptableInt>(variableType);
-            ThrowIf.NotDerivedFrom<TMP_InputField_ScriptableIntBinding>(bindingType);
+            ThrowIf.NotDerivedFrom<InputFieldIntBinding>(bindingType);
             
             var serializedObject = new SerializedObject(inputField);
             var valueChangedProperty = serializedObject.FindProperty("m_OnValueChanged");
@@ -187,7 +187,7 @@ namespace OpenUtility.Data.Editor
         public static void AssignFloatVariableForInputField(TMP_InputField inputField, Object variableAsset, Type bindingType)
         {
             var scriptableFloat = (ScriptableFloat)variableAsset;
-            var scriptableFloatBinding = (TMP_InputField_ScriptableFloatBinding)inputField.gameObject.AddComponent(bindingType);
+            var scriptableFloatBinding = (InputFieldFloatBinding)inputField.gameObject.AddComponent(bindingType);
             var serializedBinder = new SerializedObject(scriptableFloatBinding);
             var variableProperty = serializedBinder.FindProperty("_variable");
 
@@ -202,7 +202,7 @@ namespace OpenUtility.Data.Editor
         public static void CreateAndAssignFloatVariableForInputField(TMP_InputField inputField, Type variableType, Type bindingType)
         {
             ThrowIf.NotDerivedFrom<ScriptableFloat>(variableType);
-            ThrowIf.NotDerivedFrom<TMP_InputField_ScriptableFloatBinding>(bindingType);
+            ThrowIf.NotDerivedFrom<InputFieldFloatBinding>(bindingType);
             
             var serializedObject = new SerializedObject(inputField);
             var valueChangedProperty = serializedObject.FindProperty("m_OnValueChanged");
