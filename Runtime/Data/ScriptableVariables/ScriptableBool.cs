@@ -1,8 +1,10 @@
 using System;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace OpenUtility.Data
 {
+    [ScriptableVariableBinder(typeof(Toggle), typeof(bool), DisplayName = "Default Bool Binding")]
     [CreateAssetMenu(fileName = "ScriptableBool", menuName = "OpenUtility/Scriptable Variable/Bool")]
     public class ScriptableBool : ScriptableVariable<bool>, ICanLoadValueFromPlayerPrefs
     {

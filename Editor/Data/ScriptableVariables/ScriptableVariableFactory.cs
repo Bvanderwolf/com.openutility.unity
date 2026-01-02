@@ -49,7 +49,7 @@ namespace OpenUtility.Data.Editor
         public static void AssignIntVariableForSlider(Slider slider, Object variableAsset, Type bindingType)
         {
             var scriptableInt = (ScriptableInt)variableAsset;
-            var scriptableIntBinder = (Slider_ScriptableIntBinding)slider.gameObject.AddComponent(bindingType);
+            var scriptableIntBinder = (SliderIntBinding)slider.gameObject.AddComponent(bindingType);
             var serializedBinder = new SerializedObject(scriptableIntBinder);
             var variableProperty = serializedBinder.FindProperty("_variable");
 
@@ -64,7 +64,7 @@ namespace OpenUtility.Data.Editor
         public static void CreateAndAssignIntVariableForSlider(Slider slider, Type variableType, Type bindingType)
         {
             ThrowIf.NotDerivedFrom<ScriptableInt>(variableType);
-            ThrowIf.NotDerivedFrom<Slider_ScriptableIntBinding>(bindingType);
+            ThrowIf.NotDerivedFrom<SliderIntBinding>(bindingType);
             
             var serializedObject = new SerializedObject(slider);
             var valueChangedProperty = serializedObject.FindProperty("m_OnValueChanged");
@@ -75,7 +75,31 @@ namespace OpenUtility.Data.Editor
             
             void OnAssetCreated(Object asset, Object target, string propertyName)
             {
-                AssignIntVariableForInputField((TMP_InputField)target, asset, bindingType);
+                AssignIntVariableForSlider((Slider)target, asset, bindingType);
+            }
+        }
+
+        public static void AssignBoolVariableForToggle(Toggle toggle, Object variableAsset)
+        {
+            var scriptableBool = (ScriptableBool)variableAsset;
+            
+            UnityEventTools.AddPersistentListener(toggle.onValueChanged, scriptableBool.SetValue);
+        }
+        
+        public static void CreateAndAssignBoolVariableForToggle(Toggle toggle, Type variableType)
+        {
+            ThrowIf.NotDerivedFrom<ScriptableBool>(variableType);
+            
+            var serializedObject = new SerializedObject(toggle);
+            var valueChangedProperty = serializedObject.FindProperty("onValueChanged");
+            
+            CreateNewAsset(valueChangedProperty, variableType, OnAssetCreated);
+            
+            serializedObject.Dispose();
+            
+            void OnAssetCreated(Object asset, Object target, string propertyName)
+            {
+                AssignBoolVariableForToggle(toggle, asset);
             }
         }
         

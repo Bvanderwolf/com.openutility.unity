@@ -14,16 +14,15 @@ using Object = UnityEngine.Object;
 namespace OpenUtility.Data.Editor
 {
     [CanEditMultipleObjects]
-    [CustomEditor(typeof(Slider), true)]
-    public class SliderEditor_ScriptableVariable : SliderEditor
+    [CustomEditor(typeof(Toggle), true)]
+    public class ToggleEditor_ScriptableVariable : ToggleEditor
     {
         private static readonly Dictionary<string, BindingData> _bindingDataCache = new Dictionary<string, BindingData>();
         private static readonly Dictionary<string, SelectionData> _selectionDataCache = new Dictionary<string, SelectionData>();
         
         private static Type[] SupportedVariableTypes { get; } = new Type[]
         {
-            typeof(ScriptableInt),
-            typeof(ScriptableFloat)
+            typeof(ScriptableBool)
         };
 
         [DidReloadScripts]
@@ -49,7 +48,7 @@ namespace OpenUtility.Data.Editor
                     continue;
                 
                 var attribute = typeOfAsset.GetCustomAttribute<ScriptableVariableBinder>();
-                if (attribute != null && attribute.TypeOfComponentToBindTo != typeof(Slider))
+                if (attribute != null && attribute.TypeOfComponentToBindTo != typeof(Toggle))
                     continue;
                 
                 if (!dictionary.TryGetValue(typeOfAsset, out List<Object> list))
@@ -101,14 +100,14 @@ namespace OpenUtility.Data.Editor
             foreach (Type type in collection)
             {
                 var attribute = type.GetCustomAttribute<ScriptableVariableBinder>();
-                if (attribute.TypeOfComponentToBindTo != typeof(Slider))
+                if (attribute.TypeOfComponentToBindTo != typeof(Toggle))
                     continue;
                 
                 var valueType = attribute.TypeOfValue;
 
                 Type variableType;
                 Type bindingType;
-                if (type.IsAssignableFrom(typeof(ScriptableFloat)))
+                if (type.IsAssignableFrom(typeof(ScriptableBool)))
                 {
                     variableType = type;
                     bindingType = null;
@@ -120,6 +119,7 @@ namespace OpenUtility.Data.Editor
                 }
                 
                 string nameOfOption = CultureInfo.CurrentCulture.TextInfo.ToTitleCase(valueType.Name);
+                Debug.Log(nameOfOption);
                 string nameOfSubOption = attribute.DisplayName ?? bindingType?.Name ?? variableType.Name;
                 string path = $"{nameOfOption}/{nameOfSubOption}";
                 
@@ -163,51 +163,31 @@ namespace OpenUtility.Data.Editor
             Dictionary<string, SelectionData> selectionData = GetSelectableItems();
             ExtendedDropdownBuilder builder = new ExtendedDropdownBuilder("Select Binding", rect);
             
-            var intItems = selectionData.Where(bd => bd.Key.StartsWith("Int32/")).ToArray();
-            builder.StartIndent("Int");
-            for (int i = 0; i < intItems.Length; i++)
+            var boolItems = selectionData.Where(bd => bd.Key.StartsWith("Boolean/")).ToArray();
+            builder.StartIndent("Bool");
+            for (int i = 0; i < boolItems.Length; i++)
             {
-                var item = intItems[i];
+                var item = boolItems[i];
                 var path = item.Key;
                 var itemName = path.Substring(path.IndexOf('/') + 1);
                 
-                builder.AddItem(itemName, false, item.Value, OnSelectIntegerVariableBinding);
+                builder.AddItem(itemName, false, item.Value, OnSelectBoolVariableBinding);
             }
             builder.EndIndent();
             
-            var floatItems = selectionData.Where(bd => bd.Key.StartsWith("Single/")).ToArray();
-            builder.StartIndent("Float");
-            for (int i = 0; i < floatItems.Length; i++)
-            {
-                var item = floatItems[i];
-                var path = item.Key;
-                var itemName = path.Substring(path.IndexOf('/') + 1);
-                
-                builder.AddItem(itemName, false, item.Value, OnSelectFloatVariableBinding);
-            }
-            builder.EndIndent();
-            
-            var maxItemsPerColumn = Mathf.Max(intItems.Length, floatItems.Length);
+            var maxItemsPerColumn = Mathf.Max(boolItems.Length);
             var minimumHeight = (maxItemsPerColumn + 3) * 20f;
             var minimumSize = new Vector2(rect.width, minimumHeight);
             builder.AddMinimumSize(minimumSize).GetResult().Show();
         }
-        
-        private void OnSelectIntegerVariableBinding(object data)
-        {
-            var selectionData = (SelectionData)data;
-            var slider = (Slider)target;
-            
-            ScriptableVariableFactory.AssignIntVariableForSlider(slider, selectionData.variableAsset, selectionData.bindingType);
-        }
 
-        private void OnSelectFloatVariableBinding(object data)
+        private void OnSelectBoolVariableBinding(object data)
         {
             var selectionData = (SelectionData)data;
             var variableAsset = selectionData.variableAsset;
-            var slider = (Slider)target;
+            var toggle = (Toggle)target;
             
-            ScriptableVariableFactory.AssignFloatVariableForSlider(slider, variableAsset);
+            ScriptableVariableFactory.AssignBoolVariableForToggle(toggle, variableAsset);
         }
 
         private void OnCreateButtonClicked(Rect rect)
@@ -215,49 +195,30 @@ namespace OpenUtility.Data.Editor
             Dictionary<string, BindingData> bindingData = GetBindingData();
             ExtendedDropdownBuilder builder = new ExtendedDropdownBuilder("Create Binding", rect);
             
-            var intItems = bindingData.Where(bd => bd.Key.StartsWith("Int32/")).ToArray();
-            builder.StartIndent("Int");
-            for (int i = 0; i < intItems.Length; i++)
+            var boolItems = bindingData.Where(bd => bd.Key.StartsWith("Boolean/")).ToArray();
+            builder.StartIndent("Bool");
+            for (int i = 0; i < boolItems.Length; i++)
             {
-                var item = intItems[i];
-                var itemName = item.Key.Split('/')[1];
-                
-                builder.AddItem(itemName, false, item.Value, OnCreateIntegerVariableBinding);
-            }
-            builder.EndIndent();
-            
-            var floatItems = bindingData.Where(bd => bd.Key.StartsWith("Single/")).ToArray();
-            builder.StartIndent("Float");
-            for (int i = 0; i < floatItems.Length; i++)
-            {
-                var item = floatItems[i];
+                var item = boolItems[i];
                 var itemName = item.Key.Split('/')[1];
                 
                 builder.AddItem(itemName, false, item.Value, OnCreateFloatVariableBinding);
             }
             builder.EndIndent();
 
-            var maxItemsPerColumn = Mathf.Max(SupportedVariableTypes.Length, intItems.Length, floatItems.Length);
+            var maxItemsPerColumn = Mathf.Max(SupportedVariableTypes.Length, boolItems.Length);
             var minimumHeight = (maxItemsPerColumn + 3) * 20f;
             var minimumSize = new Vector2(rect.width, minimumHeight);
             builder.AddMinimumSize(minimumSize).GetResult().Show();
-        }
-        
-        private void OnCreateIntegerVariableBinding(object data)
-        {
-            var bindingData = (BindingData)data;
-            var slider = (Slider)target;
-            
-            ScriptableVariableFactory.CreateAndAssignIntVariableForSlider(slider, bindingData.variableType, bindingData.bindingType);
         }
 
         private void OnCreateFloatVariableBinding(object data)
         {
             var bindingData = (BindingData)data;
             var variableType = bindingData.variableType;
-            var slider = (Slider)target;
+            var toggle = (Toggle)target;
             
-            ScriptableVariableFactory.CreateAndAssignFloatVariableForSlider(slider, variableType);
+            ScriptableVariableFactory.CreateAndAssignBoolVariableForToggle(toggle, variableType);
         }
     }
 }
