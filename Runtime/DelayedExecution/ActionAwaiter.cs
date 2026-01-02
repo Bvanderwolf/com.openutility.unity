@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using OpenUtility.Data;
 using OpenUtility.Exceptions;
 using OpenUtility.UI;
@@ -228,6 +229,28 @@ namespace OpenUtility.DelayedExecution
 
                 // Voor de zekerheid de exacte eindpositie zetten
                 scrollView.normalizedPosition = end;
+            }
+        }
+
+        public YieldInstruction WaitForConnection(UnityWebRequest request, Action<RequestResult> callback)
+        {
+            return (StartCoroutine(RunConnectionCheck()));
+
+            IEnumerator RunConnectionCheck()
+            {
+                yield return request.SendWebRequest();
+                
+                if (request.result == UnityWebRequest.Result.Success)
+                {
+                    callback?.Invoke(RequestResult.CreateSuccess());
+                }
+                else
+                {
+                    string message = string.IsNullOrEmpty(request.error) ? request.downloadHandler.text : request.error;
+                    callback?.Invoke(RequestResult.CreateError(message));
+                }
+                
+                request.Dispose();
             }
         }
     }

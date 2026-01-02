@@ -34,6 +34,32 @@ namespace OpenUtility.DelayedExecution
         public static WaitForEndOfFrame EndOfFrame => _awaitEndOfFrameInstance;
 
         /// <summary>
+        /// Issues a connection request to google and invokes the callback when complete.
+        /// </summary>
+        public static YieldInstruction Connection(Action<RequestResult> callback) => Connection("https://www.google.com", callback);
+
+        /// <summary>
+        /// Issues a connection request to the specified url and invokes the callback when complete.
+        /// </summary>
+        public static YieldInstruction Connection(string url, Action<RequestResult> callback)
+        {
+            ThrowIf.NullOrEmpty(url);
+            
+            UnityWebRequest request = UnityWebRequest.Get(url);
+            return (Connection(request, callback));
+        }
+        
+        /// <summary>
+        /// Issues a connection request using the given unity web request instance and invokes the callback when complete.
+        /// </summary>
+        public static YieldInstruction Connection(UnityWebRequest request, Action<RequestResult> callback)
+        {
+            ThrowIf.Null(request);
+            
+            return (GetOrCreateAwaiter().WaitForConnection(request, callback));
+        }
+
+        /// <summary>
         /// Issues the scrolling of the scroll view and invokes the callback when complete.
         /// </summary>
         public static YieldInstruction Scroll(ScrollRect scrollView, ScrollOptions options = default, Action callback = null)
