@@ -96,15 +96,69 @@ public class DifficultyManager : MonoBehaviour
 | **Architecture** | Spagetti-prone | Modular & Clean |
 
 #### 🚀 Extension
-Need a specific type? Just inherit from the base:
+Need a new type? Inherit from the base:
 
 ```csharp
 [CreateAssetMenu(fileName = "New Float", menuName = "Variables/Scriptable Float")]
-public class ScriptableFloat : ScriptableVariable<float> 
+public class MyScriptableClassVariable : ScriptableVariable<MyClass> 
 {
-    // Add custom logic like Clamping or Math operations here
+    // Add custom logic here
 }
 ```
+
+Want a new implementation for a default type (int, float, string, bool)? Inherit from a base variable type
+
+```csharp
+[CreateAssetMenu(fileName = "New Float", menuName = "Variables/Scriptable Float")]
+public class ClampableFloatVariable : ScriptableFloat
+{
+    // Add custom clamping logic here
+}
+```
+
+#### 🔗 Data Binding System
+Keep your UI and logic in perfect sync without a single line of "glue code" in your features. This package facilitates a robust Data Binding system using ScriptableObjects as the bridge between your logic and your UI.
+
+##### 💡 The Core Concept
+Instead of hard-coding references between UI elements and scripts, you use ScriptableVariables. These are assets in your project that hold data. With a simple MonoBehaviour binder script, you can link a UI component (like a Slider) directly to one of these assets. Go to your ui
+component's inspector, scroll down, and either press 'bind scriptable variable' to bind an existing variable or the '+' button to create and
+bind a new one.
+
+##### 🚀 Direct Binding
+If your variable type is directly compatible with the UI element, you can use the [ScriptableVariableBinder] attribute. For example, the ScriptableFloat can be bound to a standard Unity Slider out of the box:
+
+```csharp
+[ScriptableVariableBinder(typeof(Slider), typeof(float), DisplayName = "Default Float Binding")]
+[CreateAssetMenu(fileName = "ScriptableFloat", menuName = "OpenUtility/Variables/Float")]
+public class ScriptableFloat : ScriptableVariable<float> 
+{
+    // The binder automatically handles the sync from slider to variable.
+}
+```
+
+##### 🛠️ Custom Type Bindings
+Sometimes the UI data type doesn't match your variable type (e.g., a Slider outputs a float, but you want to save it as an int). No problem! You can easily create a custom binding implementation (choosing from a select list of types (see **binding types table**)):
+
+```csharp
+[ScriptableVariableBinder(typeof(Slider), typeof(int), DisplayName = "Default Int Binding")]
+public class DefaultSliderIntBinding : SliderIntBinding
+{
+    public override void SetValue(float newValue)
+    {
+        // Convert the float from the slider to an int for your variable
+        var casted = (int)newValue;
+        variable.SetValue(casted);
+    }
+}
+```
+
+#### 📊 Binding Types Table
+
+| UI Element | ScriptableFloat | ScriptableBool | ScriptableInt | ScriptableString |
+| :--- | :---: | :---: | :---: | :---: |
+| **Slider** | ✅ Yes | ❌ No | ✅ Yes (`SliderIntBinding`) | ❌ No | 
+| **TMP_InputField** | ✅ Yes (`InputFieldFloatBinding`) | ❌ No | ✅ Yes (`InputFieldIntBinding`) | ✅ Yes |
+| **Toggle** | ❌ No | ✅ Yes | ❌ No | ❌ No |
 
 ---
 
