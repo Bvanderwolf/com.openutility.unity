@@ -182,6 +182,7 @@ A streamlined, high-level wrapper for the Unity Addressables Resource Management
 
 #### 🚀 Getting Started
 1. Initialize with SAS Tokens (Optional)
+
 If your assets are hosted on private cloud storage (like Azure), enable SAS tokens globally:
 
 ```csharp
@@ -192,7 +193,23 @@ AddressableContentManager.EnableSasTokenUsage(
 );
 ```
 
-2. Downloading a Catalog
+2. Build content url's based on your project requirements
+
+A `AddressableContentSettings` scriptable object can be created to (dynamically) set endpoints
+based on your project requirement. This is especially handy if you are creating content for a 
+development and production environments. Or are creating different content for different clients.
+
+This is where the `storageName` and `storageUrl` properties come into play. Create a new asset using
+`Create > OpenUtility > AddressableContentSettings`, Assign a scriptable string variable and start
+using the property values in your addressable profile using the following syntax:
+
+- `[OpenUtility.Data.Addressable.Editor.AddressableBuildProperties.buildTarget]`
+- `[OpenUtility.Data.Addressable.Editor.AddressableBuildProperties.storageUrl]`
+- `[OpenUtility.Data.Addressable.Editor.AddressableBuildProperties.storageName]`
+
+See the 'Advanced Addressables Setup` sample for examples on the implementation.
+
+3. Downloading a Catalog
 Load or download a remote catalog to see what content is available:
 
 ```csharp
@@ -203,7 +220,8 @@ AddressableContentManager.DownloadContentCatalog(catalogUrl, (result) => {
 });
 ```
 
-3. Downloading Content
+4. Downloading Content
+
 Once the catalog is loaded, you can download all content or filter by specific keys:
 
 ```csharp
