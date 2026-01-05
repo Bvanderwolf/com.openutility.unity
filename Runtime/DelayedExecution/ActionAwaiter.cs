@@ -5,6 +5,8 @@ using OpenUtility.Data;
 using OpenUtility.Exceptions;
 using OpenUtility.UI;
 using UnityEngine;
+using TMPro;
+using UnityEngine.EventSystems;
 using UnityEngine.Localization;
 using UnityEngine.Networking;
 using UnityEngine.ResourceManagement.AsyncOperations;
@@ -16,9 +18,7 @@ namespace OpenUtility.DelayedExecution
     public class ActionAwaiter : MonoBehaviour
     {
         public YieldInstruction WaitForLocalization(LocalizedString localizedString, Action<string> callback = null)
-        {
-            ThrowIf.Null(localizedString);
-            
+        { 
             return (StartCoroutine(RunLocalization()));
             
             IEnumerator RunLocalization()
@@ -33,9 +33,7 @@ namespace OpenUtility.DelayedExecution
         }
 
         public YieldInstruction WaitForWebRequest(UnityWebRequest request, Action<UnityWebRequest> callback = null)
-        {
-            ThrowIf.Null(request);
-            
+        { 
             return (StartCoroutine(SendWebRequest()));
             
             IEnumerator SendWebRequest()
@@ -47,9 +45,7 @@ namespace OpenUtility.DelayedExecution
         }
 
         public YieldInstruction WaitForOperation(AsyncOperation operation, Action<AsyncOperation> callback = null)
-        {
-            ThrowIf.Null(operation);
-            
+        { 
             return (StartCoroutine(RunOperation()));
             
             IEnumerator RunOperation()
@@ -61,9 +57,7 @@ namespace OpenUtility.DelayedExecution
         }
 
         public YieldInstruction WaitForOperation<T>(AsyncOperationBase<T> operation, Action<AsyncOperationBase<T>> callback = null)
-        {
-            ThrowIf.Null(operation);
-            
+        { 
             return (StartCoroutine(RunOperation()));
             
             IEnumerator RunOperation()
@@ -76,8 +70,6 @@ namespace OpenUtility.DelayedExecution
 
         public YieldInstruction WaitForOperation(AsyncOperationHandle operation, Action<RequestResult> callback = null, Action<DownloadStatus> progress = null)
         {
-            ThrowIf.Null(operation);
-
             operation.Completed += OnCompletion;
             
             return (StartCoroutine(RunOperation()));
@@ -106,8 +98,6 @@ namespace OpenUtility.DelayedExecution
 
         public YieldInstruction WaitForOperation<T>(AsyncOperationHandle<T> operation, Action<DataRequestResult<T>> callback = null, Action<DownloadStatus> progress = null)
         {
-            ThrowIf.Null(operation);
-
             operation.Completed += OnCompletion;
             
             return (StartCoroutine(RunOperation()));
@@ -136,8 +126,6 @@ namespace OpenUtility.DelayedExecution
 
         public YieldInstruction WaitForOperations<T>(AsyncOperationHandle<T>[] operations, Action<DataRequestResult<T[]>> callback = null, Action<DownloadStatus> progress = null)
         {
-            ThrowIf.Null(operations);
-
             return (StartCoroutine(RunOperations()));
             
             IEnumerator RunOperations()
@@ -194,41 +182,54 @@ namespace OpenUtility.DelayedExecution
 
         public YieldInstruction WaitForScroll(ScrollRect scrollView, ScrollOptions options = default, Action callback = null)
         {
-            ThrowIf.Null(scrollView);
-
             return (StartCoroutine(RunScroll()));
             
             IEnumerator RunScroll()
             {
-                // 1. Fallback naar noEase als er niets is ingevuld
                 EasingFunction easingFunction = options.easingFunction ?? EasingFunctions.noEase;
     
                 Vector2 start = scrollView.normalizedPosition;
                 Vector2 end = options.position;
     
-                // Gebruik een multiplier voor snelheid in plaats van een harde '1 seconde'
                 float speed = options.speed <= 0f ? 1f : options.speed;
                 float progress = 0f;
 
                 while (progress < 1f)
                 {
-                    // Verhoog progressie op basis van tijd en snelheid
                     progress += Time.unscaledDeltaTime * speed;
         
-                    // Zorg dat we nooit boven de 1.0 uitkomen voor de easing functie
                     float clampedProgress = Mathf.Min(progress, 1f);
         
-                    // Pas de easing toe
                     float easedTime = easingFunction(clampedProgress);
         
-                    // Pas de positie aan
                     scrollView.normalizedPosition = Vector2.LerpUnclamped(start, end, easedTime);
 
                     yield return null;
                 }
 
-                // Voor de zekerheid de exacte eindpositie zetten
                 scrollView.normalizedPosition = end;
+            }
+        }
+
+        public YieldInstruction WaitForFocus(TMP_InputField inputField, Action callback)
+        {
+            return StartCoroutine(RunWaitForFocus());
+
+            IEnumerator RunWaitForFocus()
+            {
+                if (!inputField.gameObject.activeInHierarchy)
+                    yield break;
+
+                if (EventSystem.current == null)
+                    yield break;
+
+                EventSystem.current.SetSelectedGameObject(inputField.gameObject);
+
+                // wait 1 frame (important for reliable focus across platforms)
+                yield return null;
+
+                inputField.ActivateInputField();
+                inputField.MoveTextEnd(false);
             }
         }
 

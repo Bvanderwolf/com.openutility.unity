@@ -16,19 +16,19 @@ namespace OpenUtility.Data.Editor
 {
     public static class ScriptableVariableFactory
     {
-        public delegate void AssetCreatedCallback(Object asset, Object target, string propertyName);
+        public delegate void AssetCreatedCallback(Object asset, Object target, string propertyPath);
         
         private class AssetCreationCallback : EndNameEditAction
         {
             private Object _target;
-            private string _propertyName;
+            private string _propertyPath;
             private Type _variableType;
             private AssetCreatedCallback _callback;
 
-            public void Setup(Object target, string propertyName, Type scriptableObjectType, AssetCreatedCallback callback)
+            public void Setup(Object target, string propertyPath, Type scriptableObjectType, AssetCreatedCallback callback)
             {
                 _target = target;
-                _propertyName = propertyName;
+                _propertyPath = propertyPath;
                 _variableType = scriptableObjectType;
                 _callback = callback;
             }
@@ -42,7 +42,7 @@ namespace OpenUtility.Data.Editor
 
                 ProjectWindowUtil.ShowCreatedAsset(asset);
                 
-                _callback?.Invoke(asset, _target, _propertyName);
+                _callback?.Invoke(asset, _target, _propertyPath);
             }
         }
         
@@ -73,7 +73,7 @@ namespace OpenUtility.Data.Editor
             
             serializedObject.Dispose();
             
-            void OnAssetCreated(Object asset, Object target, string propertyName)
+            void OnAssetCreated(Object asset, Object target, string propertyPath)
             {
                 AssignIntVariableForSlider((Slider)target, asset, bindingType);
             }
@@ -97,7 +97,7 @@ namespace OpenUtility.Data.Editor
             
             serializedObject.Dispose();
             
-            void OnAssetCreated(Object asset, Object target, string propertyName)
+            void OnAssetCreated(Object asset, Object target, string propertyPath)
             {
                 AssignBoolVariableForToggle(toggle, asset);
             }
@@ -121,7 +121,7 @@ namespace OpenUtility.Data.Editor
             
             serializedObject.Dispose();
             
-            void OnAssetCreated(Object asset, Object target, string propertyName)
+            void OnAssetCreated(Object asset, Object target, string propertyPath)
             {
                 AssignFloatVariableForSlider(slider, asset);
             }
@@ -145,7 +145,7 @@ namespace OpenUtility.Data.Editor
             
             serializedObject.Dispose();
             
-            void OnAssetCreated(Object asset, Object target, string propertyName)
+            void OnAssetCreated(Object asset, Object target, string propertyPath)
             {
                 AssignStringVariableForInputField(inputField, asset);
             }
@@ -178,7 +178,7 @@ namespace OpenUtility.Data.Editor
             
             serializedObject.Dispose();
             
-            void OnAssetCreated(Object asset, Object target, string propertyName)
+            void OnAssetCreated(Object asset, Object target, string propertyPath)
             {
                 AssignIntVariableForInputField((TMP_InputField)target, asset, bindingType);
             }
@@ -211,7 +211,7 @@ namespace OpenUtility.Data.Editor
             
             serializedObject.Dispose();
             
-            void OnAssetCreated(Object asset, Object target, string propertyName)
+            void OnAssetCreated(Object asset, Object target, string propertyPath)
             {
                 AssignFloatVariableForInputField((TMP_InputField)target, asset, bindingType);
             }
@@ -250,7 +250,7 @@ namespace OpenUtility.Data.Editor
 
             Object target = property.serializedObject.targetObject;
             AssetCreationCallback action = ScriptableObject.CreateInstance<AssetCreationCallback>();
-            action.Setup(target, property.name, variableType, callback);
+            action.Setup(target, property.propertyPath, variableType, callback);
             
             string defaultName = $"New{variableType.Name}.asset";
             string assetPathAndName = AssetDatabase.GenerateUniqueAssetPath($"{path}/{defaultName}");

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using OpenUtility.Data;
 using OpenUtility.Exceptions;
 using OpenUtility.UI;
+using TMPro;
 using UnityEngine;
 using UnityEngine.Localization;
 using UnityEngine.Networking;
@@ -25,13 +26,11 @@ namespace OpenUtility.DelayedExecution
 
         private static readonly Dictionary<float, WaitForSecondsRealtime> _awaitSecondsRealtimeCache = new(new SecondsComparer());
 
-        private static readonly WaitForFixedUpdate _awaitFixedUpdateInstance = new WaitForFixedUpdate();
-        private static readonly WaitForEndOfFrame _awaitEndOfFrameInstance = new WaitForEndOfFrame();
-
         private static Optional<ActionAwaiter> _awaiter;
 
-        public static WaitForFixedUpdate FixedUpdate => _awaitFixedUpdateInstance;
-        public static WaitForEndOfFrame EndOfFrame => _awaitEndOfFrameInstance;
+        public static WaitForFixedUpdate FixedUpdate { get; } = new WaitForFixedUpdate();
+
+        public static WaitForEndOfFrame EndOfFrame { get; } = new WaitForEndOfFrame();
 
         /// <summary>
         /// Issues a connection request to google and invokes the callback when complete.
@@ -67,6 +66,16 @@ namespace OpenUtility.DelayedExecution
             ThrowIf.Null(scrollView);
             
             return (GetOrCreateAwaiter().WaitForScroll(scrollView, options, callback));
+        }
+
+        /// <summary>
+        /// Issues the focussing of the input field and invokes the callback when complete.
+        /// </summary>
+        public static YieldInstruction Focus(this TMP_InputField inputField, Action callback = null)
+        {
+            ThrowIf.Null(inputField);
+
+            return (GetOrCreateAwaiter().WaitForFocus(inputField, callback));
         }
 
         /// <summary>
