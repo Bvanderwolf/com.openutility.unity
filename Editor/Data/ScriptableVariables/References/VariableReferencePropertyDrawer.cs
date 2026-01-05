@@ -15,7 +15,8 @@ namespace OpenUtility.Data.Editor
         
         public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
         {
-            return GetHasNestedData(property) ? GetNestedPropertyHeight(property) : GetNonNestedPropertyHeight(property);
+            SerializedProperty valueProperty = property.FindPropertyRelative("_localValue");
+            return GetHasNestedData(valueProperty) ? GetNestedPropertyHeight(property) : GetNonNestedPropertyHeight(property);
         }
 
         private float GetNestedPropertyHeight(SerializedProperty property)
@@ -51,7 +52,8 @@ namespace OpenUtility.Data.Editor
 
         public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
         {
-            if (GetHasNestedData(property))
+            SerializedProperty valueProperty = property.FindPropertyRelative("_localValue");
+            if (GetHasNestedData(valueProperty))
             {
                 OnNestedPropertyGUI(position, property, label);
             }
