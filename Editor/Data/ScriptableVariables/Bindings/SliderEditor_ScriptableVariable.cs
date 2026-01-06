@@ -163,6 +163,7 @@ namespace OpenUtility.Data.Editor
 
         private void OnSelectButtonClicked(Rect rect)
         {
+            Texture2D variableIcon = (Texture2D)EditorGUIUtility.IconContent("ScriptableObject Icon").image;
             Dictionary<string, SelectionData> selectionData = GetSelectableItems();
             ExtendedDropdownBuilder builder = new ExtendedDropdownBuilder("Select Binding", rect);
             
@@ -174,7 +175,7 @@ namespace OpenUtility.Data.Editor
                 var path = item.Key;
                 var itemName = path.Substring(path.IndexOf('/') + 1);
                 
-                builder.AddItem(itemName, false, item.Value, OnSelectIntegerVariableBinding);
+                builder.AddItem(itemName, false, variableIcon, item.Value, OnSelectIntegerVariableBinding);
             }
             builder.EndIndent();
             
@@ -186,7 +187,7 @@ namespace OpenUtility.Data.Editor
                 var path = item.Key;
                 var itemName = path.Substring(path.IndexOf('/') + 1);
                 
-                builder.AddItem(itemName, false, item.Value, OnSelectFloatVariableBinding);
+                builder.AddItem(itemName, false, variableIcon, item.Value, OnSelectFloatVariableBinding);
             }
             builder.EndIndent();
             
@@ -215,6 +216,7 @@ namespace OpenUtility.Data.Editor
 
         private void OnCreateButtonClicked(Rect rect)
         {
+            Texture2D variableIcon = (Texture2D)EditorGUIUtility.IconContent("ScriptableObject Icon").image;
             Dictionary<string, BindingData> bindingData = GetBindingData();
             ExtendedDropdownBuilder builder = new ExtendedDropdownBuilder("Create Binding", rect);
             
@@ -225,7 +227,7 @@ namespace OpenUtility.Data.Editor
                 var item = intItems[i];
                 var itemName = item.Key.Split('/')[1];
                 
-                builder.AddItem(itemName, false, item.Value, OnCreateIntegerVariableBinding);
+                builder.AddItem(itemName, false, variableIcon, item.Value, OnCreateIntegerVariableBinding);
             }
             builder.EndIndent();
             
@@ -236,7 +238,7 @@ namespace OpenUtility.Data.Editor
                 var item = floatItems[i];
                 var itemName = item.Key.Split('/')[1];
                 
-                builder.AddItem(itemName, false, item.Value, OnCreateFloatVariableBinding);
+                builder.AddItem(itemName, false, variableIcon, item.Value, OnCreateFloatVariableBinding);
             }
             builder.EndIndent();
 
