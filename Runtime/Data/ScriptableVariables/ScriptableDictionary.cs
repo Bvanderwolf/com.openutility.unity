@@ -41,6 +41,45 @@ namespace OpenUtility.Data
         public override void SetValue(IDictionary<TKey, TValue> newValue) => value = newValue;
         public void SetValue(TKey key, TValue newValue) => value[key] = newValue;
 
+        public void Add(TKey key, TValue newValue)
+        {
+#if UNITY_EDITOR
+            Array.Resize(ref _values, _values.Length + 1);
+            _values[^1] = new KeyValuePair { key = key, value = newValue };
+#endif
+            value.Add(key, newValue);
+        }
+        
+        public void Remove(TKey key)
+        {
+#if UNITY_EDITOR
+            int index = Array.FindIndex(_values, pair => EqualityComparer<TKey>.Default.Equals(pair.key, key));
+            if (index >= 0)
+            {
+                for (int i = index; i < _values.Length - 1; i++)
+                    _values[i] = _values[i + 1];
+                Array.Resize(ref _values, _values.Length - 1);
+            }
+#endif
+            value.Remove(key);
+        }
+
+        public TValue this[TKey key]
+        {
+            get => GetValue(key);
+            set
+            {
+                if (this.value.ContainsKey(key))
+                {
+                    SetValue(key, value);
+                }
+                else
+                {
+                    Add(key, value);
+                }
+            }
+        }
+
         private void RebuildDictionary()
         {
             for (int i = 0; i < _values.Length; i++)

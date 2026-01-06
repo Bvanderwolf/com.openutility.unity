@@ -87,5 +87,7 @@ namespace OpenUtility.Data
         private void OnValueChanged(string newValue) => _valueChanged.Invoke(newValue);
 
         public override string ToString() => value;
+        
+        public static implicit operator string(ScriptableString scriptableString) => scriptableString.GetValue();
     }
 }

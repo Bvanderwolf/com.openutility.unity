@@ -87,5 +87,7 @@ namespace OpenUtility.Data
         }
 
         public override string ToString() => value.ToString();
+        
+        public static implicit operator float(ScriptableFloat reference) => reference.GetValue();
     }
 }

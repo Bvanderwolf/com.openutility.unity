@@ -90,5 +90,7 @@ namespace OpenUtility.Data
         }
 
         public override string ToString() => value.ToString();
+        
+        public static implicit operator bool(ScriptableBool scriptableBool) => scriptableBool.value;
     }
 }
