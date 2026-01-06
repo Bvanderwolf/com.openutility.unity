@@ -109,7 +109,13 @@ namespace OpenUtility.Data.Editor
             OnPropertyValueGUI(contentRect, property, valueSourceValue);
 
             if (property.isExpanded)
+            {
+                EditorGUI.indentLevel++;
+                
                 OnValueSourceGUI(position, valueSourceProperty);
+                
+                EditorGUI.indentLevel--;
+            }
 
             EditorGUI.EndProperty();
         }
