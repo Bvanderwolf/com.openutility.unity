@@ -89,7 +89,19 @@ namespace OpenUtility.DelayedExecution
         }
         
         /// <summary>
-        /// Issues the web request and invokes the callback when complete.
+        /// Issues the web request to the specified url and invokes the callback when complete. You have to
+        /// dispose of the request yourself.
+        /// </summary>
+        public static YieldInstruction GetRequest(string url, Action<UnityWebRequest> callback = null)
+        {
+            ThrowIf.NullOrEmpty(url);
+            
+            UnityWebRequest request = UnityWebRequest.Get(url);
+            return (WebRequest(request, callback));
+        }
+        
+        /// <summary>
+        /// Issues the web request and invokes the callback when complete. You have to dispose of the request yourself.
         /// </summary>
         public static YieldInstruction WebRequest(UnityWebRequest request, Action<UnityWebRequest> callback = null)
         {
