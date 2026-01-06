@@ -7,8 +7,8 @@ using UnityEngine;
 
 namespace OpenUtility.Data.Editor
 {
-    [CustomPropertyDrawer(typeof(VariableReference<>), true)]
-    public class VariableReferencePropertyDrawer : PropertyDrawer
+    [CustomPropertyDrawer(typeof(ScriptableVariableReference<>), true)]
+    public class ScriptableVariableReferencePropertyDrawer : PropertyDrawer
     {
         private bool? _hasNestedData = null;
         private SerializedProperty _scriptableVariableProperty = null;

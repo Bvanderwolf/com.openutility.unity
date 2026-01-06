@@ -22,7 +22,7 @@ namespace OpenUtility.Data
     }
     
     [Serializable]
-    public class FloatReference : VariableReference<float>
+    public class FloatReference : ScriptableVariableReference<float>
     {
         [SerializeField]
         private ScriptableFloat _variable;
@@ -31,7 +31,7 @@ namespace OpenUtility.Data
     }
     
     [Serializable]
-    public class IntReference : VariableReference<int>
+    public class IntReference : ScriptableVariableReference<int>
     {
         [SerializeField]
         private ScriptableInt _variable;
@@ -40,7 +40,7 @@ namespace OpenUtility.Data
     }
     
     [Serializable]
-    public class StringReference : VariableReference<string>
+    public class StringReference : ScriptableVariableReference<string>
     {
         [SerializeField]
         private ScriptableString _variable;
@@ -49,7 +49,7 @@ namespace OpenUtility.Data
     }
     
     [Serializable]
-    public class BoolReference : VariableReference<bool>
+    public class BoolReference : ScriptableVariableReference<bool>
     {
         [SerializeField]
         private ScriptableBool _variable;
@@ -60,7 +60,7 @@ namespace OpenUtility.Data
     /// <summary>
     /// Provides a designer-friendly way to reference either a local value or a shared ScriptableVariable value.
     /// </summary>
-    public abstract class VariableReference<T>
+    public abstract class ScriptableVariableReference<T>
     {
         [SerializeField]
         private VariableValueSource _valueSource;
@@ -131,7 +131,7 @@ namespace OpenUtility.Data
 
         protected abstract ScriptableVariable<T> GetScriptableVariable();
 
-        public static implicit operator T(VariableReference<T> reference)
+        public static implicit operator T(ScriptableVariableReference<T> reference)
         {
             return reference.Value;
         }
