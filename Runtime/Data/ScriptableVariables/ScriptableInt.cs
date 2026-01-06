@@ -38,7 +38,7 @@ namespace OpenUtility.Data
             }
         }
 
-        protected void OnValidate()
+        protected virtual void OnValidate()
         {
             if (Application.isPlaying)
             {

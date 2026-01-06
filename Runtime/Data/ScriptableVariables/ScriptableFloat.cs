@@ -40,7 +40,7 @@ namespace OpenUtility.Data
             }
         }
 
-        protected void OnValidate()
+        protected virtual void OnValidate()
         {
             if (Application.isPlaying)
             {
@@ -51,8 +51,7 @@ namespace OpenUtility.Data
                 SetValueWithoutNotify(_value);
             }
         }
-
-
+        
         public override float GetValue() => value;
 
         public override void SetValue(float newValue)
