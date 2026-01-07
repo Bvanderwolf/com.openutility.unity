@@ -68,7 +68,7 @@ namespace OpenUtility.Data.Editor
             return (dictionary);
         }
         
-        private static Dictionary<string, SelectionData> GetSelectableBindingItems()
+        private static Dictionary<string, SelectionData> GetSelectableItems()
         {
             if (_selectionDataCache.Count != 0)
                 return (_selectionDataCache);
@@ -148,9 +148,9 @@ namespace OpenUtility.Data.Editor
 
         private void OnBindScriptableVariableGUI()
         {
-            Rect position = GUILayoutUtility.GetRect(GUIContent.none, EditorStyles.foldout);
-            Rect contentRect = EditorGUI.PrefixLabel(position, GUIUtility.GetControlID(FocusType.Passive), GUIContent.none);
-            Rect foldoutRect = new Rect(position.x, position.y, 8f, EditorGUIUtility.singleLineHeight);
+            var totalRect = GUILayoutUtility.GetRect(GUIContent.none, EditorStyles.foldout);
+            var contentRect = EditorGUI.PrefixLabel(totalRect, GUIUtility.GetControlID(FocusType.Passive), GUIContent.none);
+            var foldoutRect = new Rect(totalRect.x, totalRect.y, 8f, EditorGUIUtility.singleLineHeight);
             _foldoutBindScriptableVariableGUI = EditorGUI.Foldout(foldoutRect, _foldoutBindScriptableVariableGUI, GUIContent.none, false);
             
             var content = new GUIContent("Bind to Scriptable Variable");
@@ -183,7 +183,7 @@ namespace OpenUtility.Data.Editor
         private void OnSelectBindingButtonClicked(Rect rect)
         {
             Texture2D variableIcon = (Texture2D)EditorGUIUtility.IconContent("ScriptableObject Icon").image;
-            Dictionary<string, SelectionData> selectionData = GetSelectableBindingItems();
+            Dictionary<string, SelectionData> selectionData = GetSelectableItems();
             ExtendedDropdownBuilder builder = new ExtendedDropdownBuilder("Select Binding", rect);
             
             var enumItems = selectionData.Where(bd => bd.Key.StartsWith("Int32/")).ToArray();
@@ -247,9 +247,9 @@ namespace OpenUtility.Data.Editor
 
         private void OnListenToScriptableVariableGUI()
         {
-            Rect position = GUILayoutUtility.GetRect(GUIContent.none, EditorStyles.foldout);
-            Rect contentRect = EditorGUI.PrefixLabel(position, GUIUtility.GetControlID(FocusType.Passive), GUIContent.none);
-            Rect foldoutRect = new Rect(position.x, position.y, 8f, EditorGUIUtility.singleLineHeight);
+            var totalRect = GUILayoutUtility.GetRect(GUIContent.none, EditorStyles.foldout);
+            var contentRect = EditorGUI.PrefixLabel(totalRect, GUIUtility.GetControlID(FocusType.Passive), GUIContent.none);
+            var foldoutRect = new Rect(totalRect.x, totalRect.y, 8f, EditorGUIUtility.singleLineHeight);
             _foldoutListenToScriptableVariableGUI = EditorGUI.Foldout(foldoutRect, _foldoutListenToScriptableVariableGUI, GUIContent.none, false);
             
             var content = new GUIContent("Listen to Scriptable Variable");
@@ -282,7 +282,7 @@ namespace OpenUtility.Data.Editor
         private void OnSelectEventButtonClicked(Rect rect)
         {
             Texture2D variableIcon = (Texture2D)EditorGUIUtility.IconContent("ScriptableObject Icon").image;
-            Dictionary<string, SelectionData> selectionData = GetSelectableBindingItems();
+            Dictionary<string, SelectionData> selectionData = GetSelectableItems();
             ExtendedDropdownBuilder builder = new ExtendedDropdownBuilder("Select Event", rect);
             
             var enumItems = selectionData.Where(bd => bd.Key.StartsWith("Int32/")).ToArray();

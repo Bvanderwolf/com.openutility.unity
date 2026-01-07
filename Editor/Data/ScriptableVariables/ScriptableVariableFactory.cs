@@ -92,6 +92,9 @@ namespace OpenUtility.Data.Editor
             dropdown.ClearOptions();
             dropdown.AddOptions(enumValueNames);
             
+            var enumIntValue = scriptableEnum.GetValue();
+            dropdown.SetValueWithoutNotify(enumIntValue);
+            
             variableProperty.objectReferenceValue = scriptableEnum;
             
             serializedEvent.ApplyModifiedProperties();
@@ -133,6 +136,36 @@ namespace OpenUtility.Data.Editor
             void OnAssetCreated(Object asset, Object target, string propertyPath)
             {
                 AssignEnumVariableToDropdownEvent(dropdown, asset);
+            }
+        }
+        
+        public static void AssignToggleToBoolVariableEvent(Toggle toggle, Object variableAsset)
+        {
+            var scriptableBool = (ScriptableBool)variableAsset;
+            var scriptableEvent = toggle.gameObject.AddComponent<ScriptableBoolEvent>();
+            var serializedEvent = new SerializedObject(scriptableEvent);
+            var variableProperty = serializedEvent.FindProperty("_variable");
+
+            var boolValue = scriptableBool.GetValue();
+            toggle.SetIsOnWithoutNotify(boolValue);
+            
+            variableProperty.objectReferenceValue = scriptableBool;
+            
+            serializedEvent.ApplyModifiedProperties();
+            serializedEvent.Dispose();
+            
+            UnityEventTools.AddPersistentListener(scriptableEvent.ValueChanged, toggle.SetIsOnWithoutNotify);
+        }
+        
+        public static void CreateBoolVariableAndAssignToggleToEvent(Toggle toggle, Type variableType)
+        {
+            ThrowIf.NotDerivedFrom<ScriptableBool>(variableType);
+            
+            CreateNewAsset(toggle, variableType, OnAssetCreated);
+            
+            void OnAssetCreated(Object asset, Object target, string propertyPath)
+            {
+                AssignToggleToBoolVariableEvent(toggle, asset);
             }
         }
 

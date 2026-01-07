@@ -1,10 +1,9 @@
 using OpenUtility.Exceptions;
 using TMPro;
-using UnityEngine;
 
 namespace OpenUtility.Data
 {
-    [ScriptableVariableBinder(typeof(TMP_InputField), typeof(int), DisplayName = "Default Int Binding")]
+    [ScriptableVariableBinder(typeof(TMP_InputField), typeof(int), DisplayName = "Default InputField Int Binding")]
     public class DefaultInputFieldIntBinding : InputFieldIntBinding
     {
         public override void SetValue(string newValue)

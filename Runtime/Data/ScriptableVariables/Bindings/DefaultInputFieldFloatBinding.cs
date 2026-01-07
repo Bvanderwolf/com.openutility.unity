@@ -3,7 +3,7 @@ using TMPro;
 
 namespace OpenUtility.Data
 {
-    [ScriptableVariableBinder(typeof(TMP_InputField), typeof(float), DisplayName = "Default Float Binding")]
+    [ScriptableVariableBinder(typeof(TMP_InputField), typeof(float), DisplayName = "Default InputField Float Binding")]
     public class DefaultInputFieldFloatBinding : InputFieldFloatBinding
     {
         public override void SetValue(string newValue)
