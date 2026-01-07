@@ -38,6 +38,8 @@ namespace OpenUtility.Data
             OnStringValueChanged(newValue);
         }
 
+        public override string ToString() => GetEnumValue().ToString();
+
         private void OnEnumValueChanged(int newValue)
         {
             if (_enumValueChanged == null)
