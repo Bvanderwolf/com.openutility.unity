@@ -79,6 +79,30 @@ namespace OpenUtility.Data.Editor
             }
         }
 
+        public static void AssignEnumVariableForDropdown(TMP_Dropdown dropdown, Object variableAsset)
+        {
+            var scriptableEnum = (ScriptableEnum)variableAsset;
+            
+            UnityEventTools.AddPersistentListener(dropdown.onValueChanged, scriptableEnum.SetValue);
+        }
+        
+        public static void CreateAndAssignEnumVariableForDropdown(TMP_Dropdown dropdown, Type variableType)
+        {
+            ThrowIf.NotDerivedFrom<ScriptableEnum>(variableType);
+            
+            var serializedObject = new SerializedObject(dropdown);
+            var valueChangedProperty = serializedObject.FindProperty("m_OnValueChanged");
+            
+            CreateNewAsset(valueChangedProperty, variableType, OnAssetCreated);
+            
+            serializedObject.Dispose();
+            
+            void OnAssetCreated(Object asset, Object target, string propertyPath)
+            {
+                AssignEnumVariableForDropdown(dropdown, asset);
+            }
+        }
+
         public static void AssignBoolVariableForToggle(Toggle toggle, Object variableAsset)
         {
             var scriptableBool = (ScriptableBool)variableAsset;

@@ -49,7 +49,7 @@ namespace OpenUtility.Data.Editor
             foreach (var asset in assets)
             {
                 var typeOfAsset = asset.GetType();
-                if (!ArrayUtility.Contains(SupportedVariableTypes, typeOfAsset))
+                if (!SupportedVariableTypes.Any(type => type.IsAssignableFrom(typeOfAsset)))
                     continue;
                 
                 if (bindingData.All(bd => bd.Value.variableType != typeOfAsset))

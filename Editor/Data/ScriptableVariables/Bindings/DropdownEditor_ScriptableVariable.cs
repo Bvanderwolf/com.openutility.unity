@@ -6,25 +6,25 @@ using System.Globalization;
 using System.Linq;
 using System.Reflection;
 using OpenUtility.Editor;
+using TMPro;
+using TMPro.EditorUtilities;
 using UnityEditor;
 using UnityEditor.Callbacks;
-using UnityEditor.UI;
 using UnityEngine;
-using UnityEngine.UI;
 using Object = UnityEngine.Object;
 
 namespace OpenUtility.Data.Editor
 {
+    [CustomEditor(typeof(TMP_Dropdown), true)]
     [CanEditMultipleObjects]
-    [CustomEditor(typeof(Toggle), true)]
-    public class ToggleEditor_ScriptableVariable : ToggleEditor
+    public class DropdownEditor_ScriptableVariable : DropdownEditor
     {
         private static readonly Dictionary<string, BindingData> _bindingDataCache = new Dictionary<string, BindingData>();
         private static readonly Dictionary<string, SelectionData> _selectionDataCache = new Dictionary<string, SelectionData>();
         
         private static Type[] SupportedVariableTypes { get; } = new Type[]
         {
-            typeof(ScriptableBool)
+            typeof(ScriptableEnum)
         };
 
         [DidReloadScripts]
@@ -103,14 +103,14 @@ namespace OpenUtility.Data.Editor
             foreach (Type type in collection)
             {
                 var attribute = type.GetCustomAttribute<ScriptableVariableBinder>();
-                if (attribute.TypeOfComponentToBindTo != typeof(Toggle))
+                if (attribute.TypeOfComponentToBindTo != typeof(TMP_Dropdown))
                     continue;
                 
                 var valueType = attribute.TypeOfValue;
 
                 Type variableType;
                 Type bindingType;
-                if (type.IsAssignableFrom(typeof(ScriptableBool)))
+                if (type.IsAssignableFrom(typeof(ScriptableEnum)))
                 {
                     variableType = type;
                     bindingType = null;
@@ -166,31 +166,31 @@ namespace OpenUtility.Data.Editor
             Dictionary<string, SelectionData> selectionData = GetSelectableItems();
             ExtendedDropdownBuilder builder = new ExtendedDropdownBuilder("Select Binding", rect);
             
-            var boolItems = selectionData.Where(bd => bd.Key.StartsWith("Boolean/")).ToArray();
-            builder.StartIndent("Bool");
-            for (int i = 0; i < boolItems.Length; i++)
+            var enumItems = selectionData.Where(bd => bd.Key.StartsWith("Int32/")).ToArray();
+            builder.StartIndent("Enum");
+            for (int i = 0; i < enumItems.Length; i++)
             {
-                var item = boolItems[i];
+                var item = enumItems[i];
                 var path = item.Key;
                 var itemName = path.Substring(path.IndexOf('/') + 1);
                 
-                builder.AddItem(itemName, false, variableIcon, item.Value, OnSelectBoolVariableBinding);
+                builder.AddItem(itemName, false, variableIcon, item.Value, OnSelectEnumVariableBinding);
             }
             builder.EndIndent();
             
-            var maxItemsPerColumn = Mathf.Max(boolItems.Length);
+            var maxItemsPerColumn = Mathf.Max(enumItems.Length);
             var minimumHeight = (maxItemsPerColumn + 3) * 20f;
             var minimumSize = new Vector2(rect.width, minimumHeight);
             builder.AddMinimumSize(minimumSize).GetResult().Show();
         }
 
-        private void OnSelectBoolVariableBinding(object data)
+        private void OnSelectEnumVariableBinding(object data)
         {
             var selectionData = (SelectionData)data;
             var variableAsset = selectionData.variableAsset;
-            var toggle = (Toggle)target;
+            var dropdown = (TMP_Dropdown)target;
             
-            ScriptableVariableFactory.AssignBoolVariableForToggle(toggle, variableAsset);
+            ScriptableVariableFactory.AssignEnumVariableForDropdown(dropdown, variableAsset);
         }
 
         private void OnCreateButtonClicked(Rect rect)
@@ -199,30 +199,30 @@ namespace OpenUtility.Data.Editor
             Dictionary<string, BindingData> bindingData = GetBindingData();
             ExtendedDropdownBuilder builder = new ExtendedDropdownBuilder("Create Binding", rect);
             
-            var boolItems = bindingData.Where(bd => bd.Key.StartsWith("Boolean/")).ToArray();
-            builder.StartIndent("Bool");
-            for (int i = 0; i < boolItems.Length; i++)
+            var enumItems = bindingData.Where(bd => bd.Key.StartsWith("Int32/")).ToArray();
+            builder.StartIndent("Enum");
+            for (int i = 0; i < enumItems.Length; i++)
             {
-                var item = boolItems[i];
+                var item = enumItems[i];
                 var itemName = item.Key.Split('/')[1];
                 
-                builder.AddItem(itemName, false, variableIcon, item.Value, OnCreateBoolVariableBinding);
+                builder.AddItem(itemName, false, variableIcon, item.Value, OnCreateEnumVariableBinding);
             }
             builder.EndIndent();
 
-            var maxItemsPerColumn = Mathf.Max(SupportedVariableTypes.Length, boolItems.Length);
+            var maxItemsPerColumn = Mathf.Max(SupportedVariableTypes.Length, enumItems.Length);
             var minimumHeight = (maxItemsPerColumn + 3) * 20f;
             var minimumSize = new Vector2(rect.width, minimumHeight);
             builder.AddMinimumSize(minimumSize).GetResult().Show();
         }
 
-        private void OnCreateBoolVariableBinding(object data)
+        private void OnCreateEnumVariableBinding(object data)
         {
             var bindingData = (BindingData)data;
             var variableType = bindingData.variableType;
-            var toggle = (Toggle)target;
+            var dropdown = (TMP_Dropdown)target;
             
-            ScriptableVariableFactory.CreateAndAssignBoolVariableForToggle(toggle, variableType);
+            ScriptableVariableFactory.CreateAndAssignEnumVariableForDropdown(dropdown, variableType);
         }
     }
 }
