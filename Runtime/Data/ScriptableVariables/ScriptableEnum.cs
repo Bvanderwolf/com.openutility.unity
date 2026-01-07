@@ -58,5 +58,10 @@ namespace OpenUtility.Data
             var stringValue = enumValue.ToString();
             _stringValueChanged.Invoke(stringValue);
         }
+        
+        public static implicit operator T(ScriptableEnum<T> scriptableEnum)
+        {
+            return scriptableEnum.GetEnumValue();
+        }
     }
 }
