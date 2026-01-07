@@ -19,7 +19,7 @@ namespace OpenUtility.Data
         [SerializeField]
         private Optional<string> _playerPref;
 
-        [Header("Events")]
+        [Header("Event")]
         [SerializeField, Space]
         private ChangedEvent _valueChanged;
 
@@ -66,9 +66,9 @@ namespace OpenUtility.Data
             SetPlayerPrefIfNeeded();
         }
 
-        private void SetValueInternal(bool newValue) => value = newValue;
+        protected void SetValueInternal(bool newValue) => value = newValue;
 
-        private void OnValueChanged(bool newValue) => _valueChanged.Invoke(newValue);
+        protected void OnValueChanged(bool newValue) => _valueChanged.Invoke(newValue);
 
         private void SetPlayerPrefIfNeeded()
         {

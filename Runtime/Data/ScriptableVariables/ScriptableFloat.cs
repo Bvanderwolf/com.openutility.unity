@@ -19,7 +19,7 @@ namespace OpenUtility.Data
         [SerializeField]
         private Optional<string> _playerPref;
 
-        [Header("Events")]
+        [Header("Event")]
         [SerializeField]
         private ChangedEvent _valueChanged;
 
@@ -60,15 +60,15 @@ namespace OpenUtility.Data
             OnValueChanged(newValue);
         }
 
-        public void SetValueWithoutNotify(float newValue)
+        public virtual void SetValueWithoutNotify(float newValue)
         {
             SetValueInternal(newValue);
             SetPlayerPrefIfNeeded();
         }
 
-        private void SetValueInternal(float newValue) => value = newValue;
+        protected void SetValueInternal(float newValue) => value = newValue;
 
-        private void OnValueChanged(float newValue) => _valueChanged.Invoke(newValue);
+        protected void OnValueChanged(float newValue) => _valueChanged.Invoke(newValue);
         
         private void SetPlayerPrefIfNeeded()
         {
