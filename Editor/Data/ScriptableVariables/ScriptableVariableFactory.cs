@@ -2,6 +2,7 @@
 
 using System;
 using System.IO;
+using System.Linq;
 using OpenUtility.Exceptions;
 using TMPro;
 using UnityEditor;
@@ -78,15 +79,47 @@ namespace OpenUtility.Data.Editor
                 AssignIntVariableForSlider((Slider)target, asset, bindingType);
             }
         }
+        
+        public static void AssignDropdownToEnumVariableEvent(TMP_Dropdown dropdown, Object variableAsset)
+        {
+            var scriptableEnum = (ScriptableEnum)variableAsset;
+            var scriptableEvent = dropdown.gameObject.AddComponent<ScriptableEnumEvent>();
+            var serializedEvent = new SerializedObject(scriptableEvent);
+            var variableProperty = serializedEvent.FindProperty("_variable");
 
-        public static void AssignEnumVariableForDropdown(TMP_Dropdown dropdown, Object variableAsset)
+            var enumValueType = ScriptableEnumEditor.GetEnumValueType(scriptableEnum.GetType());
+            var enumValueNames = Enum.GetNames(enumValueType).ToList();
+            dropdown.ClearOptions();
+            dropdown.AddOptions(enumValueNames);
+            
+            variableProperty.objectReferenceValue = scriptableEnum;
+            
+            serializedEvent.ApplyModifiedProperties();
+            serializedEvent.Dispose();
+            
+            UnityEventTools.AddPersistentListener(scriptableEvent.ValueChanged, dropdown.SetValueWithoutNotify);
+        }
+        
+        public static void CreateEnumVariableAndAssignDropdownToEvent(TMP_Dropdown dropdown, Type variableType)
+        {
+            ThrowIf.NotDerivedFrom<ScriptableEnum>(variableType);
+            
+            CreateNewAsset(dropdown, variableType, OnAssetCreated);
+            
+            void OnAssetCreated(Object asset, Object target, string propertyPath)
+            {
+                AssignDropdownToEnumVariableEvent(dropdown, asset);
+            }
+        }
+
+        public static void AssignEnumVariableToDropdownEvent(TMP_Dropdown dropdown, Object variableAsset)
         {
             var scriptableEnum = (ScriptableEnum)variableAsset;
             
             UnityEventTools.AddPersistentListener(dropdown.onValueChanged, scriptableEnum.SetValue);
         }
         
-        public static void CreateAndAssignEnumVariableForDropdown(TMP_Dropdown dropdown, Type variableType)
+        public static void CreateAndAssignEnumVariableToDropdownEvent(TMP_Dropdown dropdown, Type variableType)
         {
             ThrowIf.NotDerivedFrom<ScriptableEnum>(variableType);
             
@@ -99,18 +132,18 @@ namespace OpenUtility.Data.Editor
             
             void OnAssetCreated(Object asset, Object target, string propertyPath)
             {
-                AssignEnumVariableForDropdown(dropdown, asset);
+                AssignEnumVariableToDropdownEvent(dropdown, asset);
             }
         }
 
-        public static void AssignBoolVariableForToggle(Toggle toggle, Object variableAsset)
+        public static void AssignBoolVariableToToggleEvent(Toggle toggle, Object variableAsset)
         {
             var scriptableBool = (ScriptableBool)variableAsset;
             
             UnityEventTools.AddPersistentListener(toggle.onValueChanged, scriptableBool.SetValue);
         }
         
-        public static void CreateAndAssignBoolVariableForToggle(Toggle toggle, Type variableType)
+        public static void CreateAndAssignBoolVariableToToggleEvent(Toggle toggle, Type variableType)
         {
             ThrowIf.NotDerivedFrom<ScriptableBool>(variableType);
             
@@ -123,18 +156,18 @@ namespace OpenUtility.Data.Editor
             
             void OnAssetCreated(Object asset, Object target, string propertyPath)
             {
-                AssignBoolVariableForToggle(toggle, asset);
+                AssignBoolVariableToToggleEvent(toggle, asset);
             }
         }
         
-        public static void AssignFloatVariableForSlider(Slider slider, Object variableAsset)
+        public static void AssignFloatVariableToSliderEvent(Slider slider, Object variableAsset)
         {
             var scriptableFloat = (ScriptableFloat)variableAsset;
                 
             UnityEventTools.AddPersistentListener(slider.onValueChanged, scriptableFloat.SetValue);
         }
         
-        public static void CreateAndAssignFloatVariableForSlider(Slider slider, Type variableType)
+        public static void CreateAndAssignFloatVariableToSliderEvent(Slider slider, Type variableType)
         {
             ThrowIf.NotDerivedFrom<ScriptableFloat>(variableType);
             
@@ -147,18 +180,18 @@ namespace OpenUtility.Data.Editor
             
             void OnAssetCreated(Object asset, Object target, string propertyPath)
             {
-                AssignFloatVariableForSlider(slider, asset);
+                AssignFloatVariableToSliderEvent(slider, asset);
             }
         }
         
-        public static void AssignStringVariableForInputField(TMP_InputField inputField, Object variableAsset)
+        public static void AssignStringVariableToInputFieldEvent(TMP_InputField inputField, Object variableAsset)
         {
             var scriptableString = (ScriptableString)variableAsset;
                 
             UnityEventTools.AddPersistentListener(inputField.onValueChanged, scriptableString.SetValue);
         }
         
-        public static void CreateAndAssignStringVariableForInputField(TMP_InputField inputField, Type variableType)
+        public static void CreateAndAssignStringVariableToInputFieldEvent(TMP_InputField inputField, Type variableType)
         {
             ThrowIf.NotDerivedFrom<ScriptableString>(variableType);
             
@@ -171,11 +204,11 @@ namespace OpenUtility.Data.Editor
             
             void OnAssetCreated(Object asset, Object target, string propertyPath)
             {
-                AssignStringVariableForInputField(inputField, asset);
+                AssignStringVariableToInputFieldEvent(inputField, asset);
             }
         }
 
-        public static void AssignIntVariableForInputField(TMP_InputField inputField, Object variableAsset, Type bindingType)
+        public static void AssignIntVariableToInputFieldEvent(TMP_InputField inputField, Object variableAsset, Type bindingType)
         {
             var scriptableInt = (ScriptableInt)variableAsset;
             var scriptableIntBinder = (InputFieldIntBinding)inputField.gameObject.AddComponent(bindingType);
@@ -190,7 +223,7 @@ namespace OpenUtility.Data.Editor
             UnityEventTools.AddPersistentListener(inputField.onValueChanged, scriptableIntBinder.SetValue);
         }
         
-        public static void CreateAndAssignIntVariableForInputField(TMP_InputField inputField, Type variableType, Type bindingType)
+        public static void CreateAndAssignIntVariableToInputFieldEvent(TMP_InputField inputField, Type variableType, Type bindingType)
         {
             ThrowIf.NotDerivedFrom<ScriptableInt>(variableType);
             ThrowIf.NotDerivedFrom<InputFieldIntBinding>(bindingType);
@@ -204,11 +237,11 @@ namespace OpenUtility.Data.Editor
             
             void OnAssetCreated(Object asset, Object target, string propertyPath)
             {
-                AssignIntVariableForInputField((TMP_InputField)target, asset, bindingType);
+                AssignIntVariableToInputFieldEvent((TMP_InputField)target, asset, bindingType);
             }
         }
 
-        public static void AssignFloatVariableForInputField(TMP_InputField inputField, Object variableAsset, Type bindingType)
+        public static void AssignFloatVariableToInputFieldEvent(TMP_InputField inputField, Object variableAsset, Type bindingType)
         {
             var scriptableFloat = (ScriptableFloat)variableAsset;
             var scriptableFloatBinding = (InputFieldFloatBinding)inputField.gameObject.AddComponent(bindingType);
@@ -223,7 +256,7 @@ namespace OpenUtility.Data.Editor
             UnityEventTools.AddPersistentListener(inputField.onValueChanged, scriptableFloatBinding.SetValue);
         }
         
-        public static void CreateAndAssignFloatVariableForInputField(TMP_InputField inputField, Type variableType, Type bindingType)
+        public static void CreateAndAssignFloatVariableToInputFieldEvent(TMP_InputField inputField, Type variableType, Type bindingType)
         {
             ThrowIf.NotDerivedFrom<ScriptableFloat>(variableType);
             ThrowIf.NotDerivedFrom<InputFieldFloatBinding>(bindingType);
@@ -237,8 +270,53 @@ namespace OpenUtility.Data.Editor
             
             void OnAssetCreated(Object asset, Object target, string propertyPath)
             {
-                AssignFloatVariableForInputField((TMP_InputField)target, asset, bindingType);
+                AssignFloatVariableToInputFieldEvent((TMP_InputField)target, asset, bindingType);
             }
+        }
+        
+        public static void CreateNewAsset(Object targetObject, Type variableType, AssetCreatedCallback callback)
+        {
+            string path = AssetDatabase.GetAssetPath(Selection.activeObject);
+            if (string.IsNullOrEmpty(path))
+            {
+                if (targetObject is Component component)
+                {
+                    Scene scene = component.gameObject.scene;
+                    
+                    if (scene.IsValid() && !string.IsNullOrEmpty(scene.path))
+                    {
+                        path = Path.GetDirectoryName(scene.path);
+                    }
+                    else
+                    {
+                        GameObject prefab = PrefabUtility.GetNearestPrefabInstanceRoot(component.gameObject);
+                        path = prefab == null ? "Assets" : Path.GetDirectoryName(AssetDatabase.GetAssetPath(prefab));
+                    }
+                }
+                else
+                {
+                    path = "Assets";
+                }
+            }
+            else if (!Directory.Exists(path)) 
+            {
+                path = Path.GetDirectoryName(path);
+            }
+            
+            ScriptableObject newVariable = ScriptableObject.CreateInstance(variableType);
+
+            AssetCreationCallback action = ScriptableObject.CreateInstance<AssetCreationCallback>();
+            action.Setup(targetObject, null, variableType, callback);
+            
+            string defaultName = $"New{variableType.Name}.asset";
+            string assetPathAndName = AssetDatabase.GenerateUniqueAssetPath($"{path}/{defaultName}");
+
+            ProjectWindowUtil.StartNameEditingIfProjectWindowExists(
+                0,
+                action, 
+                assetPathAndName,
+                AssetPreview.GetMiniThumbnail(newVariable),
+                null);
         }
         
         public static void CreateNewAsset(SerializedProperty property, Type variableType, AssetCreatedCallback callback)

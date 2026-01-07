@@ -190,7 +190,7 @@ namespace OpenUtility.Data.Editor
             var variableAsset = selectionData.variableAsset;
             var toggle = (Toggle)target;
             
-            ScriptableVariableFactory.AssignBoolVariableForToggle(toggle, variableAsset);
+            ScriptableVariableFactory.AssignBoolVariableToToggleEvent(toggle, variableAsset);
         }
 
         private void OnCreateButtonClicked(Rect rect)
@@ -222,7 +222,7 @@ namespace OpenUtility.Data.Editor
             var variableType = bindingData.variableType;
             var toggle = (Toggle)target;
             
-            ScriptableVariableFactory.CreateAndAssignBoolVariableForToggle(toggle, variableType);
+            ScriptableVariableFactory.CreateAndAssignBoolVariableToToggleEvent(toggle, variableType);
         }
     }
 }

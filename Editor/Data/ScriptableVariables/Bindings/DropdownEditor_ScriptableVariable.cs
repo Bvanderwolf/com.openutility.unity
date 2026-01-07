@@ -68,7 +68,7 @@ namespace OpenUtility.Data.Editor
             return (dictionary);
         }
         
-        private static Dictionary<string, SelectionData> GetSelectableItems()
+        private static Dictionary<string, SelectionData> GetSelectableBindingItems()
         {
             if (_selectionDataCache.Count != 0)
                 return (_selectionDataCache);
@@ -131,6 +131,9 @@ namespace OpenUtility.Data.Editor
             return (_bindingDataCache);
         }
         
+        private bool _foldoutBindScriptableVariableGUI = false;
+        private bool _foldoutListenToScriptableVariableGUI = false;
+        
         public override void OnInspectorGUI()
         {
             base.OnInspectorGUI();
@@ -138,16 +141,27 @@ namespace OpenUtility.Data.Editor
             EditorGUILayout.Space();
             EditorGUILayout.LabelField("Scriptable Variables", new GUIStyle(EditorStyles.boldLabel) { fontSize = 12 });
             
-            var content = new GUIContent("Bind Scriptable Variable");
+            OnBindScriptableVariableGUI();
+            EditorGUILayout.Space(12f);
+            OnListenToScriptableVariableGUI();
+        }
+
+        private void OnBindScriptableVariableGUI()
+        {
+            Rect position = GUILayoutUtility.GetRect(GUIContent.none, EditorStyles.foldout);
+            Rect contentRect = EditorGUI.PrefixLabel(position, GUIUtility.GetControlID(FocusType.Passive), GUIContent.none);
+            Rect foldoutRect = new Rect(position.x, position.y, 8f, EditorGUIUtility.singleLineHeight);
+            _foldoutBindScriptableVariableGUI = EditorGUI.Foldout(foldoutRect, _foldoutBindScriptableVariableGUI, GUIContent.none, false);
+            
+            var content = new GUIContent("Bind to Scriptable Variable");
             var selectButtonStyle = new GUIStyle(GUI.skin.button) { fontSize = 11 };
-            var selectRect = GUILayoutUtility.GetRect(content, selectButtonStyle);
-            selectRect.height = 20;
-            selectRect.width -= 24;
+            contentRect.height = 20;
+            contentRect.width -= 24;
             
-            if (GUI.Button(selectRect, content, selectButtonStyle))
-                OnSelectButtonClicked(selectRect);
+            if (GUI.Button(contentRect, content, selectButtonStyle))
+                OnSelectBindingButtonClicked(contentRect);
             
-            var createRect = new Rect(selectRect.xMax + 4, selectRect.y, 20, selectRect.height);
+            var createRect = new Rect(contentRect.xMax + 4, contentRect.y, 20, contentRect.height);
             var buttonContent = EditorGUIUtility.IconContent("Toolbar Plus");
             var buttonStyle = new GUIStyle(GUI.skin.button)
             {
@@ -157,13 +171,19 @@ namespace OpenUtility.Data.Editor
             };  
             
             if (GUI.Button(createRect, buttonContent, buttonStyle))
-                OnCreateButtonClicked(selectRect);
+                OnCreateBindingButtonClicked(contentRect);
+
+            if (_foldoutBindScriptableVariableGUI)
+            {
+                EditorGUILayout.Space(); 
+                OnInfoMessageGUI("Select or Create a variable that will <b>receive</b> the value of this dropdown.");
+            }
         }
 
-        private void OnSelectButtonClicked(Rect rect)
+        private void OnSelectBindingButtonClicked(Rect rect)
         {
             Texture2D variableIcon = (Texture2D)EditorGUIUtility.IconContent("ScriptableObject Icon").image;
-            Dictionary<string, SelectionData> selectionData = GetSelectableItems();
+            Dictionary<string, SelectionData> selectionData = GetSelectableBindingItems();
             ExtendedDropdownBuilder builder = new ExtendedDropdownBuilder("Select Binding", rect);
             
             var enumItems = selectionData.Where(bd => bd.Key.StartsWith("Int32/")).ToArray();
@@ -190,10 +210,10 @@ namespace OpenUtility.Data.Editor
             var variableAsset = selectionData.variableAsset;
             var dropdown = (TMP_Dropdown)target;
             
-            ScriptableVariableFactory.AssignEnumVariableForDropdown(dropdown, variableAsset);
+            ScriptableVariableFactory.AssignEnumVariableToDropdownEvent(dropdown, variableAsset);
         }
 
-        private void OnCreateButtonClicked(Rect rect)
+        private void OnCreateBindingButtonClicked(Rect rect)
         {
             Texture2D variableIcon = (Texture2D)EditorGUIUtility.IconContent("ScriptableObject Icon").image;
             Dictionary<string, BindingData> bindingData = GetBindingData();
@@ -222,7 +242,117 @@ namespace OpenUtility.Data.Editor
             var variableType = bindingData.variableType;
             var dropdown = (TMP_Dropdown)target;
             
-            ScriptableVariableFactory.CreateAndAssignEnumVariableForDropdown(dropdown, variableType);
+            ScriptableVariableFactory.CreateAndAssignEnumVariableToDropdownEvent(dropdown, variableType);
+        }
+
+        private void OnListenToScriptableVariableGUI()
+        {
+            Rect position = GUILayoutUtility.GetRect(GUIContent.none, EditorStyles.foldout);
+            Rect contentRect = EditorGUI.PrefixLabel(position, GUIUtility.GetControlID(FocusType.Passive), GUIContent.none);
+            Rect foldoutRect = new Rect(position.x, position.y, 8f, EditorGUIUtility.singleLineHeight);
+            _foldoutListenToScriptableVariableGUI = EditorGUI.Foldout(foldoutRect, _foldoutListenToScriptableVariableGUI, GUIContent.none, false);
+            
+            var content = new GUIContent("Listen to Scriptable Variable");
+            var selectButtonStyle = new GUIStyle(GUI.skin.button) { fontSize = 11 };
+            contentRect.height = 20;
+            contentRect.width -= 24;
+            
+            if (GUI.Button(contentRect, content, selectButtonStyle))
+                OnSelectEventButtonClicked(contentRect);
+            
+            var createRect = new Rect(contentRect.xMax + 4, contentRect.y, 20, contentRect.height);
+            var buttonContent = EditorGUIUtility.IconContent("Toolbar Plus");
+            var buttonStyle = new GUIStyle(GUI.skin.button)
+            {
+                padding = new RectOffset(0, 0, 0, 0),
+                margin = new RectOffset(0, 0, 0, 0),
+                alignment = TextAnchor.MiddleCenter
+            };  
+            
+            if (GUI.Button(createRect, buttonContent, buttonStyle))
+                OnCreateEventButtonClicked(contentRect);
+
+            if (_foldoutListenToScriptableVariableGUI)
+            {
+                EditorGUILayout.Space(); 
+                OnInfoMessageGUI("Select or Create a variable that will <b>determine</b> the value of this dropdown.");
+            }
+        }
+
+        private void OnSelectEventButtonClicked(Rect rect)
+        {
+            Texture2D variableIcon = (Texture2D)EditorGUIUtility.IconContent("ScriptableObject Icon").image;
+            Dictionary<string, SelectionData> selectionData = GetSelectableBindingItems();
+            ExtendedDropdownBuilder builder = new ExtendedDropdownBuilder("Select Event", rect);
+            
+            var enumItems = selectionData.Where(bd => bd.Key.StartsWith("Int32/")).ToArray();
+            builder.StartIndent("Enum");
+            for (int i = 0; i < enumItems.Length; i++)
+            {
+                var item = enumItems[i];
+                var path = item.Key;
+                var itemName = path.Substring(path.IndexOf('/') + 1);
+                
+                builder.AddItem(itemName, false, variableIcon, item.Value, OnSelectEnumVariableEvent);
+            }
+            builder.EndIndent();
+            
+            var maxItemsPerColumn = Mathf.Max(enumItems.Length);
+            var minimumHeight = (maxItemsPerColumn + 3) * 20f;
+            var minimumSize = new Vector2(rect.width, minimumHeight);
+            builder.AddMinimumSize(minimumSize).GetResult().Show();
+        }
+
+        private void OnSelectEnumVariableEvent(object data)
+        {
+            var selectionData = (SelectionData)data;
+            var variableAsset = selectionData.variableAsset;
+            var dropdown = (TMP_Dropdown)target;
+            
+            ScriptableVariableFactory.AssignDropdownToEnumVariableEvent(dropdown, variableAsset);
+        }
+
+        private void OnCreateEventButtonClicked(Rect rect)
+        {
+            Texture2D variableIcon = (Texture2D)EditorGUIUtility.IconContent("ScriptableObject Icon").image;
+            Dictionary<string, BindingData> bindingData = GetBindingData();
+            ExtendedDropdownBuilder builder = new ExtendedDropdownBuilder("Create Binding", rect);
+            
+            var enumItems = bindingData.Where(bd => bd.Key.StartsWith("Int32/")).ToArray();
+            builder.StartIndent("Enum");
+            for (int i = 0; i < enumItems.Length; i++)
+            {
+                var item = enumItems[i];
+                var itemName = item.Key.Split('/')[1];
+                
+                builder.AddItem(itemName, false, variableIcon, item.Value, OnCreateEnumVariableEvent);
+            }
+            builder.EndIndent();
+
+            var maxItemsPerColumn = Mathf.Max(SupportedVariableTypes.Length, enumItems.Length);
+            var minimumHeight = (maxItemsPerColumn + 3) * 20f;
+            var minimumSize = new Vector2(rect.width, minimumHeight);
+            builder.AddMinimumSize(minimumSize).GetResult().Show();
+        }
+
+        private void OnCreateEnumVariableEvent(object data)
+        {
+            var bindingData = (BindingData)data;
+            var variableType = bindingData.variableType;
+            var dropdown = (TMP_Dropdown)target;
+            
+            ScriptableVariableFactory.CreateEnumVariableAndAssignDropdownToEvent(dropdown, variableType);
+        }
+
+        private void OnInfoMessageGUI(string message)
+        {
+            var fieldStyle = new GUIStyle(EditorStyles.label) { richText = true, wordWrap = true };
+            var icon = EditorGUIUtility.IconContent("console.infoicon");
+
+            EditorGUILayout.BeginHorizontal(EditorStyles.helpBox);
+            GUILayout.Label(icon, GUILayout.Width(32), GUILayout.Height(32));
+            EditorGUILayout.LabelField(message, fieldStyle);
+            EditorGUILayout.EndHorizontal();
         }
     }
 }

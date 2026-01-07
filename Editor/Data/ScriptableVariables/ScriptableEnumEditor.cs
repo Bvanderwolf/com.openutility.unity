@@ -8,16 +8,16 @@ namespace OpenUtility.Data.Editor
     [CustomEditor(typeof(ScriptableEnum<>), true)]
     public class ScriptableEnumEditor : UnityEditor.Editor
     {
-        private Type _enumType;
+        private Type _enumValueType;
 
         private void OnEnable()
         {
-            _enumType = GetScriptableEnumType(target.GetType());
+            _enumValueType = GetEnumValueType(target.GetType());
         }
 
         public override void OnInspectorGUI()
         {
-            if (_enumType == null)
+            if (_enumValueType == null)
             {
                 base.OnInspectorGUI();
             }
@@ -30,10 +30,15 @@ namespace OpenUtility.Data.Editor
                 SerializedProperty script = serializedObject.FindProperty("m_Script");
                 EditorGUILayout.PropertyField(script);
                 EditorGUI.EndDisabledGroup();
-            
+                
+                
+                EditorGUILayout.LabelField("State", EditorStyles.boldLabel);
                 SerializedProperty value = serializedObject.FindProperty("_value");
-                Enum enumValue = (Enum)Enum.ToObject(_enumType, value.intValue);
+                Enum enumValue = (Enum)Enum.ToObject(_enumValueType, value.intValue);
                 Enum newEnumValue = EditorGUILayout.EnumPopup(value.displayName, enumValue);
+                
+                DrawPropertiesExcluding(serializedObject, "m_Script", "_value");
+                
                 if (EditorGUI.EndChangeCheck())
                 {
                     int newIntValue = Convert.ToInt32(newEnumValue);
@@ -44,16 +49,16 @@ namespace OpenUtility.Data.Editor
             }
         }
         
-        private Type GetScriptableEnumType(Type objectType)
+        public static Type GetEnumValueType(Type scriptableEnumType)
         {
-            while (objectType != null)
+            while (scriptableEnumType != null)
             {
-                if (objectType.IsGenericType && objectType.GetGenericTypeDefinition() == typeof(ScriptableEnum<>))
+                if (scriptableEnumType.IsGenericType && scriptableEnumType.GetGenericTypeDefinition() == typeof(ScriptableEnum<>))
                 {
-                    return objectType.GetGenericArguments()[0];
+                    return scriptableEnumType.GetGenericArguments()[0];
                 }
                 
-                objectType = objectType.BaseType;
+                scriptableEnumType = scriptableEnumType.BaseType;
             }
             return null;
         }

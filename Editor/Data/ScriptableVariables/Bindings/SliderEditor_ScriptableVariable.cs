@@ -211,7 +211,7 @@ namespace OpenUtility.Data.Editor
             var variableAsset = selectionData.variableAsset;
             var slider = (Slider)target;
             
-            ScriptableVariableFactory.AssignFloatVariableForSlider(slider, variableAsset);
+            ScriptableVariableFactory.AssignFloatVariableToSliderEvent(slider, variableAsset);
         }
 
         private void OnCreateButtonClicked(Rect rect)
@@ -262,7 +262,7 @@ namespace OpenUtility.Data.Editor
             var variableType = bindingData.variableType;
             var slider = (Slider)target;
             
-            ScriptableVariableFactory.CreateAndAssignFloatVariableForSlider(slider, variableType);
+            ScriptableVariableFactory.CreateAndAssignFloatVariableToSliderEvent(slider, variableType);
         }
     }
 }

@@ -216,7 +216,7 @@ namespace OpenUtility.Data.Editor
             var variableAsset = selectionData.variableAsset;
             var inputField = (TMP_InputField)target;
             
-            ScriptableVariableFactory.AssignStringVariableForInputField(inputField, variableAsset);
+            ScriptableVariableFactory.AssignStringVariableToInputFieldEvent(inputField, variableAsset);
         }
         
         private void OnSelectIntegerVariableBinding(object data)
@@ -224,7 +224,7 @@ namespace OpenUtility.Data.Editor
             var selectionData = (SelectionData)data;
             var inputField = (TMP_InputField)target;
             
-            ScriptableVariableFactory.AssignIntVariableForInputField(inputField, selectionData.variableAsset, selectionData.bindingType);
+            ScriptableVariableFactory.AssignIntVariableToInputFieldEvent(inputField, selectionData.variableAsset, selectionData.bindingType);
         }
 
         private void OnSelectFloatVariableBinding(object data)
@@ -232,7 +232,7 @@ namespace OpenUtility.Data.Editor
             var selectionData = (SelectionData)data;
             var inputField = (TMP_InputField)target;
             
-            ScriptableVariableFactory.AssignFloatVariableForInputField(inputField, selectionData.variableAsset, selectionData.bindingType);
+            ScriptableVariableFactory.AssignFloatVariableToInputFieldEvent(inputField, selectionData.variableAsset, selectionData.bindingType);
         }
 
         private void OnCreateButtonClicked(Rect rect)
@@ -286,7 +286,7 @@ namespace OpenUtility.Data.Editor
             var variableType = bindingData.variableType;
             var inputField = (TMP_InputField)target;
             
-            ScriptableVariableFactory.CreateAndAssignStringVariableForInputField(inputField, variableType);
+            ScriptableVariableFactory.CreateAndAssignStringVariableToInputFieldEvent(inputField, variableType);
         }
         
         private void OnCreateIntegerVariableBinding(object data)
@@ -294,7 +294,7 @@ namespace OpenUtility.Data.Editor
             var bindingData = (BindingData)data;
             var inputField = (TMP_InputField)target;
             
-            ScriptableVariableFactory.CreateAndAssignIntVariableForInputField(inputField, bindingData.variableType, bindingData.bindingType);
+            ScriptableVariableFactory.CreateAndAssignIntVariableToInputFieldEvent(inputField, bindingData.variableType, bindingData.bindingType);
         }
 
         private void OnCreateFloatVariableBinding(object data)
@@ -302,7 +302,7 @@ namespace OpenUtility.Data.Editor
             var bindingData = (BindingData)data;
             var inputField = (TMP_InputField)target;
             
-            ScriptableVariableFactory.CreateAndAssignFloatVariableForInputField(inputField, bindingData.variableType, bindingData.bindingType);
+            ScriptableVariableFactory.CreateAndAssignFloatVariableToInputFieldEvent(inputField, bindingData.variableType, bindingData.bindingType);
         }
     }
 }
