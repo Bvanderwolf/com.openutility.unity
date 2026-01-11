@@ -3,8 +3,8 @@ using TMPro;
 
 namespace OpenUtility.Data
 {
-    [ScriptableVariableBinder(typeof(TMP_InputField), typeof(int), DisplayName = "Default InputField Int Binding")]
-    public class DefaultInputFieldIntBinding : InputFieldIntBinding
+    [ScriptableVariableBinder(typeof(TMP_InputField), typeof(int), BindingGoal.ReceiveValue, DisplayName = "Default Integer Variable")]
+    public class DefaultIntegerTextBinding : IntegerTextBinding
     {
         public override void SetValue(string newValue)
         {

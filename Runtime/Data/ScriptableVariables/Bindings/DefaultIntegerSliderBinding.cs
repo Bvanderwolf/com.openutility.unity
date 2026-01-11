@@ -3,8 +3,8 @@ using UnityEngine.UI;
 
 namespace OpenUtility
 {
-    [ScriptableVariableBinder(typeof(Slider), typeof(int), DisplayName = "Default Slider Int Binding")]
-    public class DefaultSliderIntBinding : SliderIntBinding
+    [ScriptableVariableBinder(typeof(Slider), typeof(int), BindingGoal.ReceiveValue, DisplayName = "Default Integer Variable")]
+    public class DefaultIntegerSliderBinding : IntegerSliderBinding
     {
         public override void SetValue(float newValue)
         {

@@ -4,8 +4,8 @@ using UnityEngine.UI;
 
 namespace OpenUtility.Data
 {
-    [ScriptableVariableBinder(typeof(Slider), typeof(float), DisplayName = "Default Float")]
-    [CreateAssetMenu(fileName = "ScriptableBool", menuName = "OpenUtility/Scriptable Variable/Float")]
+    [ScriptableVariableBinder(typeof(Slider), typeof(float), DisplayName = "Default Decimal Variable")]
+    [CreateAssetMenu(fileName = "ScriptableFloat", menuName = "OpenUtility/Scriptable Variable/Float")]
     public class ScriptableFloat : ScriptableVariable<float>, ICanLoadValueFromPlayerPrefs
     {
         [Serializable]

@@ -6,25 +6,28 @@ using System.Globalization;
 using System.Linq;
 using System.Reflection;
 using OpenUtility.Editor;
+using TMPro;
+using TMPro.EditorUtilities;
 using UnityEditor;
 using UnityEditor.Callbacks;
-using UnityEditor.UI;
 using UnityEngine;
-using UnityEngine.UI;
 using Object = UnityEngine.Object;
 
 namespace OpenUtility.Data.Editor
 {
     [CanEditMultipleObjects]
-    [CustomEditor(typeof(Toggle), true)]
-    public class ToggleEditor_ScriptableVariable : ToggleEditor
+    [CustomEditor(typeof(TextMeshProUGUI))]
+    public class TMP_TextEditor_ScriptableVariable : TMP_EditorPanelUI
     {
         private static readonly Dictionary<string, BindingData> _bindingDataCache = new Dictionary<string, BindingData>();
         private static readonly Dictionary<string, SelectionData> _selectionDataCache = new Dictionary<string, SelectionData>();
         
         private static Type[] SupportedVariableTypes { get; } = new Type[]
         {
-            typeof(ScriptableBool)
+            typeof(ScriptableEnum),
+            typeof(ScriptableString),
+            typeof(ScriptableInt),
+            typeof(ScriptableFloat)
         };
 
         [DidReloadScripts]
@@ -103,7 +106,7 @@ namespace OpenUtility.Data.Editor
             foreach (Type type in collection)
             {
                 var attributes = type.GetCustomAttributes<ScriptableVariableBinder>();
-                var attribute = attributes.FirstOrDefault(a => a.TypeOfComponentToBindTo == typeof(Toggle));
+                var attribute = attributes.FirstOrDefault(a => a.TypeOfComponentToBindTo.IsAssignableFrom(typeof(TMP_Text)));
                 if (attribute == null)
                     continue;
                 
@@ -114,7 +117,7 @@ namespace OpenUtility.Data.Editor
 
                 Type variableType;
                 Type bindingType;
-                if (type.IsAssignableFrom(typeof(ScriptableBool)))
+                if (type.IsAssignableFrom(typeof(ScriptableString)) || type.IsAssignableFrom(typeof(ScriptableEnum)))
                 {
                     variableType = type;
                     bindingType = null;
@@ -135,118 +138,16 @@ namespace OpenUtility.Data.Editor
             return (_bindingDataCache);
         }
         
-        private bool _foldoutBindScriptableVariableGUI = false;
         private bool _foldoutListenToScriptableVariableGUI = false;
         
         public override void OnInspectorGUI()
         {
             base.OnInspectorGUI();
-
+            
             EditorGUILayout.Space();
             EditorGUILayout.LabelField("Scriptable Variables", new GUIStyle(EditorStyles.boldLabel) { fontSize = 12 });
             
-            OnBindScriptableVariableGUI();
-            EditorGUILayout.Space(12f);
             OnListenToScriptableVariableGUI();
-        }
-
-        private void OnBindScriptableVariableGUI()
-        {
-            var totalRect = GUILayoutUtility.GetRect(GUIContent.none, EditorStyles.foldout);
-            var contentRect = EditorGUI.PrefixLabel(totalRect, GUIUtility.GetControlID(FocusType.Passive), GUIContent.none);
-            var foldoutRect = new Rect(totalRect.x, totalRect.y, 8f, EditorGUIUtility.singleLineHeight);
-            _foldoutBindScriptableVariableGUI = EditorGUI.Foldout(foldoutRect, _foldoutBindScriptableVariableGUI, GUIContent.none, false);
-            
-            var content = new GUIContent("Bind to Scriptable Variable");
-            var selectButtonStyle = new GUIStyle(GUI.skin.button) { fontSize = 11 };
-            contentRect.height = 20;
-            contentRect.width -= 24;
-            
-            if (GUI.Button(contentRect, content, selectButtonStyle))
-                OnSelectBindingButtonClicked(contentRect);
-            
-            var createRect = new Rect(contentRect.xMax + 4, contentRect.y, 20, contentRect.height);
-            var buttonContent = EditorGUIUtility.IconContent("Toolbar Plus");
-            var buttonStyle = new GUIStyle(GUI.skin.button)
-            {
-                padding = new RectOffset(0, 0, 0, 0),
-                margin = new RectOffset(0, 0, 0, 0),
-                alignment = TextAnchor.MiddleCenter
-            };  
-            
-            if (GUI.Button(createRect, buttonContent, buttonStyle))
-                OnCreateBindingButtonClicked(contentRect);
-
-            if (_foldoutBindScriptableVariableGUI)
-            {
-                EditorGUILayout.Space(); 
-                OnInfoMessageGUI("Select or Create a variable that will <b>receive</b> the value of this toggle.");
-            }
-        }
-
-        private void OnSelectBindingButtonClicked(Rect rect)
-        {
-            Texture2D variableIcon = (Texture2D)EditorGUIUtility.IconContent("ScriptableObject Icon").image;
-            Dictionary<string, SelectionData> selectionData = GetSelectableItems(BindingGoal.ReceiveValue);
-            ExtendedDropdownBuilder builder = new ExtendedDropdownBuilder("Select Binding", rect);
-            
-            var boolItems = selectionData.Where(bd => bd.Key.StartsWith("Boolean/")).ToArray();
-            builder.StartIndent("Boolean");
-            for (int i = 0; i < boolItems.Length; i++)
-            {
-                var item = boolItems[i];
-                var path = item.Key;
-                var itemName = path.Substring(path.IndexOf('/') + 1);
-                
-                builder.AddItem(itemName, false, variableIcon, item.Value, OnSelectBoolVariableBinding);
-            }
-            builder.EndIndent();
-            
-            var maxItemsPerColumn = Mathf.Max(boolItems.Length);
-            var minimumHeight = (maxItemsPerColumn + 3) * 20f;
-            var minimumSize = new Vector2(rect.width, minimumHeight);
-            builder.AddMinimumSize(minimumSize).GetResult().Show();
-        }
-
-        private void OnSelectBoolVariableBinding(object data)
-        {
-            var selectionData = (SelectionData)data;
-            var variableAsset = selectionData.variableAsset;
-            var toggle = (Toggle)target;
-            
-            ScriptableVariableFactory.AssignBoolVariableToToggleEvent(toggle, variableAsset);
-        }
-
-        private void OnCreateBindingButtonClicked(Rect rect)
-        {
-            Texture2D variableIcon = (Texture2D)EditorGUIUtility.IconContent("ScriptableObject Icon").image;
-            Dictionary<string, BindingData> bindingData = GetBindingData(BindingGoal.ReceiveValue);
-            ExtendedDropdownBuilder builder = new ExtendedDropdownBuilder("Create Binding", rect);
-            
-            var boolItems = bindingData.Where(bd => bd.Key.StartsWith("Boolean/")).ToArray();
-            builder.StartIndent("Boolean");
-            for (int i = 0; i < boolItems.Length; i++)
-            {
-                var item = boolItems[i];
-                var itemName = item.Key.Split('/')[1];
-                
-                builder.AddItem(itemName, false, variableIcon, item.Value, OnCreateBoolVariableBinding);
-            }
-            builder.EndIndent();
-
-            var maxItemsPerColumn = Mathf.Max(SupportedVariableTypes.Length, boolItems.Length);
-            var minimumHeight = (maxItemsPerColumn + 3) * 20f;
-            var minimumSize = new Vector2(rect.width, minimumHeight);
-            builder.AddMinimumSize(minimumSize).GetResult().Show();
-        }
-
-        private void OnCreateBoolVariableBinding(object data)
-        {
-            var bindingData = (BindingData)data;
-            var variableType = bindingData.variableType;
-            var toggle = (Toggle)target;
-            
-            ScriptableVariableFactory.CreateAndAssignBoolVariableToToggleEvent(toggle, variableType);
         }
         
         private void OnListenToScriptableVariableGUI()
@@ -279,7 +180,7 @@ namespace OpenUtility.Data.Editor
             if (_foldoutListenToScriptableVariableGUI)
             {
                 EditorGUILayout.Space(); 
-                OnInfoMessageGUI("Select or Create a variable that will <b>determine</b> the value of this toggle.");
+                OnInfoMessageGUI("Select or Create a variable that will <b>determine</b> the value of this dropdown.");
             }
         }
         
@@ -289,31 +190,81 @@ namespace OpenUtility.Data.Editor
             Dictionary<string, SelectionData> selectionData = GetSelectableItems(BindingGoal.DetermineValue);
             ExtendedDropdownBuilder builder = new ExtendedDropdownBuilder("Select Event", rect);
             
-            var boolItems = selectionData.Where(bd => bd.Key.StartsWith("Boolean/")).ToArray();
-            builder.StartIndent("Boolean");
-            for (int i = 0; i < boolItems.Length; i++)
+            var intItems = selectionData.Where(bd => bd.Key.StartsWith("Int32/")).ToArray();
+            builder.StartIndent("Enum Or Integer");
+            for (int i = 0; i < intItems.Length; i++)
             {
-                var item = boolItems[i];
+                var item = intItems[i];
                 var path = item.Key;
                 var itemName = path.Substring(path.IndexOf('/') + 1);
                 
-                builder.AddItem(itemName, false, variableIcon, item.Value, OnSelectBoolVariableEvent);
+                builder.AddItem(itemName, false, variableIcon, item.Value, OnSelectEnumOrIntegerVariableEvent);
             }
             builder.EndIndent();
             
-            var maxItemsPerColumn = Mathf.Max(boolItems.Length);
+            var floatItems = selectionData.Where(bd => bd.Key.StartsWith("Single/")).ToArray();
+            builder.StartIndent("Float");
+            for (int i = 0; i < floatItems.Length; i++)
+            {
+                var item = floatItems[i];
+                var path = item.Key;
+                var itemName = path.Substring(path.IndexOf('/') + 1);
+                
+                builder.AddItem(itemName, false, variableIcon, item.Value, OnSelectFloatVariableEvent);
+            }
+            builder.EndIndent();
+            
+            var stringItems = selectionData.Where(bd => bd.Key.StartsWith("String/")).ToArray();
+            builder.StartIndent("String");
+            for (int i = 0; i < stringItems.Length; i++)
+            {
+                var item = stringItems[i];
+                var path = item.Key;
+                var itemName = path.Substring(path.IndexOf('/') + 1);
+                
+                builder.AddItem(itemName, false, variableIcon, item.Value, OnSelectStringVariableEvent);
+            }
+            builder.EndIndent();
+            
+            var maxItemsPerColumn = Mathf.Max(intItems.Length, floatItems.Length, stringItems.Length);
             var minimumHeight = (maxItemsPerColumn + 3) * 20f;
             var minimumSize = new Vector2(rect.width, minimumHeight);
             builder.AddMinimumSize(minimumSize).GetResult().Show();
         }
 
-        private void OnSelectBoolVariableEvent(object data)
+        private void OnSelectEnumOrIntegerVariableEvent(object data)
         {
-            var selectionData = (SelectionData)data;
+            var selectionData = (SelectionData)data; 
+            var textField = (TMP_Text)target;
             var variableAsset = selectionData.variableAsset;
-            var toggle = (Toggle)target;
-            
-            ScriptableVariableFactory.AssignToggleToBoolVariableEvent(toggle, variableAsset);
+            var variableType = variableAsset.GetType();
+
+            if (typeof(ScriptableEnum).IsAssignableFrom(variableType))
+            {
+                ScriptableVariableFactory.AssignTextFieldToEnumVariableEvent(textField, variableAsset, selectionData.bindingType);
+            }
+            else if (typeof(ScriptableInt).IsAssignableFrom(variableType))
+            {
+                ScriptableVariableFactory.AssignTextFieldToIntVariableEvent(textField, variableAsset, selectionData.bindingType);
+            }
+        }
+        
+        private void OnSelectFloatVariableEvent(object data)
+        {
+            var selectionData = (SelectionData)data; 
+            var textField = (TMP_Text)target;
+            var variableAsset = selectionData.variableAsset;
+
+            ScriptableVariableFactory.AssignTextFieldToFloatVariableEvent(textField, variableAsset, selectionData.bindingType);
+        }
+        
+        private void OnSelectStringVariableEvent(object data)
+        {
+            var selectionData = (SelectionData)data; 
+            var textField = (TMP_Text)target;
+            var variableAsset = selectionData.variableAsset;
+
+            ScriptableVariableFactory.AssignTextFieldToStringVariableEvent(textField, variableAsset);
         }
 
         private void OnCreateEventButtonClicked(Rect rect)
@@ -322,30 +273,77 @@ namespace OpenUtility.Data.Editor
             Dictionary<string, BindingData> bindingData = GetBindingData(BindingGoal.DetermineValue);
             ExtendedDropdownBuilder builder = new ExtendedDropdownBuilder("Create Binding", rect);
             
-            var enumItems = bindingData.Where(bd => bd.Key.StartsWith("Boolean/")).ToArray();
-            builder.StartIndent("Boolean");
-            for (int i = 0; i < enumItems.Length; i++)
+            var intItems = bindingData.Where(bd => bd.Key.StartsWith("Int32/")).ToArray();
+            builder.StartIndent("Enum Or Integer");
+            for (int i = 0; i < intItems.Length; i++)
             {
-                var item = enumItems[i];
+                var item = intItems[i];
                 var itemName = item.Key.Split('/')[1];
                 
-                builder.AddItem(itemName, false, variableIcon, item.Value, OnCreateEnumVariableEvent);
+                builder.AddItem(itemName, false, variableIcon, item.Value, OnCreateEnumOrIntegerVariableEvent);
+            }
+            builder.EndIndent();
+            
+            var floatItems = bindingData.Where(bd => bd.Key.StartsWith("Single/")).ToArray();
+            builder.StartIndent("Float");
+            for (int i = 0; i < floatItems.Length; i++)
+            {
+                var item = floatItems[i];
+                var itemName = item.Key.Split('/')[1];
+                
+                builder.AddItem(itemName, false, variableIcon, item.Value, OnCreateFloatVariableEvent);
+            }
+            builder.EndIndent();
+            
+            var stringItems = bindingData.Where(bd => bd.Key.StartsWith("String/")).ToArray();
+            builder.StartIndent("String");
+            for (int i = 0; i < stringItems.Length; i++)
+            {
+                var item = stringItems[i];
+                var itemName = item.Key.Split('/')[1];
+                
+                builder.AddItem(itemName, false, variableIcon, item.Value, OnCreateStringVariableEvent);
             }
             builder.EndIndent();
 
-            var maxItemsPerColumn = Mathf.Max(SupportedVariableTypes.Length, enumItems.Length);
+            var maxItemsPerColumn = Mathf.Max(SupportedVariableTypes.Length - 1, intItems.Length, floatItems.Length, stringItems.Length);
             var minimumHeight = (maxItemsPerColumn + 3) * 20f;
             var minimumSize = new Vector2(rect.width, minimumHeight);
             builder.AddMinimumSize(minimumSize).GetResult().Show();
         }
 
-        private void OnCreateEnumVariableEvent(object data)
+        private void OnCreateEnumOrIntegerVariableEvent(object data)
         {
             var bindingData = (BindingData)data;
             var variableType = bindingData.variableType;
-            var toggle = (Toggle)target;
-            
-            ScriptableVariableFactory.CreateBoolVariableAndAssignToggleToEvent(toggle, variableType);
+            var textField = (TMP_Text)target;
+
+            if (typeof(ScriptableEnum).IsAssignableFrom(variableType))
+            {
+                ScriptableVariableFactory.CreateEnumVariableAndAssignTextFieldToEvent(textField, variableType, bindingData.bindingType);
+            }
+            else if (typeof(ScriptableInt).IsAssignableFrom(variableType))
+            {
+                ScriptableVariableFactory.CreateIntVariableAndAssignTextFieldToEvent(textField, variableType, bindingData.bindingType);
+            }
+        }
+        
+        private void OnCreateFloatVariableEvent(object data)
+        {
+            var bindingData = (BindingData)data;
+            var variableType = bindingData.variableType;
+            var textField = (TMP_Text)target;
+
+            ScriptableVariableFactory.CreateFloatVariableAndAssignTextFieldToEvent(textField, variableType, bindingData.bindingType);
+        }
+        
+        private void OnCreateStringVariableEvent(object data)
+        {
+            var bindingData = (BindingData)data;
+            var variableType = bindingData.variableType;
+            var textField = (TMP_Text)target;
+
+            ScriptableVariableFactory.CreateStringVariableAndAssignTextFieldToEvent(textField, variableType);
         }
 
         private void OnInfoMessageGUI(string message)

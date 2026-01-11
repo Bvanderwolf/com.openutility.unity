@@ -3,8 +3,8 @@ using TMPro;
 
 namespace OpenUtility.Data
 {
-    [ScriptableVariableBinder(typeof(TMP_InputField), typeof(float), DisplayName = "Default InputField Float Binding")]
-    public class DefaultInputFieldFloatBinding : InputFieldFloatBinding
+    [ScriptableVariableBinder(typeof(TMP_InputField), typeof(float), BindingGoal.ReceiveValue, DisplayName = "Default Decimal Variable")]
+    public class DefaultDecimalTextBinding : DecimalTextBinding
     {
         public override void SetValue(string newValue)
         {

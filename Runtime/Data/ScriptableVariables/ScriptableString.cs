@@ -4,8 +4,9 @@ using UnityEngine;
 
 namespace OpenUtility.Data
 {
-    [ScriptableVariableBinder(typeof(TMP_InputField), typeof(string), DisplayName = "Default String")]
-    [CreateAssetMenu(fileName = "ScriptableBool", menuName = "OpenUtility/Scriptable Variable/String")]
+    [ScriptableVariableBinder(typeof(TMP_Text), typeof(string), DisplayName = "Default String Variable")]
+    [ScriptableVariableBinder(typeof(TMP_InputField), typeof(string), DisplayName = "Default String Variable")]
+    [CreateAssetMenu(fileName = "ScriptableString", menuName = "OpenUtility/Scriptable Variable/String")]
     public class ScriptableString : ScriptableVariable<string>, ICanLoadValueFromPlayerPrefs
     {
         [Serializable]

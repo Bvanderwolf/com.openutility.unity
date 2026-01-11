@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace OpenUtility.Data
 {
-    [CreateAssetMenu(fileName = "ScriptableBool", menuName = "OpenUtility/Scriptable Variable/Int")]
+    [CreateAssetMenu(fileName = "ScriptableInt", menuName = "OpenUtility/Scriptable Variable/Int")]
     public class ScriptableInt : ScriptableVariable<int>, ICanLoadValueFromPlayerPrefs
     {
         [Serializable]

@@ -34,13 +34,13 @@ namespace OpenUtility.Data.Editor
             _selectionDataCache.Clear();
         }
         
-        private static Dictionary<Type, List<Object>> GetScriptableVariableAssetData() 
+        private static Dictionary<Type, List<Object>> GetScriptableVariableAssetData(BindingGoal goal) 
         {
             var guids = AssetDatabase.FindAssets("t:ScriptableVariable`1");
             if (guids.Length == 0)
                 return (null);
             
-            Dictionary<string, BindingData> bindingData = GetBindingData();
+            Dictionary<string, BindingData> bindingData = GetBindingData(goal);
 
             var assets = guids.Select(AssetDatabase.GUIDToAssetPath).Select(AssetDatabase.LoadAssetAtPath<Object>);
             var dictionary = new Dictionary<Type, List<Object>>();
@@ -68,13 +68,13 @@ namespace OpenUtility.Data.Editor
             return (dictionary);
         }
         
-        private static Dictionary<string, SelectionData> GetSelectableItems()
+        private static Dictionary<string, SelectionData> GetSelectableItems(BindingGoal goal)
         {
             if (_selectionDataCache.Count != 0)
                 return (_selectionDataCache);
 
-            Dictionary<string, BindingData> bindingData = GetBindingData();
-            Dictionary<Type, List<Object>> assetData = GetScriptableVariableAssetData();
+            Dictionary<string, BindingData> bindingData = GetBindingData(goal);
+            Dictionary<Type, List<Object>> assetData = GetScriptableVariableAssetData(goal);
             foreach (KeyValuePair<string, BindingData> dataPoint in bindingData)
             {
                 var nameOfOption = dataPoint.Key;
@@ -94,7 +94,7 @@ namespace OpenUtility.Data.Editor
             return (_selectionDataCache);
         }
 
-        private static Dictionary<string, BindingData> GetBindingData()
+        private static Dictionary<string, BindingData> GetBindingData(BindingGoal goal)
         {
             if (_bindingDataCache.Count != 0)
                 return (_bindingDataCache);
@@ -102,8 +102,12 @@ namespace OpenUtility.Data.Editor
             TypeCache.TypeCollection collection = TypeCache.GetTypesWithAttribute<ScriptableVariableBinder>();
             foreach (Type type in collection)
             {
-                var attribute = type.GetCustomAttribute<ScriptableVariableBinder>();
-                if (attribute.TypeOfComponentToBindTo != typeof(TMP_Dropdown))
+                var attributes = type.GetCustomAttributes<ScriptableVariableBinder>();
+                var attribute = attributes.FirstOrDefault(a => a.TypeOfComponentToBindTo == typeof(TMP_Dropdown));
+                if (attribute == null)
+                    continue;
+
+                if (!attribute.Goal.HasFlag(goal))
                     continue;
                 
                 var valueType = attribute.TypeOfValue;
@@ -183,7 +187,7 @@ namespace OpenUtility.Data.Editor
         private void OnSelectBindingButtonClicked(Rect rect)
         {
             Texture2D variableIcon = (Texture2D)EditorGUIUtility.IconContent("ScriptableObject Icon").image;
-            Dictionary<string, SelectionData> selectionData = GetSelectableItems();
+            Dictionary<string, SelectionData> selectionData = GetSelectableItems(BindingGoal.ReceiveValue);
             ExtendedDropdownBuilder builder = new ExtendedDropdownBuilder("Select Binding", rect);
             
             var enumItems = selectionData.Where(bd => bd.Key.StartsWith("Int32/")).ToArray();
@@ -216,7 +220,7 @@ namespace OpenUtility.Data.Editor
         private void OnCreateBindingButtonClicked(Rect rect)
         {
             Texture2D variableIcon = (Texture2D)EditorGUIUtility.IconContent("ScriptableObject Icon").image;
-            Dictionary<string, BindingData> bindingData = GetBindingData();
+            Dictionary<string, BindingData> bindingData = GetBindingData(BindingGoal.ReceiveValue);
             ExtendedDropdownBuilder builder = new ExtendedDropdownBuilder("Create Binding", rect);
             
             var enumItems = bindingData.Where(bd => bd.Key.StartsWith("Int32/")).ToArray();
@@ -242,7 +246,7 @@ namespace OpenUtility.Data.Editor
             var variableType = bindingData.variableType;
             var dropdown = (TMP_Dropdown)target;
             
-            ScriptableVariableFactory.CreateAndAssignEnumVariableToDropdownEvent(dropdown, variableType);
+            ScriptableVariableFactory.CreateAndAssignEnumVariableToDropdownEvent(dropdown, variableType); //
         }
 
         private void OnListenToScriptableVariableGUI()
@@ -282,7 +286,7 @@ namespace OpenUtility.Data.Editor
         private void OnSelectEventButtonClicked(Rect rect)
         {
             Texture2D variableIcon = (Texture2D)EditorGUIUtility.IconContent("ScriptableObject Icon").image;
-            Dictionary<string, SelectionData> selectionData = GetSelectableItems();
+            Dictionary<string, SelectionData> selectionData = GetSelectableItems(BindingGoal.DetermineValue);
             ExtendedDropdownBuilder builder = new ExtendedDropdownBuilder("Select Event", rect);
             
             var enumItems = selectionData.Where(bd => bd.Key.StartsWith("Int32/")).ToArray();
@@ -315,7 +319,7 @@ namespace OpenUtility.Data.Editor
         private void OnCreateEventButtonClicked(Rect rect)
         {
             Texture2D variableIcon = (Texture2D)EditorGUIUtility.IconContent("ScriptableObject Icon").image;
-            Dictionary<string, BindingData> bindingData = GetBindingData();
+            Dictionary<string, BindingData> bindingData = GetBindingData(BindingGoal.DetermineValue);
             ExtendedDropdownBuilder builder = new ExtendedDropdownBuilder("Create Binding", rect);
             
             var enumItems = bindingData.Where(bd => bd.Key.StartsWith("Int32/")).ToArray();
