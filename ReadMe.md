@@ -52,9 +52,8 @@ The system is built on a generic base class, ensuring a consistent API across al
 ```csharp
 public abstract class ScriptableVariable<T> : ScriptableObject
 {
-    public abstract T GetValue();
-    public virtual void SetValue(T newValue) => 
-        throw new NotImplementedException($"Setter for {typeof(T)} is not implemented.");
+    public abstract T GetValue(); // You must be able to retreiving your value.
+    public virtual void SetValue(T newValue) { } // Setting your value is optional.
 }
 ```
 
@@ -69,8 +68,15 @@ public class EnemyAI : MonoBehaviour
 {
     [SerializeField] private ScriptableBool isHardMode;
 
-    void OnEnable() => isHardMode.ValueChanged.AddListener(AdjustDifficulty);
-    void OnDisable() => isHardMode.ValueChanged.RemoveListener(AdjustDifficulty);
+    void OnEnable()
+    {
+        isHardMode.ValueChanged.AddListener(AdjustDifficulty);
+    }
+
+    void OnDisable()
+    {
+         isHardMode.ValueChanged.RemoveListener(AdjustDifficulty);
+    }
 
     void AdjustDifficulty(bool hardModeActive) 
     {
@@ -88,6 +94,9 @@ public class DifficultyManager : MonoBehaviour
     }
 }
 ```
+
+##### 3. Available variables
+Available variables are `ScriptableFloat`, `ScriptableInt`, `ScriptableBool` and `ScriptableString`. 
 
 #### 🚀 Extension
 Need a new type? Inherit from the base:
@@ -110,39 +119,112 @@ public class ClampableFloatVariable : ScriptableFloat
 }
 ```
 
+#### 📚 Reference Types
+##### 1. A short summary
+The goal of a scriptable variable reference is to provide a user friendly interface to a value that can either be locally changed or shared between multiple scripts. Defining variables as a reference provides you with the flexability to update a values scope from local to shared without actually having to change any code. 
+
+##### 2. Practical Implementation
+Want to track an enemty's health and trigger a death animation if it reaches critical levels?
+- Step 1: Create a `FloatReference` variable in your EnemyBehaviour class.
+- Step 2: Determine the value of your 'Local' value in the inspector or use the dropdown to switch to 'Shared' and assign a (new) variable.
+- Step 3: Start using your reference's value!
+```csharp
+public class EnemyBehaviour : MonoBehaviour
+{
+    [Header("Variables")]
+    [SerializeField]
+    private FloatReference _health;
+
+    void Update()
+    {
+        if (_health.Value <= 0) // We don't think in the code about the setup of the reference. We just have to check the value.
+        {
+            // Add Death Animation logic here
+        }
+    }
+}
+```
+##### 3. Available types
+Available reference types are `FloatReference`, `IntReference`, `BoolReference` and `StringReference`.
+
+##### 4. Custom reference types
+Create your own reference type by deriving from the ScriptableVariableReference class.
+
+```csharp
+[Serializable] // Make sure to use the 'Serialize' attribute, otherwise your value won't show properly in the inspector!
+public struct UserData
+{
+    public int id;
+    public string name;
+}
+
+[Serializable] // Make sure to use the 'Serialize' attribute, otherwise your value won't show properly in the inspector!
+public class UserDataReference : ScriptableVariableReference<UserData>
+{
+    [SerializeField]
+    private ScriptableUserData _value;
+    
+    protected override ScriptableVariable<UserData> GetScriptableVariable()
+    {
+        return (_value);
+    }
+}
+```
+
 #### 🔗 Data Binding System
 Keep your UI and logic in perfect sync without a single line of "glue code" in your features. This package facilitates a robust Data Binding system using ScriptableObjects as the bridge between your logic and your UI.
 
 ##### 💡 The Core Concept
 Instead of hard-coding references between UI elements and scripts, you use ScriptableVariables. Go to your ui
-component's inspector, scroll down, and either press 'bind scriptable variable' to bind an existing variable or the '+' button to create and
-bind a new one.
+component's inspector, scroll down, and either, press 'bind to scriptable variable' to determine the value of an existing variable, or the '+' button to create and
+bind a new one to determine the value of. You can also press 'listen to scriptable variable' to listen to an existing variable or the '+' button to create and listen to a new one.
 
-##### 🚀 Creating a direct binding
-If your variable type is directly compatible with the UI element, you can use the [ScriptableVariableBinder] attribute. For example, the ScriptableFloat can be bound to a standard Unity Slider out of the box:
+##### 🚀 Direct bindings
+If your variable type is directly compatible with the UI element's value type, you can use the [ScriptableVariableBinder] attribute on it. For example, the ScriptableFloat can  receive the value of a standard Unity Slider out of the box as its 'SetValue' method's signature matches the sliders 'onValueChanged' event.
 
 ```csharp
 [ScriptableVariableBinder(typeof(Slider), typeof(float), DisplayName = "Default Float Binding")]
 [CreateAssetMenu(fileName = "ScriptableFloat", menuName = "OpenUtility/Variables/Float")]
 public class ScriptableFloat : ScriptableVariable<float> 
 {
-    // The binder automatically handles the sync from slider to variable.
+    // Automatically handles the sync from slider to variable.
+    public float SetValue();
 }
 ```
 
-##### 🛠️ Creating custom bindings
+If the Slider needs to (also) listen to the ScriptableFloat, a `ScriptableFloatEvent` component will be added to the game object. It will listen to the variables 'ValueChanged' event, ensuring invokation of the sliders 'SetValueWithoutNotify' function to update the slider if the variable's value has changed.
+
+```csharp
+public class ScriptableFloatEvent : ScriptableVariableEvent<float>
+{
+    // Automatically handles the sync from variable to slider.
+    [Serializable]
+    public class ChangedEvent : UnityEvent<float> { }
+    public ChangedEvent ValueChanged;
+}
+```
+
+##### 🛠️ Custom bindings
 Sometimes the UI data type doesn't match your variable type (e.g., a Slider outputs a float, but you want to save it as an int). No problem! You can easily select or create a custom binding implementation (choosing from a select list of types (see **binding types table**)):
 
 ```csharp
-[ScriptableVariableBinder(typeof(Slider), typeof(int), DisplayName = "Default Int Binding")]
-public class DefaultSliderIntBinding : SliderIntBinding
+[ScriptableVariableBinder(typeof(Slider), typeof(int), BindingGoal.ReceiveValue, DisplayName = "Default Integer Variable")]
+public class DefaultIntegerSliderBinding : IntegerSliderBinding
 {
+    // Convert the float from the slider to an int for your variable
     public override void SetValue(float newValue)
     {
-        // Convert the float from the slider to an int for your variable
         var casted = (int)newValue;
+        
         variable.SetValue(casted);
     }
+}
+
+[ScriptableVariableBinder(typeof(Slider), typeof(int), BindingGoal.DetermineValue, DisplayName = "Default Integer Variable")]
+public class DefaultIntegerSliderEventBinding : IntegerSliderEventBinding
+{
+    // Convert the integer from your variable to an float for the slider.
+    protected override float ConvertIntegerToDecimal(int newValue) => newValue;
 }
 ```
 
@@ -150,9 +232,10 @@ public class DefaultSliderIntBinding : SliderIntBinding
 
 | UI Element | ScriptableFloat | ScriptableBool | ScriptableInt | ScriptableString |
 | :--- | :---: | :---: | :---: | :---: |
-| **Slider** | ✅ Yes | ❌ No | ✅ Yes (`SliderIntBinding`) | ❌ No | 
-| **TMP_InputField** | ✅ Yes (`InputFieldFloatBinding`) | ❌ No | ✅ Yes (`InputFieldIntBinding`) | ✅ Yes |
+| **Slider** | ✅ Yes | ❌ No | ✅ Yes | ❌ No | 
+| **TMP_InputField** | ✅ Yes | ❌ No | ✅ Yes | ✅ Yes |
 | **Toggle** | ❌ No | ✅ Yes | ❌ No | ❌ No |
+| **TMP_Text** | ✅ Yes | ❌ No | ✅ Yes | ✅ Yes |
 
 ---
 

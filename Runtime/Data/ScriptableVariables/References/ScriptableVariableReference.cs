@@ -59,6 +59,7 @@ namespace OpenUtility.Data
     
     /// <summary>
     /// Provides a designer-friendly way to reference either a local value or a shared ScriptableVariable value.
+    /// Set T to the type of variable you want to reference.
     /// </summary>
     public abstract class ScriptableVariableReference<T>
     {
