@@ -30,6 +30,11 @@
            "path": "Samples~/ScriptAVariable"
         },
         {
+           "displayName": "Custom variable types",
+           "description": "Contains a scene demonstrating how to use custom variables,references and bindings.",
+           "path": "Samples~/CustomVariableTypes"
+        },
+        {
            "displayName": "Simple Addressables Setup",
            "description": "Contains a scene demonstrating a simple setup for Unity Addressables. \n-Loading catalogs at runtime\n-Loading assets at runtime\n-Managing Cache",
            "path": "Samples~/SimpleAdressablesSetup"
