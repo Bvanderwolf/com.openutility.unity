@@ -11,25 +11,7 @@ namespace OpenUtility.Samples.Data
         private ScriptableEntityData _entityData;
 
         [SerializeField]
-        private PlayAreaTheme _theme;
-
-        [SerializeField]
         private EntityDisplaySettings _settings;
-
-        private void OnEnable()
-        {
-            _theme.EnumValueChanged.AddListener(OnThemeChanged);
-        }
-
-        private void OnDisable()
-        {
-            _theme.EnumValueChanged.RemoveListener(OnThemeChanged);
-        }
-
-        private void OnThemeChanged(Theme newTheme)
-        {
-
-        }
 
         public void SetRandomEntityData()
         {
