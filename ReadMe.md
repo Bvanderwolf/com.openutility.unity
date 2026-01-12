@@ -158,15 +158,20 @@ public struct UserData
     public string name;
 }
 
+public class ScriptableUserData : ScriptableVariable<UserData>
+{
+    // Add custom user data logic here.
+}
+
 [Serializable] // Make sure to use the 'Serialize' attribute, otherwise your value won't show properly in the inspector!
 public class UserDataReference : ScriptableVariableReference<UserData>
 {
     [SerializeField]
-    private ScriptableUserData _value;
+    private ScriptableUserData _variable;
     
     protected override ScriptableVariable<UserData> GetScriptableVariable()
     {
-        return (_value);
+        return (_variable);
     }
 }
 ```
