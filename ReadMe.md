@@ -151,16 +151,18 @@ Available reference types are `FloatReference`, `IntReference`, `BoolReference` 
 Create your own reference type by deriving from the ScriptableVariableReference class.
 
 ```csharp
+public class ScriptableUserData : ScriptableVariable<UserData>
+{
+    // Add custom user data logic here.
+}
+```
+
+```csharp
 [Serializable] // Make sure to use the 'Serialize' attribute, otherwise your value won't show properly in the inspector!
 public struct UserData
 {
     public int id;
     public string name;
-}
-
-public class ScriptableUserData : ScriptableVariable<UserData>
-{
-    // Add custom user data logic here.
 }
 
 [Serializable] // Make sure to use the 'Serialize' attribute, otherwise your value won't show properly in the inspector!
