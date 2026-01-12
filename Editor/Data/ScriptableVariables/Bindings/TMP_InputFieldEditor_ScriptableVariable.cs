@@ -116,7 +116,7 @@ namespace OpenUtility.Data.Editor
 
                 Type variableType;
                 Type bindingType;
-                if (type.IsAssignableFrom(typeof(ScriptableString)))
+                if (typeof(ScriptableString).IsAssignableFrom(type))
                 {
                     variableType = type;
                     bindingType = null;

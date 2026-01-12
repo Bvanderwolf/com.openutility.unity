@@ -1,8 +1,10 @@
 using System;
+using TMPro;
 using UnityEngine;
 
 namespace OpenUtility.Data
 {
+    [ScriptableVariableBinder(typeof(TMP_Dropdown), typeof(int), DisplayName = "Default Integer Variable")]
     [CreateAssetMenu(fileName = "ScriptableInt", menuName = "OpenUtility/Scriptable Variable/Int")]
     public class ScriptableInt : ScriptableVariable<int>, ICanLoadValueFromPlayerPrefs
     {

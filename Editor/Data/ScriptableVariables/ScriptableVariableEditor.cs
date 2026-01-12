@@ -6,16 +6,16 @@ using UnityEngine;
 
 namespace OpenUtility.Data.Editor
 {
-    [CustomEditor(typeof(ScriptableString))]
+    [CustomEditor(typeof(ScriptableString), true)]
     public class ScriptableStringEditor : ScriptableVariableEditor<ScriptableString> { }
     
-    [CustomEditor(typeof(ScriptableInt))]
+    [CustomEditor(typeof(ScriptableInt), true)]
     public class ScriptableIntEditor : ScriptableVariableEditor<ScriptableInt> { }
     
-    [CustomEditor(typeof(ScriptableFloat))]
+    [CustomEditor(typeof(ScriptableFloat), true)]
     public class ScriptableFloatEditor : ScriptableVariableEditor<ScriptableFloat> { }
     
-    [CustomEditor(typeof(ScriptableBool))]
+    [CustomEditor(typeof(ScriptableBool),true)]
     public class ScriptableBoolEditor : ScriptableVariableEditor<ScriptableBool> { }
     
     public class ScriptableVariableEditor<T> : UnityEditor.Editor

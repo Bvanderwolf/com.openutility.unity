@@ -207,6 +207,36 @@ namespace OpenUtility.Data.Editor
                 AssignTextFieldToStringVariableEvent((TMP_Text)target, asset);
             }
         }
+
+        public static void AssignDropdownToIntVariableEvent(TMP_Dropdown dropdown, Object variableAsset)
+        {
+            var scriptableInt = (ScriptableInt)variableAsset;
+            var scriptableEvent = dropdown.gameObject.AddComponent<ScriptableIntEvent>();
+            var serializedEvent = new SerializedObject(scriptableEvent);
+            var variableProperty = serializedEvent.FindProperty("_variable");
+            
+            var intValue = scriptableInt.GetValue();
+            dropdown.SetValueWithoutNotify(intValue);
+            
+            variableProperty.objectReferenceValue = scriptableInt;
+            
+            serializedEvent.ApplyModifiedProperties();
+            serializedEvent.Dispose();
+            
+            UnityEventTools.AddPersistentListener(scriptableEvent.ValueChanged, dropdown.SetValueWithoutNotify);
+        }
+        
+        public static void CreateIntVariableAndAssignDropdownToEvent(TMP_Dropdown dropdown, Type variableType)
+        {
+            ThrowIf.NotDerivedFrom<ScriptableInt>(variableType);
+            
+            CreateNewAsset(dropdown, variableType, OnAssetCreated);
+            
+            void OnAssetCreated(Object asset, Object target, string propertyPath)
+            {
+                AssignDropdownToIntVariableEvent(dropdown, asset);
+            }
+        }
         
         public static void AssignDropdownToEnumVariableEvent(TMP_Dropdown dropdown, Object variableAsset)
         {
@@ -240,6 +270,30 @@ namespace OpenUtility.Data.Editor
             void OnAssetCreated(Object asset, Object target, string propertyPath)
             {
                 AssignDropdownToEnumVariableEvent(dropdown, asset);
+            }
+        }
+
+        public static void AssignIntVariableToDropdownEvent(TMP_Dropdown dropdown, Object variableAsset)
+        {
+            var scriptableInt = (ScriptableInt)variableAsset;
+            
+            UnityEventTools.AddPersistentListener(dropdown.onValueChanged, scriptableInt.SetValue);
+        }
+        
+        public static void CreateAndAssignIntVariableToDropdownEvent(TMP_Dropdown dropdown, Type variableType)
+        {
+            ThrowIf.NotDerivedFrom<ScriptableInt>(variableType);
+            
+            var serializedObject = new SerializedObject(dropdown);
+            var valueChangedProperty = serializedObject.FindProperty("m_OnValueChanged");
+            
+            CreateNewAsset(valueChangedProperty, variableType, OnAssetCreated);
+            
+            serializedObject.Dispose();
+            
+            void OnAssetCreated(Object asset, Object target, string propertyPath)
+            {
+                AssignIntVariableToDropdownEvent(dropdown, asset);
             }
         }
 

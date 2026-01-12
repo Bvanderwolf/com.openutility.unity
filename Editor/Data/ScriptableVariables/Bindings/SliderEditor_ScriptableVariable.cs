@@ -115,7 +115,7 @@ namespace OpenUtility.Data.Editor
 
                 Type variableType;
                 Type bindingType;
-                if (type.IsAssignableFrom(typeof(ScriptableFloat)))
+                if (typeof(ScriptableFloat).IsAssignableFrom(type))
                 {
                     variableType = type;
                     bindingType = null;

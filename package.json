@@ -35,6 +35,11 @@
            "path": "Samples~/CustomVariableTypes"
         },
         {
+           "displayName": "Variable bindings",
+           "description": "Contains a scene demonstrating how to bind variables to ui elements",
+           "path": "Samples~/VariableBindings"
+        },
+        {
            "displayName": "Simple Addressables Setup",
            "description": "Contains a scene demonstrating a simple setup for Unity Addressables. \n-Loading catalogs at runtime\n-Loading assets at runtime\n-Managing Cache",
            "path": "Samples~/SimpleAdressablesSetup"

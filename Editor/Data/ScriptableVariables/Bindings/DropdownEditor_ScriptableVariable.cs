@@ -24,6 +24,7 @@ namespace OpenUtility.Data.Editor
         
         private static Type[] SupportedVariableTypes { get; } = new Type[]
         {
+            typeof(ScriptableInt),
             typeof(ScriptableEnum)
         };
 
@@ -114,7 +115,7 @@ namespace OpenUtility.Data.Editor
 
                 Type variableType;
                 Type bindingType;
-                if (type.IsAssignableFrom(typeof(ScriptableEnum)))
+                if (typeof(ScriptableEnum).IsAssignableFrom(type) || typeof(ScriptableInt).IsAssignableFrom(type))
                 {
                     variableType = type;
                     bindingType = null;
@@ -191,14 +192,14 @@ namespace OpenUtility.Data.Editor
             ExtendedDropdownBuilder builder = new ExtendedDropdownBuilder("Select Binding", rect);
             
             var enumItems = selectionData.Where(bd => bd.Key.StartsWith("Int32/")).ToArray();
-            builder.StartIndent("Enum");
+            builder.StartIndent("Enum Or Integer");
             for (int i = 0; i < enumItems.Length; i++)
             {
                 var item = enumItems[i];
                 var path = item.Key;
                 var itemName = path.Substring(path.IndexOf('/') + 1);
                 
-                builder.AddItem(itemName, false, variableIcon, item.Value, OnSelectEnumVariableBinding);
+                builder.AddItem(itemName, false, variableIcon, item.Value, OnSelectEnumOrIntegerVariableBinding);
             }
             builder.EndIndent();
             
@@ -208,13 +209,21 @@ namespace OpenUtility.Data.Editor
             builder.AddMinimumSize(minimumSize).GetResult().Show();
         }
 
-        private void OnSelectEnumVariableBinding(object data)
+        private void OnSelectEnumOrIntegerVariableBinding(object data)
         {
             var selectionData = (SelectionData)data;
             var variableAsset = selectionData.variableAsset;
             var dropdown = (TMP_Dropdown)target;
+            var variableType = variableAsset.GetType();
             
-            ScriptableVariableFactory.AssignEnumVariableToDropdownEvent(dropdown, variableAsset);
+            if (typeof(ScriptableEnum).IsAssignableFrom(variableType))
+            {
+                ScriptableVariableFactory.AssignEnumVariableToDropdownEvent(dropdown, variableAsset);
+            }
+            else if (typeof(ScriptableInt).IsAssignableFrom(variableType))
+            {
+                ScriptableVariableFactory.AssignIntVariableToDropdownEvent(dropdown, variableAsset);
+            }
         }
 
         private void OnCreateBindingButtonClicked(Rect rect)
@@ -224,13 +233,13 @@ namespace OpenUtility.Data.Editor
             ExtendedDropdownBuilder builder = new ExtendedDropdownBuilder("Create Binding", rect);
             
             var enumItems = bindingData.Where(bd => bd.Key.StartsWith("Int32/")).ToArray();
-            builder.StartIndent("Enum");
+            builder.StartIndent("Enum Or Integer");
             for (int i = 0; i < enumItems.Length; i++)
             {
                 var item = enumItems[i];
                 var itemName = item.Key.Split('/')[1];
                 
-                builder.AddItem(itemName, false, variableIcon, item.Value, OnCreateEnumVariableBinding);
+                builder.AddItem(itemName, false, variableIcon, item.Value, OnCreateEnumOrIntegerVariableBinding);
             }
             builder.EndIndent();
 
@@ -240,13 +249,20 @@ namespace OpenUtility.Data.Editor
             builder.AddMinimumSize(minimumSize).GetResult().Show();
         }
 
-        private void OnCreateEnumVariableBinding(object data)
+        private void OnCreateEnumOrIntegerVariableBinding(object data)
         {
             var bindingData = (BindingData)data;
             var variableType = bindingData.variableType;
             var dropdown = (TMP_Dropdown)target;
-            
-            ScriptableVariableFactory.CreateAndAssignEnumVariableToDropdownEvent(dropdown, variableType); //
+
+            if (typeof(ScriptableEnum).IsAssignableFrom(variableType))
+            {
+                ScriptableVariableFactory.CreateAndAssignEnumVariableToDropdownEvent(dropdown, variableType);
+            }
+            else if (typeof(ScriptableInt).IsAssignableFrom(variableType))
+            {
+                ScriptableVariableFactory.CreateAndAssignIntVariableToDropdownEvent(dropdown, variableType);
+            }
         }
 
         private void OnListenToScriptableVariableGUI()
@@ -290,14 +306,14 @@ namespace OpenUtility.Data.Editor
             ExtendedDropdownBuilder builder = new ExtendedDropdownBuilder("Select Event", rect);
             
             var enumItems = selectionData.Where(bd => bd.Key.StartsWith("Int32/")).ToArray();
-            builder.StartIndent("Enum");
+            builder.StartIndent("Enum Or Integer");
             for (int i = 0; i < enumItems.Length; i++)
             {
                 var item = enumItems[i];
                 var path = item.Key;
                 var itemName = path.Substring(path.IndexOf('/') + 1);
                 
-                builder.AddItem(itemName, false, variableIcon, item.Value, OnSelectEnumVariableEvent);
+                builder.AddItem(itemName, false, variableIcon, item.Value, OnSelectEnumOrIntegerVariableEvent);
             }
             builder.EndIndent();
             
@@ -307,13 +323,21 @@ namespace OpenUtility.Data.Editor
             builder.AddMinimumSize(minimumSize).GetResult().Show();
         }
 
-        private void OnSelectEnumVariableEvent(object data)
+        private void OnSelectEnumOrIntegerVariableEvent(object data)
         {
             var selectionData = (SelectionData)data;
             var variableAsset = selectionData.variableAsset;
             var dropdown = (TMP_Dropdown)target;
-            
-            ScriptableVariableFactory.AssignDropdownToEnumVariableEvent(dropdown, variableAsset);
+            var variableType = variableAsset.GetType();
+
+            if (typeof(ScriptableEnum).IsAssignableFrom(variableType))
+            {
+                ScriptableVariableFactory.AssignDropdownToEnumVariableEvent(dropdown, variableAsset);
+            }
+            else if (typeof(ScriptableInt).IsAssignableFrom(variableType))
+            {
+                ScriptableVariableFactory.AssignDropdownToIntVariableEvent(dropdown, variableAsset);
+            }
         }
 
         private void OnCreateEventButtonClicked(Rect rect)
@@ -323,13 +347,13 @@ namespace OpenUtility.Data.Editor
             ExtendedDropdownBuilder builder = new ExtendedDropdownBuilder("Create Binding", rect);
             
             var enumItems = bindingData.Where(bd => bd.Key.StartsWith("Int32/")).ToArray();
-            builder.StartIndent("Enum");
+            builder.StartIndent("Enum Or Integer");
             for (int i = 0; i < enumItems.Length; i++)
             {
                 var item = enumItems[i];
                 var itemName = item.Key.Split('/')[1];
                 
-                builder.AddItem(itemName, false, variableIcon, item.Value, OnCreateEnumVariableEvent);
+                builder.AddItem(itemName, false, variableIcon, item.Value, OnCreateEnumOrIntegerVariableEvent);
             }
             builder.EndIndent();
 
@@ -339,13 +363,20 @@ namespace OpenUtility.Data.Editor
             builder.AddMinimumSize(minimumSize).GetResult().Show();
         }
 
-        private void OnCreateEnumVariableEvent(object data)
+        private void OnCreateEnumOrIntegerVariableEvent(object data)
         {
             var bindingData = (BindingData)data;
             var variableType = bindingData.variableType;
             var dropdown = (TMP_Dropdown)target;
-            
-            ScriptableVariableFactory.CreateEnumVariableAndAssignDropdownToEvent(dropdown, variableType);
+
+            if (typeof(ScriptableEnum).IsAssignableFrom(variableType))
+            {
+                ScriptableVariableFactory.CreateEnumVariableAndAssignDropdownToEvent(dropdown, variableType);
+            }
+            else if (typeof(ScriptableInt).IsAssignableFrom(variableType))
+            {
+                ScriptableVariableFactory.CreateIntVariableAndAssignDropdownToEvent(dropdown, variableType);
+            }
         }
 
         private void OnInfoMessageGUI(string message)
