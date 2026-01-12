@@ -47,7 +47,7 @@ The core strength of this system is its ability to decouple data from specific s
 
 #### 🛠️ How It Works
 ##### 1. The Foundation
-The system is built on a generic base class, ensuring a consistent API across all your variable types.
+The library is built on generic base classes, ensuring a consistent API across all your variable types.
 
 ```csharp
 public abstract class ScriptableVariable<T> : ScriptableObject
@@ -61,7 +61,7 @@ public abstract class ScriptableVariable<T> : ScriptableObject
 Want to track a bool that toggles your game's "Hard Mode"?
 - Step 1: Create a `ScriptableBool` variable in your DifficultyManager and your EnemyAI MonoBehaviour classes.
 - Step 2: Press the plus icon in the inspector to create a new asset for your variable.
-- Step 3: Subscribe to the events!
+- Step 3: Start listening for value changes!
 
 ```csharp
 public class EnemyAI : MonoBehaviour 
