@@ -31,7 +31,7 @@ https://github.com/Bvanderwolf/com.openutility.unity.git#v0.1.1-alpha
 
 ---
 ## 🚀 Scriptable Variables for Unity
-A robust, lightweight architecture for managing project-wide variables using Unity's ScriptableObjects.
+A robust and lightweight library for managing project-wide variables using Unity's ScriptableObjects.
 
 #### 💡 The USP (Unique Selling Point)
 The core strength of this system is its ability to decouple data from specific scenes or scripts. By storing variables as Assets in your project folder, they can be shared across systems effortlessly without the need for complex Singletons, DontDestroyOnLoad, or rigid hard-references.
