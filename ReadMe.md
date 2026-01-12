@@ -243,6 +243,7 @@ public class DefaultIntegerSliderEventBinding : IntegerSliderEventBinding
 | **TMP_InputField** | ✅ Yes | ❌ No | ✅ Yes | ✅ Yes |
 | **Toggle** | ❌ No | ✅ Yes | ❌ No | ❌ No |
 | **TMP_Text** | ✅ Yes | ❌ No | ✅ Yes | ✅ Yes |
+| **TMP_Dropdown** | ❌ No | ❌ No | ✅ Yes | ❌ No
 
 ---
 
