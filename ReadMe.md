@@ -66,7 +66,8 @@ Want to track a bool that toggles your game's "Hard Mode"?
 ```csharp
 public class EnemyAI : MonoBehaviour 
 {
-    [SerializeField] private ScriptableBool isHardMode;
+    [SerializeField] 
+    private ScriptableBool isHardMode;
 
     void OnEnable()
     {
@@ -86,11 +87,13 @@ public class EnemyAI : MonoBehaviour
 
 public class DifficultyManager : MonoBehaviour
 {
-    [SerializeField] private ScriptableBool isHardMode;
+    [SerializeField] 
+    private ScriptableBool isHardMode;
 
-    public void ToggleHardMode(bool newValue)
+    public void ToggleHardMode()
     {
-        isHardMode.SetValue(newValue);
+        bool value = isHardMode.GetValue();
+        isHardMode.SetValue(!value);
     }
 }
 ```
