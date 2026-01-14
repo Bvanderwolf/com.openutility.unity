@@ -7,6 +7,8 @@ namespace OpenUtility.Data.Editor
 {
     internal struct BindingData
     {
+        public const string DUPLICATE_TYPE_WARNING = "Detected duplicate display name on type {0}. An option with the name '{1}' already exists for value type '{2}'. Make sure to use an original 'DisplayName'.";
+        
         public Type variableType;
         public Type bindingType;
 

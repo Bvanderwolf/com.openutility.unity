@@ -132,7 +132,9 @@ namespace OpenUtility.Data.Editor
                 string nameOfSubOption = attribute.DisplayName ?? bindingType?.Name ?? variableType.Name;
                 string path = $"{nameOfOption}/{nameOfSubOption}";
                 
-                _bindingDataCache.Add(path, new BindingData(variableType, bindingType));
+                var bindingData = new BindingData(variableType, bindingType);
+                if (!_bindingDataCache.TryAdd(path, bindingData))
+                    Debug.LogWarningFormat(BindingData.DUPLICATE_TYPE_WARNING, type, nameOfSubOption, nameOfOption);
             }
 
             return (_bindingDataCache);

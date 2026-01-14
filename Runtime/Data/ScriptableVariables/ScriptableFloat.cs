@@ -56,7 +56,8 @@ namespace OpenUtility.Data
 
         public override void SetValue(float newValue)
         {
-            SetValueWithoutNotify(newValue);
+            SetValueInternal(newValue);
+            SetPlayerPrefIfNeeded();
             OnValueChanged(newValue);
         }
 
