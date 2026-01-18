@@ -36,8 +36,13 @@
     },
     {
       "displayName": "Variable bindings",
-      "description": "Contains a scene demonstrating how to bind variables to ui elements",
+      "description": "Contains a scene demonstrating how to bind variables to ui elements.",
       "path": "Samples~/VariableBindings"
+    },
+    {
+      "displayName": "Connection Quality",
+      "description": "Contains a scene demonstrating how to present connection quality in your app using scriptable variables.",
+      "path": "Samples~/ConnectionQuality"
     },
     {
       "displayName": "Simple Addressables Setup",

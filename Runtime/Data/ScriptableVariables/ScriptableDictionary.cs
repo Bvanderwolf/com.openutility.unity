@@ -37,6 +37,7 @@ namespace OpenUtility.Data
 
         public override IDictionary<TKey, TValue> GetValue() => value;
         public TValue GetValue(TKey key) => value[key];
+        public TValue GetValue(TKey key, TValue defaultValue) => value.TryGetValue(key, out TValue result) ? result : defaultValue; 
 
         public override void SetValue(IDictionary<TKey, TValue> newValue) => value = newValue;
         public void SetValue(TKey key, TValue newValue) => value[key] = newValue;

@@ -1,0 +1,23 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2afb14cbf9e99bd488a434b59c5e0717, type: 3}
+  m_Name: ConnectionQualitySprites
+  m_EditorClassIdentifier: 
+  _values:
+  - key: 50
+    value: {fileID: -1207741535, guid: 85237e9b0a8fc704681eb18c4837f913, type: 3}
+  - key: 100
+    value: {fileID: -1241017697, guid: b5b848e5e6c24394bb4527242a195220, type: 3}
+  - key: 200
+    value: {fileID: 490243793, guid: 7ec0fde89a2cea740ae27071ac11eb57, type: 3}
+  - key: 201
+    value: {fileID: 948550686, guid: 2950648f82d424749bf3c921a53bb883, type: 3}

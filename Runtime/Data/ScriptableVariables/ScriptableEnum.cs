@@ -41,6 +41,8 @@ namespace OpenUtility.Data
             OnStringValueChanged(newValue);
         }
 
+        public void SetValue(TEnum newValue) => SetValue(Convert.ToInt32(newValue));
+
         public override string ToString() => GetEnumValue().ToString();
 
         private void OnEnumValueChanged(int newValue)

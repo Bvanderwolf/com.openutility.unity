@@ -1,8 +1,7 @@
-using OpenUtility.Data;
 using UnityEngine;
 using UnityEngine.Events;
 
-namespace OpenUtility
+namespace OpenUtility.Data
 {
     public class ScriptableEnumEvent : ScriptableVariableEvent<int>
     {
