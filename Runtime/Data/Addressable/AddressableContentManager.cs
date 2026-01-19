@@ -70,6 +70,15 @@ namespace OpenUtility.Data.Addressable
         }
         
         /// <summary>
+        /// Disables the usage of SAS tokens for asset bundle requests.
+        /// </summary>
+        public static void DisableSasTokenUsage()
+        {
+            _sasToken = null;
+            Addressables.WebRequestOverride = null;
+        }
+        
+        /// <summary>
         /// Returns an enumeration of all keys in the loaded catalogs.
         /// </summary>
         public static IEnumerable GetCatalogKeys()
