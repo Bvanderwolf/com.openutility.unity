@@ -37,12 +37,15 @@ namespace OpenUtility.Data.Addressable
         /// <summary>
         /// The list of loaded catalogs.
         /// </summary>
-        private static readonly IList<IResourceLocator> _catalogs = new List<IResourceLocator>();
+        private static readonly IList<IResourceLocator> catalogs = new List<IResourceLocator>();
+
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+        private static void OnSubSystemRegistration() => catalogs.Clear();
 
         /// <summary>
         /// Returns whether any content catalogs have been loaded.
         /// </summary>
-        public static bool HasLoadedCatalogs => _catalogs.Count > 0;
+        public static bool HasLoadedCatalogs => catalogs.Count > 0;
 
         /// <summary>
         /// Enables the usage of SAS tokens for asset bundle requests. Provide your complete sas token and the base
@@ -83,10 +86,10 @@ namespace OpenUtility.Data.Addressable
         /// </summary>
         public static IEnumerable GetCatalogKeys()
         {
-            if (_catalogs.Count == 0)
+            if (catalogs.Count == 0)
                 return (Enumerable.Empty<object>());
 
-            return (_catalogs.SelectMany(catalog => catalog.Keys));
+            return (catalogs.SelectMany(catalog => catalog.Keys));
         }
 
         /// <summary>
@@ -144,7 +147,7 @@ namespace OpenUtility.Data.Addressable
             {
                 if (result.success)
                 {
-                    _catalogs.Add(result.data);
+                    catalogs.Add(result.data);
                     Debug.Log($"Catalog downloaded. Id: {result.data.LocatorId}, keys: {string.Join(", ", result.data.Keys)}");
                     callback?.Invoke(RequestResult.CreateSuccess());
                 }
@@ -175,7 +178,7 @@ namespace OpenUtility.Data.Addressable
             {
                 if (result.success)
                 {
-                    _catalogs.Add(result.data);
+                    catalogs.Add(result.data);
                     Debug.Log($"Catalog loaded. Id: {result.data.LocatorId}, keys: {string.Join(", ", result.data.Keys)}");
                     callback?.Invoke(RequestResult.CreateSuccess());
                 }
@@ -192,13 +195,13 @@ namespace OpenUtility.Data.Addressable
         /// </summary>
         public static bool GetDownloadSize(Action<DataRequestResult<long?>> callback)
         {
-            if (_catalogs.Count == 0)
+            if (catalogs.Count == 0)
             {
                 Debug.LogWarning("Catalogs should be loaded before getting download size");
                 return (false);
             }
 
-            AddressableContent.GetDownloadSize(_catalogs, OnComplete);
+            AddressableContent.GetDownloadSize(catalogs, OnComplete);
 
             return (true);
 
@@ -230,13 +233,13 @@ namespace OpenUtility.Data.Addressable
         /// </summary>
         public static bool DownloadContent(Action<RequestResult> resultCallback, Action<DownloadStatus> statusCallback = null)
         {
-            if (_catalogs.Count == 0)
+            if (catalogs.Count == 0)
             {
                 Debug.LogWarning("Catalog should be loaded before downloading content");
                 return (false);
             }
 
-            AsyncOperationHandle operation = AddressableContent.DownloadContent(_catalogs);
+            AsyncOperationHandle operation = AddressableContent.DownloadContent(catalogs);
             WaitFor.Operation(operation, resultCallback, statusCallback);
 
             return (true);
@@ -249,7 +252,7 @@ namespace OpenUtility.Data.Addressable
         /// </summary>
         public static bool DownloadContent(IEnumerable keys, Action<RequestResult> resultCallback, Action<DownloadStatus> statusCallback = null)
         {
-            if (_catalogs.Count == 0)
+            if (catalogs.Count == 0)
             {
                 Debug.LogWarning("Catalog should be loaded before downloading content");
                 return (false);
@@ -266,7 +269,7 @@ namespace OpenUtility.Data.Addressable
         /// </summary>
         public static bool GetUpdatedCatalogs(Action<DataRequestResult<string[]>> callback)
         {
-            if (_catalogs.Count == 0)
+            if (catalogs.Count == 0)
             {
                 Debug.LogWarning("Catalog should be loaded before checking for updates");
                 return (false);
@@ -300,7 +303,7 @@ namespace OpenUtility.Data.Addressable
         /// </summary>
         public static bool DownloadUpdatedCatalogs(string[] catalogPaths, Action<RequestResult> callback)
         {
-            if (_catalogs.Count == 0)
+            if (catalogs.Count == 0)
             {
                 Debug.LogWarning("Catalog should be loaded before updating");
                 return (false);
@@ -314,17 +317,17 @@ namespace OpenUtility.Data.Addressable
             {
                 if (result.success)
                 {
-                    for (int i = 0; i < _catalogs.Count; i++)
+                    for (int i = 0; i < catalogs.Count; i++)
                     {
-                        string locatorId = _catalogs[i].LocatorId;
+                        string locatorId = catalogs[i].LocatorId;
                         int indexOfUpdatedCatalog = Array.FindIndex(result.data, (catalog) => catalog.LocatorId == locatorId);
                         if (indexOfUpdatedCatalog == -1)
                             continue;
 
-                        _catalogs[i] = result.data[indexOfUpdatedCatalog];
+                        catalogs[i] = result.data[indexOfUpdatedCatalog];
                     }
 
-                    Debug.Log($"Download of updated catalogs was a success. Updated {_catalogs.Count} catalogs");
+                    Debug.Log($"Download of updated catalogs was a success. Updated {catalogs.Count} catalogs");
 
                     callback?.Invoke(RequestResult.CreateSuccess());
                 }
@@ -342,10 +345,10 @@ namespace OpenUtility.Data.Addressable
         /// </summary>
         public static bool CacheExistsForLoadedCatalogs()
         {
-            if (_catalogs.Count == 0)
+            if (catalogs.Count == 0)
                 return (false);
 
-            foreach (IResourceLocator catalog in _catalogs)
+            foreach (IResourceLocator catalog in catalogs)
                 if (!AddressableContent.CacheExists((ResourceLocationMap)catalog))
                     return (false);
 
@@ -357,10 +360,10 @@ namespace OpenUtility.Data.Addressable
         /// </summary>
         public static void ClearRuntimeCache()
         {
-            for (int i = _catalogs.Count - 1; i >= 0; i--)
+            for (int i = catalogs.Count - 1; i >= 0; i--)
             {
-                Addressables.RemoveResourceLocator(_catalogs[i]);
-                _catalogs.RemoveAt(i);
+                Addressables.RemoveResourceLocator(catalogs[i]);
+                catalogs.RemoveAt(i);
             }
         }
         
