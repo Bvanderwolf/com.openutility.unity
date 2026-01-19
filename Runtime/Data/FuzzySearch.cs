@@ -110,19 +110,19 @@ namespace OpenUtility.Data
         /// For example: 3 means to accept 1 incorrect character every 3 characters.</param>
         /// <param name="searchType">The search type to use for the search.</param>
         /// <returns></returns>
-        public static UnityEngine.Object[] Search(List<UnityEngine.Object> items, string query, int maxResults, int errorMargin = 3, SearchType searchType = SearchType.AutoComplete)
+        public static GameObject[] Search(List<GameObject> items, string query, int maxResults, int errorMargin = 3, SearchType searchType = SearchType.AutoComplete)
         {
             if (string.IsNullOrEmpty(query))
                 return (items.ToArray());
 
             if (maxResults < 1)
-                return (Array.Empty<UnityEngine.Object>());
+                return (Array.Empty<GameObject>());
 
             string queryToLower = query.ToLower();
             int maxAllowedDistance = Math.Max(1, query.Length / errorMargin);
-            var sorted = new SortedList<int, List<UnityEngine.Object>>(items.Count);
+            var sorted = new SortedList<int, List<GameObject>>(items.Count);
 
-            foreach (UnityEngine.Object item in items)
+            foreach (GameObject item in items)
             {
                 if (searchType == SearchType.AutoComplete && query.Length > item.name.Length)
                     continue;
@@ -132,12 +132,12 @@ namespace OpenUtility.Data
                     continue;
 
                 if (!sorted.ContainsKey(distance))
-                    sorted[distance] = new List<UnityEngine.Object>();
+                    sorted[distance] = new List<GameObject>();
 
                 sorted[distance].Add(item);
             }
 
-            var results = new List<UnityEngine.Object>(maxResults);
+            var results = new List<GameObject>(maxResults);
             var values = sorted.Values;
 
             for (int i = 0; i < values.Count; i++)
