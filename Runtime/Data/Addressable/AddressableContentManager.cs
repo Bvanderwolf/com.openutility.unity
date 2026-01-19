@@ -39,13 +39,21 @@ namespace OpenUtility.Data.Addressable
         /// </summary>
         private static readonly IList<IResourceLocator> catalogs = new List<IResourceLocator>();
 
-        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
-        private static void OnSubSystemRegistration() => catalogs.Clear();
-
         /// <summary>
         /// Returns whether any content catalogs have been loaded.
         /// </summary>
         public static bool HasLoadedCatalogs => catalogs.Count > 0;
+
+        /// <summary>
+        /// Returns whether the catalog at the specified path has been loaded.
+        /// </summary>
+        public static bool HasLoadedCatalog(string catalogPath)
+        {
+            return (catalogs.Any(catalog => catalog.LocatorId.Equals(catalogPath)));
+        }
+
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+        private static void OnSubSystemRegistration() => catalogs.Clear();
 
         /// <summary>
         /// Enables the usage of SAS tokens for asset bundle requests. Provide your complete sas token and the base
