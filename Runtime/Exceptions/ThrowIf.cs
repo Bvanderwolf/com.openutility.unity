@@ -70,8 +70,13 @@ namespace OpenUtility.Exceptions
         public static void OutOfBounds<T>(T[] array, int index)
         {
             if (index < 0 || index >= array.Length)
-                throw new IndexOutOfRangeException(
-                    $"Index {index} is out of bounds for array of length {array.Length}.");
+                throw new IndexOutOfRangeException($"Index {index} is out of bounds for array of length {array.Length}.");
+        }
+        
+        public static void OutOfBounds<T>(ICollection<T> list, int index)
+        {
+            if (index < 0 || index >= list.Count)
+                throw new IndexOutOfRangeException($"Index {index} is out of bounds for list of count {list.Count}.");
         }
 
         public static void EmptyArray<T>(T[] array)
@@ -112,6 +117,30 @@ namespace OpenUtility.Exceptions
             {
                 throw new FormatException($"The provided integer '{value}' is not a valid boolean representation. Use 0 for false and 1 for true.");
             }
+        }
+
+        public static void SmallerThen(int value, int threshold)
+        {
+            if (value < threshold)
+                throw new Exception($"Value {value} is smaller than the threshold {threshold}.");
+        }
+        
+        public static void SmallerThen(int value, int threshold, string message)
+        {
+            if (value < threshold)
+                throw new Exception(message);
+        }
+
+        public static void GreaterThen(int value, int threshold)
+        {
+            if (value > threshold)
+                throw new Exception($"Value {value} is greater than the threshold {threshold}.");
+        }
+        
+        public static void GreaterThen(int value, int threshold, string message)
+        {
+            if (value > threshold)
+                throw new Exception(message);
         }
     }
 }
