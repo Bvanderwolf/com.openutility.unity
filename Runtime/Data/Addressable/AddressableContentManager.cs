@@ -49,6 +49,9 @@ namespace OpenUtility.Data.Addressable
         /// </summary>
         public static bool HasLoadedCatalog(string catalogPath)
         {
+            if (catalogs.Count == 0)
+                return (false);
+            
             return (catalogs.Any(catalog => catalog.LocatorId.Equals(catalogPath)));
         }
 
