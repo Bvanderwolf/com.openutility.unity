@@ -124,6 +124,7 @@ namespace OpenUtility.Data.Addressable
         /// <summary>
         /// Returns an enumeration of all keys in the loaded catalogs. Use this overload if you want
         /// to filter which content to download before calling GetDownloadSize(keys) or DownloadContent(keys).
+        /// The given predicate will be called for each key and should return true for keys that should be included.
         /// </summary>
         public static IEnumerable GetCatalogKeys(Predicate<object> predicate)
         {
@@ -137,6 +138,21 @@ namespace OpenUtility.Data.Addressable
             }
 
             return (keys);
+        }
+
+        /// <summary>
+        /// Returns an enumeration of all the keys of a loaded catalog at the specified path. Use this overload if you
+        /// want to only get keys from a specific catalog.
+        /// </summary>
+        /// <param name="catalogPath"></param>
+        /// <returns></returns>
+        public static IEnumerable GetCatalogKeys(string catalogPath)
+        {
+            IResourceLocator catalog = catalogs.FirstOrDefault(catalog => catalog.LocatorId.Equals(catalogPath));
+            if (catalog == null)
+                return (Enumerable.Empty<object>());
+
+            return (catalog.Keys);
         }
         
         /// <summary>
