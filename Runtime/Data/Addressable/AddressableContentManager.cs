@@ -271,6 +271,24 @@ namespace OpenUtility.Data.Addressable
 
             return (true);
         }
+
+        /// <summary>
+        /// Downloads all content of a specific catalogs. Returns false if the catalog is not loaded.
+        /// </summary>
+        public static bool DownloadContent(string catalogPath, Action<RequestResult> resultCallback, Action<DownloadStatus> statusCallback = null)
+        {
+            if (!HasLoadedCatalog(catalogPath))
+            {
+                Debug.LogWarning("Catalog should be loaded before downloading content");
+                return (false); 
+            }
+            
+            IEnumerable keys = GetCatalogKeys(catalogPath);
+            AsyncOperationHandle operation = AddressableContent.DownloadContent(keys);
+            WaitFor.Operation(operation, resultCallback, statusCallback);
+            
+            return (true);
+        }
         
         /// <summary>
         /// Downloads content for the specified keys. Use the GetLoadedCatalogKeys() method to get all keys in the loaded catalogs.
