@@ -109,7 +109,7 @@ namespace OpenUtility.Data
                 
                 ScriptableVariable<T> variable = GetScriptableVariable();
                 
-                ThrowIf.Null(variable);
+                ThrowIf.SystemObjectNull(variable);
 
                 return (variable.GetValue());
             }
@@ -123,7 +123,7 @@ namespace OpenUtility.Data
                 {
                     ScriptableVariable<T> variable = GetScriptableVariable();
                     
-                    ThrowIf.Null(variable);
+                    ThrowIf.SystemObjectNull(variable);
                     
                     variable.SetValue(value);
                 }

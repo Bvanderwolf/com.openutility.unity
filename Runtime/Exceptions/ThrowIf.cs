@@ -31,10 +31,16 @@ namespace OpenUtility.Exceptions
                 throw new ArgumentException("string is empty.");
         }
 
-        public static void Null(Object obj)
+        public static void SystemObjectNull(Object obj)
         {
             if (obj == null)
                 throw new NullReferenceException("System.Object reference not set to an instance of an object.");
+        }
+
+        public static void UnityObjectNull(UnityEngine.Object obj)
+        {
+            if (obj == null)
+                throw new NullReferenceException("UnityEngine.Object reference not set to an instance of an object.");
         }
 
         public static void Negative(Single single)

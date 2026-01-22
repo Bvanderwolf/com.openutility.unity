@@ -75,7 +75,7 @@ namespace OpenUtility.Data.Addressable
         /// </summary>
         public static void EnableSasTokenUsage(Func<string> sasTokenFactory, params string[] baseUrls)
         {
-            ThrowIf.Null(sasTokenFactory);
+            ThrowIf.SystemObjectNull(sasTokenFactory);
             ThrowIf.EmptyArray(baseUrls);
 
             _sasToken = new SasToken(sasTokenFactory, baseUrls);

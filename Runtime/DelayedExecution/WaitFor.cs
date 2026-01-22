@@ -53,7 +53,7 @@ namespace OpenUtility.DelayedExecution
         /// </summary>
         public static YieldInstruction Connection(UnityWebRequest request, Action<RequestResult> callback)
         {
-            ThrowIf.Null(request);
+            ThrowIf.SystemObjectNull(request);
             
             return (GetOrCreateAwaiter().WaitForConnection(request, callback));
         }
@@ -63,7 +63,7 @@ namespace OpenUtility.DelayedExecution
         /// </summary>
         public static YieldInstruction Scroll(ScrollRect scrollView, ScrollOptions options = default, Action callback = null)
         {
-            ThrowIf.Null(scrollView);
+            ThrowIf.SystemObjectNull(scrollView);
             
             return (GetOrCreateAwaiter().WaitForScroll(scrollView, options, callback));
         }
@@ -73,7 +73,7 @@ namespace OpenUtility.DelayedExecution
         /// </summary>
         public static YieldInstruction Focus(this TMP_InputField inputField, Action callback = null)
         {
-            ThrowIf.Null(inputField);
+            ThrowIf.SystemObjectNull(inputField);
 
             return (GetOrCreateAwaiter().WaitForFocus(inputField, callback));
         }
@@ -83,7 +83,7 @@ namespace OpenUtility.DelayedExecution
         /// </summary>
         public static YieldInstruction Localization(LocalizedString localizedString, Action<string> callback = null)
         {
-            ThrowIf.Null(localizedString);
+            ThrowIf.SystemObjectNull(localizedString);
 
             return (GetOrCreateAwaiter().WaitForLocalization(localizedString, callback));
         }
@@ -105,7 +105,7 @@ namespace OpenUtility.DelayedExecution
         /// </summary>
         public static YieldInstruction WebRequest(UnityWebRequest request, Action<UnityWebRequest> callback = null)
         {
-            ThrowIf.Null(request);
+            ThrowIf.SystemObjectNull(request);
             
             return (GetOrCreateAwaiter().WaitForWebRequest(request, callback));
         }
@@ -115,7 +115,7 @@ namespace OpenUtility.DelayedExecution
         /// </summary>
         public static YieldInstruction Operation(AsyncOperation operation, Action<AsyncOperation> callback = null)
         {
-            ThrowIf.Null(operation);
+            ThrowIf.SystemObjectNull(operation);
             
             return (GetOrCreateAwaiter().WaitForOperation(operation, callback));
         }
@@ -125,7 +125,7 @@ namespace OpenUtility.DelayedExecution
         /// </summary>
         public static YieldInstruction Operation<T>(AsyncOperationBase<T> operation, Action<AsyncOperationBase<T>> callback = null)
         {
-            ThrowIf.Null(operation);
+            ThrowIf.SystemObjectNull(operation);
             
             return (GetOrCreateAwaiter().WaitForOperation(operation, callback));
         }
@@ -135,7 +135,7 @@ namespace OpenUtility.DelayedExecution
         /// </summary>
         public static YieldInstruction Operation(AsyncOperationHandle operation, Action<RequestResult> callback = null, Action<DownloadStatus> progress = null)
         {
-            ThrowIf.Null(operation);
+            ThrowIf.SystemObjectNull(operation);
             
             return (GetOrCreateAwaiter().WaitForOperation(operation, callback, progress));
         }
@@ -145,7 +145,7 @@ namespace OpenUtility.DelayedExecution
         /// </summary>
         public static YieldInstruction Operation<T>(AsyncOperationHandle<T> operation, Action<DataRequestResult<T>> callback = null, Action<DownloadStatus> progress = null)
         {
-            ThrowIf.Null(operation);
+            ThrowIf.SystemObjectNull(operation);
             
             return (GetOrCreateAwaiter().WaitForOperation(operation, callback, progress));
         }
@@ -155,7 +155,7 @@ namespace OpenUtility.DelayedExecution
         /// </summary>
         public static YieldInstruction Operations<T>(AsyncOperationHandle<T>[] operations, Action<DataRequestResult<T[]>> callback = null, Action<DownloadStatus> progress = null)
         {
-            ThrowIf.Null(operations);
+            ThrowIf.SystemObjectNull(operations);
             
             return (GetOrCreateAwaiter().WaitForOperations(operations, callback, progress));
         }

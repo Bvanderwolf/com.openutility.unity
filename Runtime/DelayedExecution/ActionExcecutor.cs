@@ -9,7 +9,7 @@ namespace OpenUtility.DelayedExecution
     {
         public YieldInstruction ExcecuteNextFrame(Action action)
         {
-            ThrowIf.Null(action);
+            ThrowIf.SystemObjectNull(action);
 
             return (StartCoroutine(RunNextFrame()));
             
@@ -23,7 +23,7 @@ namespace OpenUtility.DelayedExecution
         
         public YieldInstruction ExcecuteNextFrame<T>(Action<T> action, T parameter)
         {
-            ThrowIf.Null(action);
+            ThrowIf.SystemObjectNull(action);
 
             return (StartCoroutine(RunNextFrame()));
             
@@ -37,7 +37,7 @@ namespace OpenUtility.DelayedExecution
 
         public YieldInstruction ExcecuteEndOfFrame(Action action)
         {
-            ThrowIf.Null(action);
+            ThrowIf.SystemObjectNull(action);
 
             return (StartCoroutine(RunEndOfFrame()));
             
@@ -51,7 +51,7 @@ namespace OpenUtility.DelayedExecution
         
         public YieldInstruction ExcecuteEndOfFrame<T>(Action<T> action, T parameter)
         {
-            ThrowIf.Null(action);
+            ThrowIf.SystemObjectNull(action);
 
             return (StartCoroutine(RunEndOfFrame()));
             
@@ -65,7 +65,7 @@ namespace OpenUtility.DelayedExecution
         
         public YieldInstruction ExcecuteAfterFixedUpdate(Action action)
         {
-            ThrowIf.Null(action);
+            ThrowIf.SystemObjectNull(action);
 
             return (StartCoroutine(RunFixedUpdate()));
             
@@ -79,7 +79,7 @@ namespace OpenUtility.DelayedExecution
         
         public YieldInstruction ExcecuteAfterFixedUpdate<T>(Action<T> action, T parameter)
         {
-            ThrowIf.Null(action);
+            ThrowIf.SystemObjectNull(action);
 
             return (StartCoroutine(RunFixedUpdate()));
             
@@ -93,7 +93,7 @@ namespace OpenUtility.DelayedExecution
         
         public YieldInstruction ExcecuteAfterSeconds(Action action, float seconds)
         {
-            ThrowIf.Null(action);
+            ThrowIf.SystemObjectNull(action);
             ThrowIf.Negative(seconds);
 
             return (StartCoroutine(RunAfterSeconds()));
@@ -108,7 +108,7 @@ namespace OpenUtility.DelayedExecution
         
         public YieldInstruction ExcecuteAfterSeconds<T>(Action<T> action, T parameter, float seconds)
         {
-            ThrowIf.Null(action);
+            ThrowIf.SystemObjectNull(action);
             ThrowIf.Negative(seconds);
 
             return (StartCoroutine(RunAfterSeconds()));
@@ -123,7 +123,7 @@ namespace OpenUtility.DelayedExecution
 
         public YieldInstruction ExcecuteAfterRealtimeSeconds(Action action, float seconds)
         {
-            ThrowIf.Null(action);
+            ThrowIf.SystemObjectNull(action);
             ThrowIf.Negative(seconds);
 
             return (StartCoroutine(RunAfterSeconds()));
@@ -138,7 +138,7 @@ namespace OpenUtility.DelayedExecution
         
         public YieldInstruction ExcecuteAfterRealtimeSeconds<T>(Action<T> action, T parameter, float seconds)
         {
-            ThrowIf.Null(action);
+            ThrowIf.SystemObjectNull(action);
             ThrowIf.Negative(seconds);
 
             return (StartCoroutine(RunAfterSeconds()));

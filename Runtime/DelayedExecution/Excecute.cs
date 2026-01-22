@@ -15,7 +15,7 @@ namespace OpenUtility.DelayedExecution
         /// </summary>
         public static YieldInstruction NextFrame(Action action)
         {
-            ThrowIf.Null(action);
+            ThrowIf.SystemObjectNull(action);
             
             return (GetOrCreateExcecutor().ExcecuteNextFrame(action));
         }
@@ -25,7 +25,7 @@ namespace OpenUtility.DelayedExecution
         /// </summary>
         public static YieldInstruction NextFrame<T>(Action<T> action, T parameter)
         {
-            ThrowIf.Null(action);
+            ThrowIf.SystemObjectNull(action);
             
             return (GetOrCreateExcecutor().ExcecuteNextFrame(action, parameter));
         }
@@ -35,7 +35,7 @@ namespace OpenUtility.DelayedExecution
         /// </summary>
         public static YieldInstruction EndOfFrame(Action action)
         {
-            ThrowIf.Null(action);
+            ThrowIf.SystemObjectNull(action);
             
             return (GetOrCreateExcecutor().ExcecuteEndOfFrame(action));
         }
@@ -45,7 +45,7 @@ namespace OpenUtility.DelayedExecution
         /// </summary>
         public static YieldInstruction EndOfFrame<T>(Action<T> action, T parameter)
         {
-            ThrowIf.Null(action);
+            ThrowIf.SystemObjectNull(action);
             
             return (GetOrCreateExcecutor().ExcecuteEndOfFrame(action, parameter));
         }
@@ -56,7 +56,7 @@ namespace OpenUtility.DelayedExecution
         /// <param name="action"></param>
         public static YieldInstruction AfterFixedUpdate(Action action)
         {
-            ThrowIf.Null(action);
+            ThrowIf.SystemObjectNull(action);
             
             return (GetOrCreateExcecutor().ExcecuteAfterFixedUpdate(action));
         }
@@ -66,7 +66,7 @@ namespace OpenUtility.DelayedExecution
         /// </summary>
         public static YieldInstruction AfterFixedUpdate<T>(Action<T> action, T parameter)
         {
-            ThrowIf.Null(action);
+            ThrowIf.SystemObjectNull(action);
             
             return (GetOrCreateExcecutor().ExcecuteAfterFixedUpdate(action, parameter));
         }
@@ -76,7 +76,7 @@ namespace OpenUtility.DelayedExecution
         /// </summary>
         public static YieldInstruction AfterSeconds(Action action, float seconds)
         {
-            ThrowIf.Null(action);
+            ThrowIf.SystemObjectNull(action);
             ThrowIf.Negative(seconds);
 
             return (GetOrCreateExcecutor().ExcecuteAfterSeconds(action, seconds));
@@ -87,7 +87,7 @@ namespace OpenUtility.DelayedExecution
         /// </summary>
         public static YieldInstruction AfterSeconds<T>(Action<T> action, T parameter, float seconds)
         {
-            ThrowIf.Null(action);
+            ThrowIf.SystemObjectNull(action);
             ThrowIf.Negative(seconds);
             
             return (GetOrCreateExcecutor().ExcecuteAfterSeconds(action, parameter, seconds));
@@ -98,7 +98,7 @@ namespace OpenUtility.DelayedExecution
         /// </summary>
         public static YieldInstruction AfterRealtimeSeconds(Action action, float seconds)
         {
-            ThrowIf.Null(action);
+            ThrowIf.SystemObjectNull(action);
             ThrowIf.Negative(seconds);
 
             return (GetOrCreateExcecutor().ExcecuteAfterRealtimeSeconds(action, seconds));
@@ -109,7 +109,7 @@ namespace OpenUtility.DelayedExecution
         /// </summary>
         public static YieldInstruction AfterRealtimeSeconds<T>(Action<T> action, T parameter, float seconds)
         {
-            ThrowIf.Null(action);
+            ThrowIf.SystemObjectNull(action);
             ThrowIf.Negative(seconds);
             
             return (GetOrCreateExcecutor().ExcecuteAfterRealtimeSeconds(action, parameter, seconds));

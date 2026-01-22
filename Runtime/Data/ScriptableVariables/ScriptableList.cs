@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -6,15 +7,12 @@ namespace OpenUtility.Data
     public abstract class ScriptableList<T> : ScriptableVariable<IList<T>>
     {
         [Header("State")]
-        [SerializeField]
+        [SerializeField, Tooltip("The values used to start the list with.")]
         private List<T> _values = new List<T>();
         
         protected IList<T> value { get; private set; }
-        
-        /// <summary>
-        /// The capacity of the list.
-        /// </summary>
-        public int Capacity => (value as List<T>)?.Capacity ?? _values.Capacity;
+
+        public event Action<T> ValueAdded;
         
         /// <summary>
         /// The number of elements contained in the list.
@@ -71,6 +69,9 @@ namespace OpenUtility.Data
         
         private static void Copy(List<T> source, IList<T> destination)
         {
+            if (ReferenceEquals(source, destination))
+                return;
+            
             if (destination is List<T> concrete)
                 concrete.Capacity = source.Capacity;
             
