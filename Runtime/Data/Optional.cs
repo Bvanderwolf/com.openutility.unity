@@ -45,7 +45,9 @@ namespace OpenUtility.Data
         }
         
         public T GetValueOrDefault(T defaultValue = default) => _hasValue ? _value : defaultValue;
-        
+
+        public override string ToString() => _hasValue ? _value.ToString() : "(None)";
+
         public static implicit operator Optional<T>(T value)
         {
             return new Optional<T>(value);
