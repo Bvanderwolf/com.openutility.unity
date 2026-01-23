@@ -19,7 +19,7 @@ namespace OpenUtility.Data.Pooling
         {
             pool = scriptablePool;
 
-            Debug.Log($"Created new instance of {typeof(T).Name} by pool {scriptablePool.name}");
+            Debug.Log($"[{typeof(T).Name}] Created by pool '{scriptablePool.name}'.");
         }
 
         /// <summary>

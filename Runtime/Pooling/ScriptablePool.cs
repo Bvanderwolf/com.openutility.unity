@@ -1,5 +1,4 @@
 using OpenUtility.Data.Pooling;
-using OpenUtility.Logging;
 using UnityEngine;
 
 namespace OpenUtility
@@ -12,9 +11,13 @@ namespace OpenUtility
 
         protected override PoolGameObject OnCreateInstance()
         {
-            var instance = Instantiate(_prefab).GetComponent<PoolGameObject>();
-            
-            WarnIf.SystemObjectNull(instance, $"Failed to create instance of PoolGameObject from prefab '{_prefab.name}'. Make sure the prefab has a PoolGameObject component attached to it.");
+            GameObject gameObject = Instantiate(_prefab);
+            if (!gameObject.TryGetComponent<PoolGameObject>(out var instance))
+            {
+                Debug.Log($"[{name}] Could not find the {nameof(PoolGameObject)} component on prefab '{_prefab.name}'. It is best practice to add your pooling component beforehand to set serialized fields. Adding it manually now...");
+
+                instance = gameObject.AddComponent<PoolGameObject>();
+            }
 
             return (instance);
         }

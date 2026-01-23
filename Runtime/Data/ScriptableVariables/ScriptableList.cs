@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -11,8 +10,6 @@ namespace OpenUtility.Data
         private List<T> _values = new List<T>();
         
         protected IList<T> value { get; private set; }
-
-        public event Action<T> ValueAdded;
         
         /// <summary>
         /// The number of elements contained in the list.
