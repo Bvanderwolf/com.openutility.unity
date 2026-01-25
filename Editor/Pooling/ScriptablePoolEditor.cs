@@ -12,7 +12,6 @@ namespace OpenUtility.Data.Pooling.Editor
         private Type _scriptablePoolBaseType;
         private PropertyInfo _poolProperty;
 
-        // ObjectPool<T> reflection
         private PropertyInfo _countAllProp;
         private PropertyInfo _countActiveProp;
         private PropertyInfo _countInactiveProp;
