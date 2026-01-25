@@ -3,12 +3,19 @@ using UnityEngine;
 
 namespace OpenUtility.Data
 {
+    /// <summary>
+    /// A base class for creating scriptable list variables of various key-value types.
+    /// </summary>
     public abstract class ScriptableList<T> : ScriptableVariable<IList<T>>
     {
         [Header("State")]
         [SerializeField, Tooltip("The values used to start the list with.")]
         private List<T> _values = new List<T>();
-        
+
+        [Header("Settigs")]
+        [SerializeField, Tooltip("Optionally determine capacity by this value instead of the 'values' property")]
+        private Optional<int> _capacity;
+
         protected IList<T> value { get; private set; }
         
         /// <summary>
@@ -18,7 +25,7 @@ namespace OpenUtility.Data
 
         protected virtual void OnEnable()
         {
-            value ??= CreateValue(_values.Count);
+            value ??= CreateValue(_capacity.HasValue ? _capacity.Value : _values.Count);
             
             Copy(_values, value);   
         }
@@ -29,11 +36,28 @@ namespace OpenUtility.Data
         }
 
         /// <summary>
-        /// Returns the collection instance to use for storing values. By default, uses the internal array.
+        /// Returns the collection instance to use for storing values. By default, uses the serialized list property.
         /// Override for custom collection types.
         /// </summary>
-        /// <param name="capacity">The capacity determined by the serialized internal array.</param>
-        protected virtual IList<T> CreateValue(int capacity) => _values;
+        /// <param name="capacity">The capacity determined by the serialized list property in the inspector.</param>
+        protected virtual IList<T> CreateValue(int capacity)
+        {
+#if UNITY_EDITOR
+            if (capacity == _values.Count) 
+                return (new List<T>(_values));
+            
+            var list = new List<T>(capacity);
+            list.AddRange(_values);
+            return (list);
+
+#else
+            if (capacity == _values.Count)
+                 return (_values);
+                
+            _values.Capacity = capacity;
+            return (_values);
+#endif
+        }
 
         public override IList<T> GetValue() => value;
 
