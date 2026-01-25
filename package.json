@@ -12,7 +12,7 @@
     {
       "displayName": "Pooling Out Of The Box",
       "description": "Contains a scene demonstrating simple use cases for game object pooling",
-      "path": "Samples~/OutOfTheBoxPooling"
+      "path": "Samples~/Pooling Out Of The Box"
     },
     {
       "displayName": "Custom Pooling",
@@ -22,37 +22,37 @@
     {
       "displayName": "Pooling Between Scenes",
       "description": "Contains content demonstrating how pooling is handled between scenes.",
-      "path": "Samples~/PoolingBetweenScenes"
+      "path": "Samples~/Pooling Between Scenes"
     },
     {
       "displayName": "Script a variable",
       "description": "Contains a scene demonstrating how to use Scriptable Variables.",
-      "path": "Samples~/ScriptAVariable"
+      "path": "Samples~/Script a variable"
     },
     {
       "displayName": "Custom variable types",
       "description": "Contains a scene demonstrating how to use custom variables,references and bindings.",
-      "path": "Samples~/CustomVariableTypes"
+      "path": "Samples~/Custom variable types"
     },
     {
       "displayName": "Variable bindings",
       "description": "Contains a scene demonstrating how to bind variables to ui elements.",
-      "path": "Samples~/VariableBindings"
+      "path": "Samples~/Variable bindings"
     },
     {
       "displayName": "Connection Quality",
       "description": "Contains a scene demonstrating how to present connection quality in your app using scriptable variables.",
-      "path": "Samples~/ConnectionQuality"
+      "path": "Samples~/Connection Quality"
     },
     {
       "displayName": "Simple Addressables Setup",
       "description": "Contains a scene demonstrating a simple setup for Unity Addressables. \n-Loading catalogs at runtime\n-Loading assets at runtime\n-Managing Cache",
-      "path": "Samples~/SimpleAdressablesSetup"
+      "path": "Samples~/Simple Addressables Setup"
     },
     {
       "displayName": "Advanced Addressables Setup",
       "description": "Contains a scene demonstrating an advanced setup for Unity Addressables.\n-Everything from Simple Addressables Setup\n-Sas token usage\n-Selective downloading of content\n-Build properties",
-      "path": "Samples~/AdvancedAddressablesSetup"
+      "path": "Samples~/Advanced Addressables Setup"
     }
   ],
   "unity": "6000.0"

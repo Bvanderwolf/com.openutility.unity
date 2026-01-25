@@ -7,6 +7,10 @@ namespace OpenUtility.Data.Pooling
         /// <summary>
         /// Releases the GameObject back to its pool if any of its components implement IPoolGameObject.
         /// </summary>
-        public static void Release(this GameObject gameObject) => gameObject.GetComponent<IPoolGameObject>()?.Release();
+        public static void Release(this GameObject gameObject)
+        {
+            if (gameObject.TryGetComponent<IPoolGameObject>(out var component))
+                component.Release();
+        }
     }
 }

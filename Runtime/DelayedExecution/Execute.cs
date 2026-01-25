@@ -6,9 +6,9 @@ using Object = UnityEngine.Object;
 
 namespace OpenUtility.DelayedExecution
 {
-    public static class Excecute
+    public static class Execute
     {
-        private static Optional<ActionExcecutor> _excecutor;
+        private static Optional<ActionExecutor> _executor;
 
         /// <summary>
         /// Invokes the action on the next frame, after all Update calls have been made.
@@ -17,17 +17,17 @@ namespace OpenUtility.DelayedExecution
         {
             ThrowIf.SystemObjectNull(action);
             
-            return (GetOrCreateExcecutor().ExcecuteNextFrame(action));
+            return (GetOrCreateExcecutor().ExecuteNextFrame(action));
         }
 
         /// <summary>
         /// Invokes the action on the next frame, after all Update calls have been made.
         /// </summary>
-        public static YieldInstruction NextFrame<T>(Action<T> action, T parameter)
+        public static YieldInstruction NextFrame<T>(Action<T> action, T argument)
         {
             ThrowIf.SystemObjectNull(action);
             
-            return (GetOrCreateExcecutor().ExcecuteNextFrame(action, parameter));
+            return (GetOrCreateExcecutor().ExecuteNextFrame(action, argument));
         }
         
         /// <summary>
@@ -37,17 +37,17 @@ namespace OpenUtility.DelayedExecution
         {
             ThrowIf.SystemObjectNull(action);
             
-            return (GetOrCreateExcecutor().ExcecuteEndOfFrame(action));
+            return (GetOrCreateExcecutor().ExecuteEndOfFrame(action));
         }
         
         /// <summary>
         /// Invokes the action at the end of the current frame, after all rendering is complete.
         /// </summary>
-        public static YieldInstruction EndOfFrame<T>(Action<T> action, T parameter)
+        public static YieldInstruction EndOfFrame<T>(Action<T> action, T argument)
         {
             ThrowIf.SystemObjectNull(action);
             
-            return (GetOrCreateExcecutor().ExcecuteEndOfFrame(action, parameter));
+            return (GetOrCreateExcecutor().ExecuteEndOfFrame(action, argument));
         }
         
         /// <summary>
@@ -58,7 +58,7 @@ namespace OpenUtility.DelayedExecution
         {
             ThrowIf.SystemObjectNull(action);
             
-            return (GetOrCreateExcecutor().ExcecuteAfterFixedUpdate(action));
+            return (GetOrCreateExcecutor().ExecuteAfterFixedUpdate(action));
         }
         
         /// <summary>
@@ -68,7 +68,15 @@ namespace OpenUtility.DelayedExecution
         {
             ThrowIf.SystemObjectNull(action);
             
-            return (GetOrCreateExcecutor().ExcecuteAfterFixedUpdate(action, parameter));
+            return (GetOrCreateExcecutor().ExecuteAfterFixedUpdate(action, parameter));
+        }
+        
+        public static YieldInstruction AfterFrames(Action action, int frameCount)
+        {
+            ThrowIf.SystemObjectNull(action);
+            ThrowIf.Negative(frameCount);
+            
+            return (GetOrCreateExcecutor().ExcecuteAfterFrames(action, frameCount));
         }
         
         /// <summary>
@@ -79,7 +87,7 @@ namespace OpenUtility.DelayedExecution
             ThrowIf.SystemObjectNull(action);
             ThrowIf.Negative(seconds);
 
-            return (GetOrCreateExcecutor().ExcecuteAfterSeconds(action, seconds));
+            return (GetOrCreateExcecutor().ExecuteAfterSeconds(action, seconds));
         }
         
         /// <summary>
@@ -90,7 +98,7 @@ namespace OpenUtility.DelayedExecution
             ThrowIf.SystemObjectNull(action);
             ThrowIf.Negative(seconds);
             
-            return (GetOrCreateExcecutor().ExcecuteAfterSeconds(action, parameter, seconds));
+            return (GetOrCreateExcecutor().ExecuteAfterSeconds(action, parameter, seconds));
         }
         
         /// <summary>
@@ -101,7 +109,7 @@ namespace OpenUtility.DelayedExecution
             ThrowIf.SystemObjectNull(action);
             ThrowIf.Negative(seconds);
 
-            return (GetOrCreateExcecutor().ExcecuteAfterRealtimeSeconds(action, seconds));
+            return (GetOrCreateExcecutor().ExecuteAfterRealtimeSeconds(action, seconds));
         }
         
         /// <summary>
@@ -112,21 +120,21 @@ namespace OpenUtility.DelayedExecution
             ThrowIf.SystemObjectNull(action);
             ThrowIf.Negative(seconds);
             
-            return (GetOrCreateExcecutor().ExcecuteAfterRealtimeSeconds(action, parameter, seconds));
+            return (GetOrCreateExcecutor().ExecuteAfterRealtimeSeconds(action, parameter, seconds));
         }
 
-        private static ActionExcecutor GetOrCreateExcecutor()
+        private static ActionExecutor GetOrCreateExcecutor()
         {
-            if (_excecutor.HasValue)
-                return (_excecutor.Value);
+            if (_executor.HasValue)
+                return (_executor.Value);
             
-            GameObject instance = new GameObject("~Excecute.ActionExcecutor");
-            ActionExcecutor excecutor = instance.AddComponent<ActionExcecutor>();
+            GameObject instance = new GameObject("~Excecute.ActionExecutor");
+            ActionExecutor executor = instance.AddComponent<ActionExecutor>();
             Object.DontDestroyOnLoad(instance);
 
-            _excecutor = excecutor;
+            _executor = executor;
             
-            return (excecutor);
+            return (executor);
         }
     }
 }

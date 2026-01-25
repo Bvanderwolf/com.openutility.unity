@@ -32,6 +32,14 @@ namespace OpenUtility.DelayedExecution
 
         public static WaitForEndOfFrame EndOfFrame { get; } = new WaitForEndOfFrame();
 
+        public static YieldInstruction Condition<T>(T target, Func<T, bool> predicate, Action callback) where T : class
+        {
+            ThrowIf.SystemObjectNull(target);
+            ThrowIf.SystemObjectNull(predicate);
+
+            return (GetOrCreateAwaiter().WaitForCondition(target, predicate, callback));
+        }
+        
         /// <summary>
         /// Issues a connection request to google and invokes the callback when complete.
         /// </summary>

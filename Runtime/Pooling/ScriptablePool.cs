@@ -1,13 +1,16 @@
-using OpenUtility.Data.Pooling;
 using UnityEngine;
 
-namespace OpenUtility
+namespace OpenUtility.Data.Pooling
 {
     [CreateAssetMenu(fileName = "GameObjectPool", menuName = "OpenUtility/Pooling/GameObject Pool", order = 1)]
     public sealed class ScriptablePool : ScriptablePoolBase<PoolGameObject>
     {
+        [Header("Project References")]
         [SerializeField]
         private GameObject _prefab;
+
+        [SerializeField, Tooltip("An optional list variable for storing references to active instances.")]
+        private Optional<PoolGameObjectList> _references;
 
         protected override PoolGameObject OnCreateInstance()
         {
@@ -25,11 +28,17 @@ namespace OpenUtility
         protected override void OnGetInstance(PoolGameObject instance)
         {
             instance.gameObject.SetActive(true);
+            
+            if (_references.HasValue)
+                _references.Value.Add(instance);
         }
 
         protected override void OnReleaseInstance(PoolGameObject instance)
         {
             instance.gameObject.SetActive(false);
+            
+            if (_references.HasValue)
+                _references.Value.Remove(instance);
         }
     }
 }

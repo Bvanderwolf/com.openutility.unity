@@ -1,6 +1,4 @@
-using OpenUtility.Data.Pooling;
-
-namespace OpenUtility
+namespace OpenUtility.Data.Pooling
 {
     public class PoolGameObject : PoolGameObjectBase<PoolGameObject>
     {

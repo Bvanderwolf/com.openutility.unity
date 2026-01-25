@@ -1,8 +1,8 @@
 using System.Collections.Generic;
-using OpenUtility;
+using OpenUtility.Data.Pooling;
 using UnityEngine;
 
-namespace OpenUtility.Samples.Pooling.OutOfTheBox
+namespace OpenUtility.Samples.Pooling.BetweenScenes
 {
     public class GameObjectSpawner : MonoBehaviour
     {
@@ -10,16 +10,16 @@ namespace OpenUtility.Samples.Pooling.OutOfTheBox
         private ScriptablePool _pool;
 
         private List<PoolGameObject> _entities = new List<PoolGameObject>();
-        
+
 #if UNITY_EDITOR
         private void OnGUI()
         {
             float x = Screen.width / 2;
             float y = Screen.height / 2;
-        
+
             GUIStyle style = new GUIStyle(UnityEditor.EditorStyles.label);
             style.fontSize = 50;
-        
+
             GUI.Label(new Rect(x - 300, y + 10, 1200, 100), "Press TAB to spawn an entity.", style);
             GUI.Label(new Rect(x - 300, y + 120, 1200, 100), "Press BACKSPACE to release an entity.", style);
         }
@@ -39,4 +39,3 @@ namespace OpenUtility.Samples.Pooling.OutOfTheBox
         }
     }
 }
-

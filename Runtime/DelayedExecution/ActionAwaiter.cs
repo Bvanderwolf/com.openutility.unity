@@ -254,5 +254,23 @@ namespace OpenUtility.DelayedExecution
                 request.Dispose();
             }
         }
+
+        public YieldInstruction WaitForCondition<T>(T target, Func<T,bool> predicate, Action callback) where T : class
+        {
+            return (StartCoroutine(RunWaitForCondition()));
+            
+            IEnumerator RunWaitForCondition()
+            {
+                while (!predicate(target))
+                {
+                    yield return null;
+                    
+                    if (target is UnityEngine.Object unityObject && unityObject == null)
+                        yield break;
+                }
+                
+                callback?.Invoke();
+            }
+        }
     }
 }

@@ -5,9 +5,9 @@ using UnityEngine;
 
 namespace OpenUtility.DelayedExecution
 {
-    public class ActionExcecutor : MonoBehaviour
+    public class ActionExecutor : MonoBehaviour
     {
-        public YieldInstruction ExcecuteNextFrame(Action action)
+        public YieldInstruction ExecuteNextFrame(Action action)
         {
             ThrowIf.SystemObjectNull(action);
 
@@ -21,7 +21,7 @@ namespace OpenUtility.DelayedExecution
             }
         }
         
-        public YieldInstruction ExcecuteNextFrame<T>(Action<T> action, T parameter)
+        public YieldInstruction ExecuteNextFrame<T>(Action<T> action, T parameter)
         {
             ThrowIf.SystemObjectNull(action);
 
@@ -35,7 +35,7 @@ namespace OpenUtility.DelayedExecution
             }
         }
 
-        public YieldInstruction ExcecuteEndOfFrame(Action action)
+        public YieldInstruction ExecuteEndOfFrame(Action action)
         {
             ThrowIf.SystemObjectNull(action);
 
@@ -49,7 +49,7 @@ namespace OpenUtility.DelayedExecution
             }
         }
         
-        public YieldInstruction ExcecuteEndOfFrame<T>(Action<T> action, T parameter)
+        public YieldInstruction ExecuteEndOfFrame<T>(Action<T> action, T parameter)
         {
             ThrowIf.SystemObjectNull(action);
 
@@ -63,7 +63,7 @@ namespace OpenUtility.DelayedExecution
             }
         }
         
-        public YieldInstruction ExcecuteAfterFixedUpdate(Action action)
+        public YieldInstruction ExecuteAfterFixedUpdate(Action action)
         {
             ThrowIf.SystemObjectNull(action);
 
@@ -77,7 +77,7 @@ namespace OpenUtility.DelayedExecution
             }
         }
         
-        public YieldInstruction ExcecuteAfterFixedUpdate<T>(Action<T> action, T parameter)
+        public YieldInstruction ExecuteAfterFixedUpdate<T>(Action<T> action, T parameter)
         {
             ThrowIf.SystemObjectNull(action);
 
@@ -91,7 +91,7 @@ namespace OpenUtility.DelayedExecution
             }
         }
         
-        public YieldInstruction ExcecuteAfterSeconds(Action action, float seconds)
+        public YieldInstruction ExecuteAfterSeconds(Action action, float seconds)
         {
             ThrowIf.SystemObjectNull(action);
             ThrowIf.Negative(seconds);
@@ -106,7 +106,7 @@ namespace OpenUtility.DelayedExecution
             }
         }
         
-        public YieldInstruction ExcecuteAfterSeconds<T>(Action<T> action, T parameter, float seconds)
+        public YieldInstruction ExecuteAfterSeconds<T>(Action<T> action, T parameter, float seconds)
         {
             ThrowIf.SystemObjectNull(action);
             ThrowIf.Negative(seconds);
@@ -121,7 +121,7 @@ namespace OpenUtility.DelayedExecution
             }
         }
 
-        public YieldInstruction ExcecuteAfterRealtimeSeconds(Action action, float seconds)
+        public YieldInstruction ExecuteAfterRealtimeSeconds(Action action, float seconds)
         {
             ThrowIf.SystemObjectNull(action);
             ThrowIf.Negative(seconds);
@@ -136,7 +136,7 @@ namespace OpenUtility.DelayedExecution
             }
         }
         
-        public YieldInstruction ExcecuteAfterRealtimeSeconds<T>(Action<T> action, T parameter, float seconds)
+        public YieldInstruction ExecuteAfterRealtimeSeconds<T>(Action<T> action, T parameter, float seconds)
         {
             ThrowIf.SystemObjectNull(action);
             ThrowIf.Negative(seconds);
@@ -148,6 +148,24 @@ namespace OpenUtility.DelayedExecution
                 yield return WaitFor.RealtimeSeconds(seconds);
                 
                 action.Invoke(parameter);
+            }
+        }
+
+        public YieldInstruction ExcecuteAfterFrames(Action action, int frameCount)
+        {
+            ThrowIf.SystemObjectNull(action);
+            ThrowIf.SmallerThen(frameCount, 1);
+
+            return (StartCoroutine(RunAfterFrames()));
+            
+            IEnumerator RunAfterFrames()
+            {
+                for (int i = 0; i < frameCount; i++)
+                {
+                    yield return null;
+                }
+                
+                action.Invoke();
             }
         }
     }
