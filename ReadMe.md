@@ -26,7 +26,7 @@ This package requires the following Unity official packages to function correctl
 2. Click the **+** icon > **"Install package from git URL..."**.
 3. Paste: 
 ```
-https://github.com/Bvanderwolf/com.openutility.unity.git#v0.4.0-alpha
+https://github.com/Bvanderwolf/com.openutility.unity.git#v0.4.1-alpha
 ```
 
 ---
