@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -16,6 +17,10 @@ namespace OpenUtility.Data
         [SerializeField, Tooltip("Optionally determine capacity by this value instead of the 'values' property")]
         private Optional<int> _capacity;
 
+        [SerializeField, Tooltip("Remove mono behaviours from the list if they are destroyed, leaving no null references.")]
+        private bool _cleanupOnDestroy;
+
+        [field:NonSerialized]
         protected IList<T> value { get; private set; }
         
         /// <summary>
@@ -69,6 +74,13 @@ namespace OpenUtility.Data
         
         public void Add(T newValue)
         {
+            if (_cleanupOnDestroy && newValue is MonoBehaviour behaviour)
+            {
+                behaviour.destroyCancellationToken.Register(OnDestroy, behaviour);
+
+                void OnDestroy(object instance) => Remove((T)instance);
+            }
+            
             value.Add(newValue);
         }
 
@@ -93,10 +105,11 @@ namespace OpenUtility.Data
             if (ReferenceEquals(source, destination))
                 return;
             
+            destination.Clear();
+            
             if (destination is List<T> concrete)
                 concrete.Capacity = source.Capacity;
             
-            destination.Clear();
             for (int i = 0; i < source.Count; i++)
                 destination.Add(source[i]);
         }
