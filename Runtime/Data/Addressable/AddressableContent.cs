@@ -264,6 +264,9 @@ namespace OpenUtility.Data.Addressable
         /// </summary>
         public static bool CacheExists(IResourceLocator catalog)
         {
+#if UNITY_WEBGL
+            return (false);
+#else
             List<Hash128> versions = new List<Hash128>();
             List<IResourceLocation> dependencies = new List<IResourceLocation>();
             IEnumerable<IResourceLocation> locations = ((ResourceLocationMap)catalog).Locations.SelectMany(location => location.Value);
@@ -288,6 +291,7 @@ namespace OpenUtility.Data.Addressable
             }
 
             return (true);
+#endif
         }
     }
 }
