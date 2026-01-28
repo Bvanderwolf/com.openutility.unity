@@ -19,8 +19,7 @@ namespace OpenUtility.Data
 
         [SerializeField, Tooltip("Remove mono behaviours from the list if they are destroyed, leaving no null references.")]
         private bool _cleanupOnDestroy;
-
-        [field:NonSerialized]
+        
         protected IList<T> value { get; private set; }
         
         /// <summary>

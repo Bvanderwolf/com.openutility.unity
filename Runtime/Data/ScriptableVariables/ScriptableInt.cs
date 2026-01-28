@@ -69,7 +69,7 @@ namespace OpenUtility.Data
 
         protected void SetValueInternal(int newValue) => value = newValue;
 
-        protected void OnValueChanged(int newValue) => _valueChanged.Invoke(newValue);
+        protected void OnValueChanged(int newValue) => _valueChanged?.Invoke(newValue);
 
         private void SetValueFromPlayerPref(int defaultValue)
         {

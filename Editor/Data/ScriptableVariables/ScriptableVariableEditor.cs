@@ -1,32 +1,29 @@
 #if UNITY_EDITOR
 
-using System.Reflection;
 using UnityEditor;
 using UnityEngine;
 
 namespace OpenUtility.Data.Editor
 {
     [CustomEditor(typeof(ScriptableString), true)]
-    public class ScriptableStringEditor : ScriptableVariableEditor<ScriptableString> { }
+    public class ScriptableStringEditor : ScriptableVariableEditor { }
     
     [CustomEditor(typeof(ScriptableInt), true)]
-    public class ScriptableIntEditor : ScriptableVariableEditor<ScriptableInt> { }
+    public class ScriptableIntEditor : ScriptableVariableEditor { }
     
     [CustomEditor(typeof(ScriptableFloat), true)]
-    public class ScriptableFloatEditor : ScriptableVariableEditor<ScriptableFloat> { }
+    public class ScriptableFloatEditor : ScriptableVariableEditor { }
     
     [CustomEditor(typeof(ScriptableBool),true)]
-    public class ScriptableBoolEditor : ScriptableVariableEditor<ScriptableBool> { }
+    public class ScriptableBoolEditor : ScriptableVariableEditor { }
     
-    public class ScriptableVariableEditor<T> : UnityEditor.Editor
+    public class ScriptableVariableEditor : UnityEditor.Editor
     {
         private SerializedProperty _valueProperty;
-        private PropertyInfo _runtimeValueInfo;
         
         private void OnEnable()
         {
             _valueProperty = serializedObject.FindProperty("_value");
-            _runtimeValueInfo = typeof(T).GetProperty("value", BindingFlags.NonPublic | BindingFlags.Instance);
             EditorApplication.update += RepaintWhilePlaying;
         }
 
@@ -60,29 +57,22 @@ namespace OpenUtility.Data.Editor
             if (!Application.isPlaying)
                 return;
 
-            if (_runtimeValueInfo == null)
-            {
-                Debug.LogWarning($"Could not find runtime value info for {target.GetType().Name}. Make sure to name the variable 'value'.");
-                return;
-            }
-
             EditorGUI.BeginDisabledGroup(true);
-            object value = _runtimeValueInfo.GetValue(target);
-            switch (value)
+            switch (target)
             {
-                case bool boolean:
+                case ScriptableBool boolean:
                     EditorGUILayout.Toggle("Current", boolean);
                     break;
                 
-                case float single:
+                case ScriptableFloat single:
                     EditorGUILayout.FloatField("Current", single);
                     break;
                 
-                case int integer:
+                case ScriptableInt integer:
                     EditorGUILayout.IntField("Current", integer);
                     break;
                 
-                case string str:
+                case ScriptableString str:
                     EditorGUILayout.TextField("Current", str);
                     break;
                 

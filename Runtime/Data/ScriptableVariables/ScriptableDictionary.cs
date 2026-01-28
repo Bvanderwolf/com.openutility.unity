@@ -20,11 +20,19 @@ namespace OpenUtility.Data
         [SerializeField]
         private KeyValuePair[] _values = Array.Empty<KeyValuePair>();
         
+        [Header("Settigs")]
+        [SerializeField, Tooltip("Optionally determine capacity by this value instead of the 'values' property")]
+        private Optional<int> _capacity;
+
+        [SerializeField, Tooltip("Remove mono behaviours from the list if they are destroyed, leaving no null references.")]
+        private bool _cleanupOnDestroy;
+        
         protected IDictionary<TKey, TValue> value { get; private set; }
 
         protected virtual void OnEnable()
         {
-            value ??= CreateValue(_values.Length);
+            value ??= CreateValue(_capacity.HasValue ? _capacity.Value : _values.Length);
+            
             RebuildDictionary();
         }
 
@@ -44,24 +52,18 @@ namespace OpenUtility.Data
 
         public void Add(TKey key, TValue newValue)
         {
-#if UNITY_EDITOR
-            Array.Resize(ref _values, _values.Length + 1);
-            _values[^1] = new KeyValuePair { key = key, value = newValue };
-#endif
+            if (_cleanupOnDestroy && newValue is MonoBehaviour behaviour)
+            {
+                behaviour.destroyCancellationToken.Register(OnDestroy, key);
+
+                void OnDestroy(object data) => Remove((TKey)data);
+            }
+            
             value.Add(key, newValue);
         }
         
         public void Remove(TKey key)
         {
-#if UNITY_EDITOR
-            int index = Array.FindIndex(_values, pair => EqualityComparer<TKey>.Default.Equals(pair.key, key));
-            if (index >= 0)
-            {
-                for (int i = index; i < _values.Length - 1; i++)
-                    _values[i] = _values[i + 1];
-                Array.Resize(ref _values, _values.Length - 1);
-            }
-#endif
             value.Remove(key);
         }
 
