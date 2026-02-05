@@ -19,8 +19,8 @@ namespace OpenUtility.Data.Editor
     [CustomEditor(typeof(TMP_InputField), true)]
     public class TMP_InputFieldEditor_ScriptableVariable : TMP_InputFieldEditor
     {
-        private static readonly Dictionary<string, BindingData> _bindingDataCache = new Dictionary<string, BindingData>();
-        private static readonly Dictionary<string, SelectionData> _selectionDataCache = new Dictionary<string, SelectionData>();
+        private static readonly Dictionary<BindingGoal, Dictionary<string, BindingData>> _bindingDataCache = new ();
+        private static readonly Dictionary<BindingGoal, Dictionary<string, SelectionData>> _selectionDataCache = new ();
         
         private static Type[] SupportedVariableTypes { get; } = new Type[]
         {
@@ -72,9 +72,11 @@ namespace OpenUtility.Data.Editor
         
         private static Dictionary<string, SelectionData> GetSelectableItems(BindingGoal goal)
         {
-            if (_selectionDataCache.Count != 0)
-                return (_selectionDataCache);
+            if (_selectionDataCache.TryGetValue(goal, out Dictionary<string, SelectionData> cache))
+                return (cache);
 
+            cache = new Dictionary<string, SelectionData>();
+            
             Dictionary<string, BindingData> bindingData = GetBindingData(goal);
             Dictionary<Type, List<Object>> assetData = GetScriptableVariableAssetData(goal);
             foreach (KeyValuePair<string, BindingData> dataPoint in bindingData)
@@ -89,18 +91,22 @@ namespace OpenUtility.Data.Editor
                 {
                     string nameOfSubOption = asset.name;
                     string path = $"{nameOfOption}/{nameOfSubOption}";
-                    _selectionDataCache.Add(path, new SelectionData(asset, data.bindingType));
+                    cache.TryAdd(path, new SelectionData(asset, data.bindingType));
                 }
             }
 
-            return (_selectionDataCache);
+            _selectionDataCache[goal] = cache;
+
+            return (cache);
         }
 
         private static Dictionary<string, BindingData> GetBindingData(BindingGoal goal)
         {
-            if (_bindingDataCache.Count != 0)
-                return (_bindingDataCache);
+            if (_bindingDataCache.TryGetValue(goal, out Dictionary<string, BindingData> cache))
+                return (cache);
 
+            cache = new Dictionary<string, BindingData>();
+            
             TypeCache.TypeCollection collection = TypeCache.GetTypesWithAttribute<ScriptableVariableBinder>();
             foreach (Type type in collection)
             {
@@ -124,7 +130,7 @@ namespace OpenUtility.Data.Editor
                 else
                 {
                     variableType = attribute.TypeOfScriptableVariable;
-                    bindingType = type;
+                    bindingType = ScriptableVariableFactory.GetTypeOfComponentBinding<TMP_InputField>(type, goal);
                 }
                 
                 string nameOfOption = CultureInfo.CurrentCulture.TextInfo.ToTitleCase(valueType.Name);
@@ -132,11 +138,13 @@ namespace OpenUtility.Data.Editor
                 string path = $"{nameOfOption}/{nameOfSubOption}";
                 
                 var bindingData = new BindingData(variableType, bindingType);
-                if (!_bindingDataCache.TryAdd(path, bindingData))
+                if (!cache.TryAdd(path, bindingData))
                     Debug.LogWarningFormat(BindingData.DUPLICATE_TYPE_WARNING, type, nameOfSubOption, nameOfOption);
             }
+            
+            _bindingDataCache[goal] = cache;
 
-            return (_bindingDataCache);
+            return (cache);
         }
         
         private bool _foldoutBindScriptableVariableGUI = false;
@@ -435,7 +443,7 @@ namespace OpenUtility.Data.Editor
             var selectionData = (SelectionData)data;
             var inputField = (TMP_InputField)target;
             
-            ScriptableVariableFactory.AssignFloatVariableToInputFieldEvent(inputField, selectionData.variableAsset, selectionData.bindingType);
+            ScriptableVariableFactory.AssignInputFieldToFloatVariableEvent(inputField, selectionData.variableAsset, selectionData.bindingType);
         }
 
         private void OnCreateEventButtonClicked(Rect rect)
@@ -489,7 +497,7 @@ namespace OpenUtility.Data.Editor
             var variableType = bindingData.variableType;
             var inputField = (TMP_InputField)target;
             
-            ScriptableVariableFactory.CreateAndAssignStringVariableToInputFieldEvent(inputField, variableType);
+            ScriptableVariableFactory.CreateStringVariableAndAssignInputFieldToEvent(inputField, variableType);
         }
 
         private void OnCreateIntVariableEvent(object data)
@@ -497,7 +505,7 @@ namespace OpenUtility.Data.Editor
             var bindingData = (BindingData)data;
             var inputField = (TMP_InputField)target;
             
-            ScriptableVariableFactory.CreateAndAssignIntVariableToInputFieldEvent(inputField, bindingData.variableType, bindingData.bindingType);
+            ScriptableVariableFactory.CreateIntVariableAndAssignInputFieldToEvent(inputField, bindingData.variableType, bindingData.bindingType);
         }
 
         private void OnCreateFloatVariableEvent(object data)

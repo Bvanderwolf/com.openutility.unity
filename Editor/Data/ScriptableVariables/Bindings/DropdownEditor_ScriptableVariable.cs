@@ -11,6 +11,7 @@ using TMPro.EditorUtilities;
 using UnityEditor;
 using UnityEditor.Callbacks;
 using UnityEngine;
+using UnityEngine.UI;
 using Object = UnityEngine.Object;
 
 namespace OpenUtility.Data.Editor
@@ -19,8 +20,8 @@ namespace OpenUtility.Data.Editor
     [CanEditMultipleObjects]
     public class DropdownEditor_ScriptableVariable : DropdownEditor
     {
-        private static readonly Dictionary<string, BindingData> _bindingDataCache = new Dictionary<string, BindingData>();
-        private static readonly Dictionary<string, SelectionData> _selectionDataCache = new Dictionary<string, SelectionData>();
+        private static readonly Dictionary<BindingGoal, Dictionary<string, BindingData>> _bindingDataCache = new ();
+        private static readonly Dictionary<BindingGoal, Dictionary<string, SelectionData>> _selectionDataCache = new ();
         
         private static Type[] SupportedVariableTypes { get; } = new Type[]
         {
@@ -71,8 +72,10 @@ namespace OpenUtility.Data.Editor
         
         private static Dictionary<string, SelectionData> GetSelectableItems(BindingGoal goal)
         {
-            if (_selectionDataCache.Count != 0)
-                return (_selectionDataCache);
+            if (_selectionDataCache.TryGetValue(goal, out Dictionary<string, SelectionData> cache))
+                return (cache);
+
+            cache = new Dictionary<string, SelectionData>();
 
             Dictionary<string, BindingData> bindingData = GetBindingData(goal);
             Dictionary<Type, List<Object>> assetData = GetScriptableVariableAssetData(goal);
@@ -88,17 +91,21 @@ namespace OpenUtility.Data.Editor
                 {
                     string nameOfSubOption = asset.name;
                     string path = $"{nameOfOption}/{nameOfSubOption}";
-                    _selectionDataCache.Add(path, new SelectionData(asset, data.bindingType));
+                    cache.TryAdd(path, new SelectionData(asset, data.bindingType));
                 }
             }
 
-            return (_selectionDataCache);
+            _selectionDataCache[goal] = cache;
+
+            return (cache);
         }
 
         private static Dictionary<string, BindingData> GetBindingData(BindingGoal goal)
         {
-            if (_bindingDataCache.Count != 0)
-                return (_bindingDataCache);
+            if (_bindingDataCache.TryGetValue(goal, out Dictionary<string, BindingData> cache))
+                return (cache);
+            
+            cache = new Dictionary<string, BindingData>();
 
             TypeCache.TypeCollection collection = TypeCache.GetTypesWithAttribute<ScriptableVariableBinder>();
             foreach (Type type in collection)
@@ -123,7 +130,7 @@ namespace OpenUtility.Data.Editor
                 else
                 {
                     variableType = attribute.TypeOfScriptableVariable;
-                    bindingType = type;
+                    bindingType = ScriptableVariableFactory.GetTypeOfComponentBinding<Dropdown>(type, goal);
                 }
                 
                 string nameOfOption = CultureInfo.CurrentCulture.TextInfo.ToTitleCase(valueType.Name);
@@ -131,11 +138,13 @@ namespace OpenUtility.Data.Editor
                 string path = $"{nameOfOption}/{nameOfSubOption}";
 
                 var bindingData = new BindingData(variableType, bindingType);
-                if (!_bindingDataCache.TryAdd(path, bindingData))
+                if (!cache.TryAdd(path, bindingData))
                     Debug.LogWarningFormat(BindingData.DUPLICATE_TYPE_WARNING, type, nameOfSubOption, nameOfOption);
             }
+            
+            _bindingDataCache[goal] = cache;
 
-            return (_bindingDataCache);
+            return (cache);
         }
         
         private bool _foldoutBindScriptableVariableGUI = false;

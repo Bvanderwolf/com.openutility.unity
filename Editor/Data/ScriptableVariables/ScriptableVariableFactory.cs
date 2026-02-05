@@ -48,6 +48,95 @@ namespace OpenUtility.Data.Editor
             }
         }
         
+        public static Type GetTypeOfComponentBinding<TUIElement>(Type typeOfAttributeImplementer, BindingGoal goal)
+        {
+            if (typeof(MonoBehaviour).IsAssignableFrom(typeOfAttributeImplementer))
+                return (typeOfAttributeImplementer);
+            
+            if (typeof(TMP_Text).IsAssignableFrom(typeof(TUIElement)))
+            {
+                switch (goal)
+                {
+                    case BindingGoal.ReceiveValue:
+                        if (typeof(ScriptableInt).IsAssignableFrom(typeOfAttributeImplementer))
+                            return (typeof(DefaultIntegerTextBinding));
+
+                        if (typeof(ScriptableFloat).IsAssignableFrom(typeOfAttributeImplementer))
+                            return (typeof(DefaultDecimalTextBinding));
+                        break;
+                    
+                    case BindingGoal.DetermineValue:
+                        if (typeof(ScriptableInt).IsAssignableFrom(typeOfAttributeImplementer))
+                            return (typeof(DefaultIntegerTextEventBinding));
+
+                        if (typeof(ScriptableFloat).IsAssignableFrom(typeOfAttributeImplementer))
+                            return (typeof(DefaultDecimalTextEventBinding));
+                        break;
+                }
+                
+                Debug.LogWarning($"Found class {typeOfAttributeImplementer.Name} that implements ScriptableVariableBinder but is neither a ScriptableInt, ScriptableFloat or a MonoBehaviour. This is not allowed.");
+                return (null);
+            }
+
+            if (typeof(Dropdown).IsAssignableFrom(typeof(TUIElement)))
+            {
+                Debug.LogWarning($"Found class {typeOfAttributeImplementer.Name} that implements ScriptableVariableBinder but is not a MonoBehaviour. This is not allowed.");
+                return (null);
+            }
+
+            if (typeof(Slider).IsAssignableFrom(typeof(TUIElement)))
+            {
+                switch (goal)
+                {
+                    case BindingGoal.ReceiveValue:
+                        if (typeof(ScriptableInt).IsAssignableFrom(typeOfAttributeImplementer))
+                            return (typeof(DefaultIntegerSliderBinding));
+                        break;
+                    
+                    case BindingGoal.DetermineValue:
+                        if (typeof(ScriptableInt).IsAssignableFrom(typeOfAttributeImplementer))
+                            return (typeof(DefaultIntegerSliderEventBinding));
+                        break;
+                }
+                
+                Debug.LogWarning($"Found class {typeOfAttributeImplementer.Name} that implements ScriptableVariableBinder but is neither a ScriptableInt or a MonoBehaviour. This is not allowed.");
+                return (null);
+            }
+
+            if (typeof(TMP_InputField).IsAssignableFrom(typeof(TUIElement)))
+            {
+                switch (goal)
+                {
+                    case BindingGoal.ReceiveValue:
+                        if (typeof(ScriptableInt).IsAssignableFrom(typeOfAttributeImplementer))
+                            return (typeof(DefaultIntegerTextBinding));
+
+                        if (typeof(ScriptableFloat).IsAssignableFrom(typeOfAttributeImplementer))
+                            return (typeof(DefaultDecimalTextBinding));
+                        break;
+                    
+                    case BindingGoal.DetermineValue:
+                        if (typeof(ScriptableInt).IsAssignableFrom(typeOfAttributeImplementer))
+                            return (typeof(DefaultIntegerTextEventBinding));
+
+                        if (typeof(ScriptableFloat).IsAssignableFrom(typeOfAttributeImplementer))
+                            return (typeof(DefaultDecimalTextEventBinding));
+                        break;
+                }
+            
+                Debug.LogWarning($"Found class {typeOfAttributeImplementer.Name} that implements ScriptableVariableBinder but is neither a ScriptableInt, ScriptableFloat or a MonoBehaviour. This is not allowed.");
+                return (null);
+            }
+
+            if (typeof(Toggle).IsAssignableFrom(typeof(TUIElement)))
+            {
+                Debug.LogWarning($"Found class {typeOfAttributeImplementer.Name} that implements ScriptableVariableBinder but is not a MonoBehaviour. This is not allowed.");
+                return (null);
+            }
+
+            return null;
+        }
+        
         public static void AssignIntVariableForSlider(Slider slider, Object variableAsset, Type bindingType)
         {
             var scriptableInt = (ScriptableInt)variableAsset;
@@ -478,7 +567,7 @@ namespace OpenUtility.Data.Editor
             UnityEventTools.AddPersistentListener(scriptableEvent.ValueChanged, inputField.SetTextWithoutNotify);
         }
         
-        public static void CrateStringVariableAndAssignInputFieldToEvent(TMP_InputField inputField, Type variableType)
+        public static void CreateStringVariableAndAssignInputFieldToEvent(TMP_InputField inputField, Type variableType) 
         {
             ThrowIf.NotDerivedFrom<ScriptableString>(variableType);
             
@@ -521,7 +610,7 @@ namespace OpenUtility.Data.Editor
             }
         }
         
-        public static void AssignInputFIeldToFloatVariableEvent(TMP_InputField inputField, Object variableAsset, Type bindingType)
+        public static void AssignInputFieldToFloatVariableEvent(TMP_InputField inputField, Object variableAsset, Type bindingType)
         {
             var scriptableFloat = (ScriptableFloat)variableAsset;
             var scriptableEvent = (DecimalTextEventBinding)inputField.gameObject.AddComponent(bindingType);
