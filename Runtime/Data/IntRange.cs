@@ -1,5 +1,6 @@
 using System;
 using UnityEngine;
+using Random = UnityEngine.Random;
 
 namespace OpenUtility.Data
 {
@@ -24,20 +25,33 @@ namespace OpenUtility.Data
             _to = to;
         }
 
-        public float Map(IntRange from, IntRange to, int value)
-        {
-            float percentage = Mathf.InverseLerp(from._from, from._to, value);
-            return (Mathf.Lerp(to._from, to._to, percentage));
-        }
-
         /// <summary>
         /// Returns the percentage the given value is from 'to' to 'from'
         /// </summary>
         public float GetPercentage(int value) => Mathf.InverseLerp(_from, _to, value);
-        
+
         /// <summary>
         /// Returns the value from 'to' to 'from' based on given percentage
         /// </summary>
         public int GetValue(float percentage) => Mathf.RoundToInt(Mathf.Lerp(_from, _to, percentage));
+
+        /// <summary>
+        /// Returns a random value in this range.
+        /// </summary>
+        public int GetRandom() => Random.Range(_from, _to);
+
+        /// <summary>
+        /// Maps a value from this range to a given one.
+        /// </summary>
+        public int MapTo(IntRange target, int value) => Map(this, target, value);
+
+        /// <summary>
+        /// Maps a value from one float range to another.
+        /// </summary>
+        public static int Map(IntRange from, IntRange to, int value)
+        {
+            float percentage = Mathf.InverseLerp(from._from, from._to, value);
+            return (Mathf.RoundToInt(Mathf.Lerp(to._from, to._to, percentage)));
+        }
     }
 }

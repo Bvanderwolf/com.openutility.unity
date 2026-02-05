@@ -69,7 +69,7 @@ namespace OpenUtility.Data.Pooling
             bool createsNewInstance = pool.CountInactive == 0;
             T instance = pool.Get();
             
-            if (parent.HasValue)
+            if (parent.HasValue && instance.transform.parent != parent.Value)
                 instance.transform.SetParent(parent.Value);
 
             bool createdFirstInstance = createsNewInstance && pool.CountAll == 1;

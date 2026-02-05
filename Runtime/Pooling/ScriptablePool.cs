@@ -12,9 +12,11 @@ namespace OpenUtility.Data.Pooling
         [SerializeField, Tooltip("An optional list variable for storing references to active instances.")]
         private Optional<PoolGameObjectList> _references;
 
+        public PoolGameObjectList References => _references.GetValueOrDefault();
+
         protected override PoolGameObject OnCreateInstance()
         {
-            GameObject gameObject = Instantiate(_prefab);
+            GameObject gameObject = parent.HasValue ? Instantiate(_prefab, parent.Value) : Instantiate(_prefab);
             if (!gameObject.TryGetComponent<PoolGameObject>(out var instance))
             {
                 Debug.Log($"[{name}] Could not find the {nameof(PoolGameObject)} component on prefab '{_prefab.name}'. It is best practice to add your pooling component beforehand to set serialized fields. Adding it manually now...");

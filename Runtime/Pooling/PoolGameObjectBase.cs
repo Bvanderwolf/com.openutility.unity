@@ -18,8 +18,6 @@ namespace OpenUtility.Data.Pooling
         public virtual void OnCreatedByPool(ScriptablePoolBase<T> scriptablePool)
         {
             pool = scriptablePool;
-
-            Debug.Log($"[{typeof(T).Name}] Created by pool '{scriptablePool.name}'.");
         }
 
         /// <summary>
