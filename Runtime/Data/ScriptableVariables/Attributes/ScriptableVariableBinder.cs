@@ -89,7 +89,7 @@ namespace OpenUtility.Data
         /// </summary>
         /// <param name="typeOfComponentToBindTo">The component the binder is used on (e.g. Slider)</param>
         /// <param name="typeOfValue">The type of value that is being converted to (e.g. int)</param>
-        /// <param name="customScriptableVariableType">The type of scriptable variable. Set this when you are using a custom type of scriptable variable and you add this attribute to a custom binder component.</param>
+        /// <param name="customScriptableVariableType">The type of scriptable variable. Set this when you are using a custom type of scriptable variable.</param>
         /// <param name="goal">The goal of the binding.</param>
         public ScriptableVariableBinder(Type typeOfComponentToBindTo, Type typeOfValue, Type customScriptableVariableType, BindingGoal goal)
         {
