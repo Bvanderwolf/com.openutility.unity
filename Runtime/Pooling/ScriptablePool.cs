@@ -1,4 +1,6 @@
+using System;
 using UnityEngine;
+using UnityEngine.Events;
 
 namespace OpenUtility.Data.Pooling
 {
@@ -13,6 +15,8 @@ namespace OpenUtility.Data.Pooling
         private Optional<PoolGameObjectList> _references;
 
         public PoolGameObjectList References => _references.GetValueOrDefault();
+
+        public event Action<PoolGameObject> InstanceRetrieved;
 
         protected override PoolGameObject OnCreateInstance()
         {
@@ -33,6 +37,8 @@ namespace OpenUtility.Data.Pooling
             
             if (_references.HasValue)
                 _references.Value.Add(instance);
+            
+            InstanceRetrieved?.Invoke(instance);
         }
 
         protected override void OnReleaseInstance(PoolGameObject instance)

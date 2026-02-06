@@ -49,6 +49,11 @@
       "description": "Contains a scene demonstrating how to present a simple inventory in your app using scriptable variables and pooling",
       "path": "Samples~/Inventory"
     },
+     {
+      "displayName": "Asteroids",
+      "description": "Contains a scene demonstrating how to create a simple asteroids game using scriptable variables and pooling",
+      "path": "Samples~/Asteroids"
+    },
     {
       "displayName": "Simple Addressables Setup",
       "description": "Contains a scene demonstrating a simple setup for Unity Addressables. \n-Loading catalogs at runtime\n-Loading assets at runtime\n-Managing Cache",

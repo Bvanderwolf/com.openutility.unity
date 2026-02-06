@@ -1,0 +1,27 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 95d64ae6ab808f946a3a2e92063e216a, type: 3}
+  m_Name: AsteroidSpriteList
+  m_EditorClassIdentifier: 
+  _values:
+  - {fileID: 896048362, guid: 9937143756f20964db617d940958691e, type: 3}
+  - {fileID: -1382007413, guid: 9937143756f20964db617d940958691e, type: 3}
+  - {fileID: 369845718, guid: 9937143756f20964db617d940958691e, type: 3}
+  - {fileID: 1598782169, guid: 9937143756f20964db617d940958691e, type: 3}
+  - {fileID: -1117696640, guid: 9937143756f20964db617d940958691e, type: 3}
+  - {fileID: -1533777129, guid: 9937143756f20964db617d940958691e, type: 3}
+  - {fileID: 638675837, guid: 9937143756f20964db617d940958691e, type: 3}
+  - {fileID: -677899458, guid: 9937143756f20964db617d940958691e, type: 3}
+  _capacity:
+    _hasValue: 0
+    _value: 0
+  _cleanupOnDestroy: 0
