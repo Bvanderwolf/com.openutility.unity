@@ -38,7 +38,7 @@ namespace OpenUtility.Data.Editor
 
         private void DrawRuntimeState()
         {
-            EditorGUILayout.LabelField("Runtime Pool State", EditorStyles.boldLabel);
+            EditorGUILayout.LabelField("Runtime List State", EditorStyles.boldLabel);
             
             if (!Application.isPlaying)
             {
