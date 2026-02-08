@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace OpenUtility.Samples.Data
+namespace OpenUtility.Data
 {
     /// <summary>
     /// Sets the value of a 'ScriptableGameObject' variable to this game object,

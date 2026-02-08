@@ -61,6 +61,7 @@ namespace OpenUtility.Samples.Data
             if (behaviour.TryDestroy(this))
             {
                 _score.Increment();
+                _streak.Continue();
                 
                 asteroid.Value.Release();
             }

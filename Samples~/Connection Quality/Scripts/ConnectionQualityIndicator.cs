@@ -68,7 +68,12 @@ namespace OpenUtility.Samples.Data
                 return;
 
             _cancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(destroyCancellationToken);
+#if UNITY_WEBGL
+            _refreshTask = Task.CompletedTask;
+            _connection.SetValue((int)ConnectionQuality.Excellent);
+#else
             _refreshTask = _connection.RefreshAsync(cancellationToken: _cancellationTokenSource.Token);
+#endif
             _timeTillNextRefresh = 0.0f;
         }
 

@@ -1,36 +1,22 @@
-using System.Collections.Generic;
-using OpenUtility.Data.Pooling;
-using OpenUtility.Samples.Data;
+using OpenUtility.Data;
 using UnityEngine;
 
-public class PlayerManager : MonoBehaviour
+namespace OpenUtility.Samples.Data
 {
-    [Header("Scene References")]
-    [SerializeField]
-    private RectTransform _playArea;
-    
-    [Header("Project References")]
-    [SerializeField]
-    private ScriptableGameObject _player;
-
-    [SerializeField]
-    private PoolGameObjectList _asteroids;
-
-    private GameObject _instance;
-    
-    private void Start()
+    public class PlayerManager : MonoBehaviour
     {
-        _player.SetParent(_playArea);
-        _instance = _player.CreateValue();
-    }
+        [Header("Scene References")]
+        [SerializeField]
+        private RectTransform _playArea;
 
-    private void FixedUpdate()
-    {
-        IList<PoolGameObject> list = _asteroids.GetValue();
+        [Header("Project References")]
+        [SerializeField]
+        private ScriptableGameObject _player;
 
-        for (int i = 0; i < list.Count; i++)
+        private void Start()
         {
-            
+            _player.SetParent(_playArea);
+            _player.CreateValue();
         }
     }
 }

@@ -26,7 +26,11 @@ namespace OpenUtility.Samples.Data
 
         public void CheckConnection()
         {
+#if UNITY_WEBGL && !UNITY_EDITOR
+            OnConnectionCheckComplete(RequestResult.CreateSuccess());
+#else
             WaitFor.Connection(OnConnectionCheckComplete);
+#endif
         }
 
         private void OnConnectionCheckComplete(RequestResult result)

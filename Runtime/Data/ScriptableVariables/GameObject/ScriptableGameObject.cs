@@ -1,15 +1,13 @@
-using OpenUtility.Data;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-namespace OpenUtility.Samples.Data
+namespace OpenUtility.Data
 {
     /// <summary>
     /// Used to share a reference to a GameObject across different scenes and prefabs. Either set the source to 'Prefab',
     /// assign a prefab to the 'prefab' field and instantiate it at runtime or set the source to 'Scene' and assign a
     /// value directly to the variable by adding a 'ShareGameObject' component to a GameObject in a scene.
     /// </summary>
-    [DefaultExecutionOrder(1)]
     [CreateAssetMenu(fileName = "ScriptableGameObject", menuName = "OpenUtility/Data/ScriptableGameObject")]
     public class ScriptableGameObject : ScriptableVariable<GameObject>
     {
@@ -28,17 +26,14 @@ namespace OpenUtility.Samples.Data
         
         [SerializeField, Tooltip("The prefab used to create an instance of the game object.")]
         private GameObject _prefab;
-
-        [SerializeField, Tooltip("Optionally A group this game object should be added to when your prefab is instantiated.")]
-        private Optional<GameObjectGroup> _group;
         
         [SerializeField, Tooltip("Should the instance not be destroyed when its scene is unloaded?")]
         private bool _dontDestroyOnLoad;
 
         [SerializeField, Tooltip("Should the instance be created automatically when no instance is set yet?")]
         private bool _instantiateLazy;
-        
-        public bool HasValue => _instance.HasValue;
+
+        public bool HasValue => _instance.HasValue && !Application.exitCancellationToken.IsCancellationRequested;
 
         private Optional<GameObject> _instance;
         private Optional<Transform> _parent;
@@ -56,8 +51,6 @@ namespace OpenUtility.Samples.Data
             if (!UnityEditor.EditorApplication.isPlayingOrWillChangePlaymode)
                 return;
 #endif
-            if (_group.TryGetValue(out GameObjectGroup group))
-                group.Add(this);
             
             SceneManager.sceneUnloaded += OnSceneUnloaded;
         }
@@ -70,9 +63,6 @@ namespace OpenUtility.Samples.Data
 #endif
             if (Application.exitCancellationToken.IsCancellationRequested)
                 return;
-            
-            if (_group.TryGetValue(out GameObjectGroup group))
-                group.Remove(this);
             
             SceneManager.sceneUnloaded -= OnSceneUnloaded;
         }
@@ -235,6 +225,14 @@ namespace OpenUtility.Samples.Data
         {
             if (_scene.HasValue && unloadedScene == _scene.Value)
                 _instance = Optional<GameObject>.None();
+        }
+        
+        public static ScriptableGameObject CreateInstance(GameObject instance)
+        {
+            var variable = CreateInstance<ScriptableGameObject>();
+            variable._source = Source.SCENE;
+            variable.SetValue(instance);
+            return (variable);
         }
     }
 }

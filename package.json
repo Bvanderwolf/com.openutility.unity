@@ -17,7 +17,7 @@
     {
       "displayName": "Custom Pooling",
       "description": "Contains a scene demonstrating more advanced use cases for game object pooling",
-      "path": "Samples~/CustomPooling"
+      "path": "Samples~/Custom Pooling"
     },
     {
       "displayName": "Pooling Between Scenes",

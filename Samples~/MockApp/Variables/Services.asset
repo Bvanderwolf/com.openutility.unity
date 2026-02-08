@@ -12,7 +12,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 21a9638961f50fa4c825e18729b9343f, type: 3}
   m_Name: Services
   m_EditorClassIdentifier: 
-  _values: []
+  _values:
+  - {fileID: 11400000, guid: a1e298655450bf645b9d1a96925761ec, type: 2}
+  - {fileID: 11400000, guid: c39705defcd9d814ba8e0ba8fbf27baf, type: 2}
+  - {fileID: 11400000, guid: 46adcb12b598b2d45b60e666075612fb, type: 2}
+  - {fileID: 11400000, guid: 3f04ccce8442b994e84ca140ef05d478, type: 2}
+  - {fileID: 11400000, guid: 3c076311adad9f04b89c90145e7d7483, type: 2}
   _capacity:
     _hasValue: 0
     _value: 0

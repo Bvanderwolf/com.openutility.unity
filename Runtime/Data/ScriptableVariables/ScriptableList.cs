@@ -26,8 +26,6 @@ namespace OpenUtility.Data
         protected virtual void OnEnable()
         {
             value ??= CreateValue(_capacity.HasValue ? _capacity.Value : _values.Count);
-            
-            Copy(_values, value);   
         }
 
         private void OnValidate()
@@ -42,21 +40,12 @@ namespace OpenUtility.Data
         /// <param name="capacity">The capacity determined by the serialized list property in the inspector.</param>
         protected virtual IList<T> CreateValue(int capacity)
         {
-#if UNITY_EDITOR
             if (capacity == _values.Count) 
                 return (new List<T>(_values));
             
             var list = new List<T>(capacity);
             list.AddRange(_values);
             return (list);
-
-#else
-            if (capacity == _values.Count)
-                 return (_values);
-                
-            _values.Capacity = capacity;
-            return (_values);
-#endif
         }
 
         public override IList<T> GetValue() => value;
@@ -93,20 +82,6 @@ namespace OpenUtility.Data
         {
             get => GetValue(index);
             set => SetValue(index, value);
-        }
-        
-        private static void Copy(List<T> source, IList<T> destination)
-        {
-            if (ReferenceEquals(source, destination))
-                return;
-            
-            destination.Clear();
-            
-            if (destination is List<T> concrete)
-                concrete.Capacity = source.Capacity;
-            
-            for (int i = 0; i < source.Count; i++)
-                destination.Add(source[i]);
         }
     }
 }

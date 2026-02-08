@@ -104,7 +104,7 @@ namespace OpenUtility.Samples.Data
         {
 #if UNITY_WEBGL && !UNITY_EDITOR
             return (DataRequestResult<int>.CreateError("ICMP ping is not supported on WebGL builds."));
-#endif
+#else
             
             var ping = new Ping(host);
             float realtimeSinceStart = Time.realtimeSinceStartup;
@@ -124,6 +124,7 @@ namespace OpenUtility.Samples.Data
                 return (DataRequestResult<int>.CreateError(FAILURE_MESSAGE));
 
             return (DataRequestResult<int>.CreateSuccess(ping.time));
+#endif
         }
         
         private static async Task<DataRequestResult<int>> RunHttpPingAsync(string url, int timeoutMs, CancellationToken cancellationToken)

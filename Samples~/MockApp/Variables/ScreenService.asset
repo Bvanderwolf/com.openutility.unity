@@ -12,10 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e61155bbe8aa3e8439c11b0de0b53235, type: 3}
   m_Name: ScreenService
   m_EditorClassIdentifier: 
-  _source: 0
+  _source: 1
   _prefab: {fileID: 0}
-  _group:
-    _hasValue: 0
-    _value: {fileID: 0}
   _dontDestroyOnLoad: 0
   _instantiateLazy: 0

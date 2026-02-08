@@ -1,4 +1,7 @@
+using System.Collections;
+using OpenUtility.Data;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 namespace OpenUtility.Samples.Data
 {
@@ -10,9 +13,20 @@ namespace OpenUtility.Samples.Data
 
         private void Update()
         {
-            ScreenService service = _screen.GetComponent<ScreenService>();
             if (!Input.GetKeyDown(KeyCode.Escape))
                 return;
+
+            StartCoroutine(OnEscapeButtonPressedRoutine());
+        }
+
+        private IEnumerator OnEscapeButtonPressedRoutine()
+        {
+            if (!_screen.TryGetComponent(out ScreenService service))
+                yield return SceneManager.LoadSceneAsync("MainMenu", LoadSceneMode.Additive);
+
+            yield return null;
+            
+            service ??= _screen.GetComponent<ScreenService>();
 
             if (service.IsMainMenuOpen)
                 service.CloseMainMenu();

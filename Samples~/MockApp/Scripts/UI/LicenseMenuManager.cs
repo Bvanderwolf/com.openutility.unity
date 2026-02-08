@@ -1,3 +1,4 @@
+using OpenUtility.Data;
 using OpenUtility.DelayedExecution;
 using UnityEngine;
 using UnityEngine.Events;
@@ -62,5 +63,4 @@ namespace OpenUtility.Samples.Data
             _licenseCheckFailure?.Invoke();
         }
     }
-
 }

@@ -1,73 +1,52 @@
 using System;
 using System.Collections.Generic;
-using OpenUtility.Data;
+using OpenUtility.Exceptions;
 using UnityEngine;
 using UnityEngine.Pool;
 
-namespace OpenUtility.Samples.Data
+namespace OpenUtility.Data
 {
-    /// <summary>
-    /// Implement this interface if you want to be able to group a game object in a 'GameObjectGroup' variable.
-    /// </summary>
-    public interface IGroupedGameObject : IEquatable<IGroupedGameObject>
-    {
-        GameObject Value { get; }
-    }
-
     /// <summary>
     /// Represents a group of game objects. Used with the 'GroupGameObject' component to
     /// organize game objects into groups and access their components.
     /// </summary>
-    [DefaultExecutionOrder(0)]
     [CreateAssetMenu(fileName = "GameObjectGroup", menuName = "OpenUtility/Data/GameObjectGroup")]
-    public class GameObjectGroup : ScriptableList<IGroupedGameObject>
+    public class GameObjectGroup : ScriptableList<ScriptableGameObject>
     {
-        private readonly struct GameObjectWrapper : IGroupedGameObject
+        /// <summary>
+        /// Adds a new game object to the list.
+        /// </summary>
+        public void Add(GameObject gameObject)
         {
-            public GameObject Value { get; }
-            private GameObjectWrapper(GameObject gameObject) => Value = gameObject;
+            ThrowIf.UnityObjectNull(gameObject);
 
-            public bool Equals(IGroupedGameObject other)
-            {
-                if (other == null)
-                    return (false);
-
-                return (Value == other.Value);
-            }
-
-            public override string ToString() => Value.name;
-
-            public static GameObjectWrapper Wrap(GameObject gameObject) => new GameObjectWrapper(gameObject);
+            var instance = ScriptableGameObject.CreateInstance(gameObject);
+            
+            Add(instance);
         }
         
-        private readonly struct ScriptableGameObjectWrapper : IGroupedGameObject
+        /// <summary>
+        /// Removes the game object from the list.
+        /// </summary>
+        public void Remove(GameObject gameObject)
         {
-            public GameObject Value => _scriptableGameObject.GetValue();
-            
-            private readonly ScriptableGameObject _scriptableGameObject;
-            
-            private ScriptableGameObjectWrapper(ScriptableGameObject scriptableGameObject) => _scriptableGameObject = scriptableGameObject;
+            ThrowIf.UnityObjectNull(gameObject);
 
-            public bool Equals(IGroupedGameObject other)
+            var list = GetValue();
+            for (int i = list.Count - 1; i >= 0; i--)
             {
-                if (other == null)
-                    return (false);
+                ScriptableGameObject instance = list[i];
+                if (instance == null)
+                    continue;
 
-                return (Value == other.Value);
+                GameObject gameObjectValue = instance.GetValue();
+                if (gameObjectValue == gameObject) 
+                    continue;
+                
+                list.RemoveAt(i);
+                break;
             }
-
-            public override string ToString() => _scriptableGameObject.ToString();
-
-            public static ScriptableGameObjectWrapper Wrap(ScriptableGameObject scriptableGameObject) => new ScriptableGameObjectWrapper(scriptableGameObject);
         }
-
-        public void Add(ScriptableGameObject gameObject) => Add(ScriptableGameObjectWrapper.Wrap(gameObject));
-
-        public void Add(GameObject gameObject) => Add(GameObjectWrapper.Wrap(gameObject));
-        
-        public void Remove(ScriptableGameObject gameObject) => Remove(ScriptableGameObjectWrapper.Wrap(gameObject));
-        
-        public void Remove(GameObject gameObject) => Remove(GameObjectWrapper.Wrap(gameObject));
         
         /// <summary>
         /// Tries to get the first component of type T found on any of the game objects in the group.
@@ -76,14 +55,17 @@ namespace OpenUtility.Samples.Data
         public bool TryGetComponent<T>(out T component) where T : Component
         {
             component = null;
+
+            if (Application.exitCancellationToken.IsCancellationRequested)
+                return (false);
             
-            IList<IGroupedGameObject> list = value;
+            IList<ScriptableGameObject> list = value;
             if (list.Count == 0)
                 return (false);
             
             for (int i = 0; i < list.Count; i++)
             {
-                GameObject instance = list[i].Value;
+                ScriptableGameObject instance = list[i];
                 if (instance == null)
                     continue;
                 
@@ -99,12 +81,15 @@ namespace OpenUtility.Samples.Data
         /// </summary>
         public T GetComponent<T>() where T : Component
         {
-            IList<IGroupedGameObject> list = value;
+            if (Application.exitCancellationToken.IsCancellationRequested)
+                return (null);
+            
+            IList<ScriptableGameObject> list = value;
             if (list.Count == 0)
                 return (null);
 
             for (int i = 0; i < list.Count; i++)
-                if (list[i].Value.TryGetComponent(out T component))
+                if (list[i].TryGetComponent(out T component))
                     return (component);
 
             return (null);
@@ -116,12 +101,15 @@ namespace OpenUtility.Samples.Data
         /// </summary>
         public T[] GetComponents<T>() where T : Component
         {
+            if (Application.exitCancellationToken.IsCancellationRequested)
+                return (Array.Empty<T>());
+            
             using var pooled = ListPool<T>.Get(out List<T> components);
 
-            IList<IGroupedGameObject> list = value;
+            IList<ScriptableGameObject> list = value;
 
             for (int i = 0; i < list.Count; i++)
-                if (list[i].Value.TryGetComponent(out T component))
+                if (list[i].TryGetComponent(out T component))
                     components.Add(component);
 
             return (components.ToArray());
@@ -132,10 +120,13 @@ namespace OpenUtility.Samples.Data
         /// </summary>
         public void GetComponents<T>(List<T> components) where T : Component
         {
-            IList<IGroupedGameObject> list = value;
+            if (Application.exitCancellationToken.IsCancellationRequested)
+                return;
+            
+            IList<ScriptableGameObject> list = value;
 
             for (int i = 0; i < list.Count; i++)
-                if (list[i].Value.TryGetComponent(out T component))
+                if (list[i].TryGetComponent(out T component))
                     components.Add(component);
         }
     }

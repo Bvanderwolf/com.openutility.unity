@@ -1,4 +1,3 @@
-using OpenUtility.Samples.Data;
 using UnityEditor;
 
 namespace OpenUtility.Data.Editor
@@ -8,7 +7,6 @@ namespace OpenUtility.Data.Editor
     {
         private SerializedProperty _sourceProperty;
         private SerializedProperty _prefabProperty;
-        private SerializedProperty _groupProperty;
         private SerializedProperty _dontDestroyOnLoadProperty;
         private SerializedProperty _instantiateLazyProperty;
         
@@ -16,7 +14,6 @@ namespace OpenUtility.Data.Editor
         {
             _sourceProperty = serializedObject.FindProperty("_source");
             _prefabProperty = serializedObject.FindProperty("_prefab");
-            _groupProperty = serializedObject.FindProperty("_group");
             _dontDestroyOnLoadProperty = serializedObject.FindProperty("_dontDestroyOnLoad");
             _instantiateLazyProperty = serializedObject.FindProperty("_instantiateLazy");
         }
@@ -50,7 +47,6 @@ namespace OpenUtility.Data.Editor
         {
             EditorGUILayout.LabelField("Project References", EditorStyles.boldLabel);
             EditorGUILayout.PropertyField(_prefabProperty);
-            EditorGUILayout.PropertyField(_groupProperty);
             
             EditorGUILayout.Space();
             

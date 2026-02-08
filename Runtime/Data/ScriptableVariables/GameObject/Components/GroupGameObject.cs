@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace OpenUtility.Samples.Data
+namespace OpenUtility.Data
 {
     /// <summary>
     /// Adds the game object to the specified group on Awake. Use this component to organize game objects
