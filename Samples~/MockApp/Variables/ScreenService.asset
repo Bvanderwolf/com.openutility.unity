@@ -10,6 +10,12 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: e61155bbe8aa3e8439c11b0de0b53235, type: 3}
-  m_Name: PlayerInstance
+  m_Name: ScreenService
   m_EditorClassIdentifier: 
-  _prefab: {fileID: 8287111306591936951, guid: 6f35f36d881b2ea4dadcf1a9c9851dd5, type: 3}
+  _source: 0
+  _prefab: {fileID: 0}
+  _group:
+    _hasValue: 0
+    _value: {fileID: 0}
+  _dontDestroyOnLoad: 0
+  _instantiateLazy: 0

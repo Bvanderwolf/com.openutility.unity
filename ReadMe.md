@@ -26,7 +26,7 @@ This package requires the following Unity official packages to function correctl
 2. Click the **+** icon > **"Install package from git URL..."**.
 3. Paste: 
 ```
-https://github.com/Bvanderwolf/com.openutility.unity.git#v0.4.3-alpha
+https://github.com/Bvanderwolf/com.openutility.unity.git#v0.5.0-alpha
 ```
 
 ---
@@ -248,6 +248,31 @@ public class DefaultIntegerSliderEventBinding : IntegerSliderEventBinding
 | **Toggle** | ❌ No | ✅ Yes | ❌ No | ❌ No |
 | **TMP_Text** | ✅ Yes | ❌ No | ✅ Yes | ✅ Yes |
 | **TMP_Dropdown** | ❌ No | ❌ No | ✅ Yes | ❌ No
+
+#### 🌍 Share and Group GameObjects
+
+During development the following design problems are common:
+- A component in a prefab requires a reference to a game object or component in a scene. You can't set this reference in the prefab itself, because the scene is not part of the prefab.
+- A game object in your scene requires a reference to another game object or component in another scene. You can't set this reference in the inspector, because the other scene is not loaded yet.
+- A component requires references to multiple game objects that globally provide the same functionality (e.g. authentication provider & license provider = service providers). As you require more dependencies, you now have to manually find and assign more of these references for each component instance.
+- A script requires references to multiple game objects that globally provide the same functionality (e.g. authentication provider & license provider = service providers). As you require more dependencies, arguments have to be added to function calls.
+
+Introducing the **ScriptableGameObject** and **GameObjectGroup**
+Created to work as a proxy for single or multiple (grouped) GameObject references, they make it possible to share references across scenes and prefabs.
+
+Use the **ScriptableGameObject** variable to share a reference to a GameObject across different scenes and prefabs. 
+
+1. **Create Asset:** Create a new **ScriptableGameObject** asset via `Create > OpenUtility > Data > ScriptableGameObject`.
+2. **Set Source:** Either set the source to 'Prefab', assign a prefab to the 'prefab' field and instantiate it at runtime. Or set the source to 'Scene' and assign a value directly to the variable by adding a **ShareGameObject** component to a GameObject in a scene.
+
+> ℹ️ The `DefaultExecutionOrder` attribute on the `ShareGameObject` component ensures values are set before any `Awake` methods are called. 
+
+Use the **GameObjectGroup** variable to share a group of GameObject instances across different scenes and prefabs.
+
+1. **Create Asset:** Create a new **GameObjectGroup** asset via `Create > OpenUtility > Data > GameObjectGroup`.
+2. **Add Values:** Add **ScriptableGameObject** values by setting the 'group' variable if their source is set to 'Prefab'. Or add values by adding a **GroupGameObject** component to game objects in a scene.
+
+> ℹ️ The `DefaultExecutionOrder` attribute on the **GroupGameObject** component ensures values are set before any `Awake` methods are called. 
 
 ---
 

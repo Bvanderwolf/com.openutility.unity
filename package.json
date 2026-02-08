@@ -3,7 +3,7 @@
   "displayName": "OpenUtility",
   "description": "A public library of utility code, usefull for the unity game engine.",
   "keywords": [],
-  "version": "0.4.3",
+  "version": "0.5.0",
   "dependencies": {
     "com.unity.localization": "1.5.9",
     "com.unity.addressables": "2.7.6"
@@ -49,10 +49,15 @@
       "description": "Contains a scene demonstrating how to present a simple inventory in your app using scriptable variables and pooling",
       "path": "Samples~/Inventory"
     },
-     {
+    {
       "displayName": "Asteroids",
       "description": "Contains a scene demonstrating how to create a simple asteroids game using scriptable variables and pooling",
       "path": "Samples~/Asteroids"
+    },
+    {
+      "displayName": "MockApp",
+      "description": "Contains a scene demonstrating how to create a simple app loading screen using scriptable game objects and a game object group",
+      "path": "Samples~/MockApp"
     },
     {
       "displayName": "Simple Addressables Setup",

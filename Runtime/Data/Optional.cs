@@ -43,6 +43,12 @@ namespace OpenUtility.Data
                 _value = default
             };
         }
+
+        public bool TryGetValue(out T value)
+        {
+            value = GetValueOrDefault();
+            return (_hasValue);
+        }
         
         public T GetValueOrDefault(T defaultValue = default) => _hasValue ? _value : defaultValue;
 

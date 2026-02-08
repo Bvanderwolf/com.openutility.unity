@@ -15,9 +15,6 @@ namespace OpenUtility.Data
         [Header("Settigs")]
         [SerializeField, Tooltip("Optionally determine capacity by this value instead of the 'values' property")]
         private Optional<int> _capacity;
-
-        [SerializeField, Tooltip("Remove mono behaviours from the list if they are destroyed, leaving no null references.")]
-        private bool _cleanupOnDestroy;
         
         protected IList<T> value { get; private set; }
         
@@ -72,7 +69,7 @@ namespace OpenUtility.Data
         
         public void Add(T newValue)
         {
-            if (_cleanupOnDestroy && newValue is MonoBehaviour behaviour)
+            if (newValue is MonoBehaviour behaviour)
             {
                 behaviour.destroyCancellationToken.Register(OnDestroy, behaviour);
 
