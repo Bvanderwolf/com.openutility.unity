@@ -128,6 +128,10 @@ namespace OpenUtility.Data
         /// </summary>
         public GameObject CreateValue()
         {
+#if UNITY_EDITOR
+            if (_source == Source.SCENE)
+                Debug.LogWarning($"[{name}] Creating instance from prefab even though source is set to 'Scene'.");
+#endif
             if (_instance.TryGetValue(out GameObject instanceToDestroy))
             {
                 Debug.Log($"[{name}] Replacing instance '{instanceToDestroy.name}' with new instance.");
@@ -177,6 +181,10 @@ namespace OpenUtility.Data
         /// </summary>
         public override void SetValue(GameObject newValue)
         {
+#if UNITY_EDITOR
+            if (_source == Source.SCENE)
+                Debug.LogWarning($"[{name}] Setting instance from scene even though source is set to 'Prefab'.");
+#endif
             if (_instance.TryGetValue(out GameObject instanceToDestroy))
             {
                 Debug.Log($"[{name}] Replacing instance '{instanceToDestroy.name}' with new instance.");
