@@ -182,7 +182,7 @@ namespace OpenUtility.Data
         public override void SetValue(GameObject newValue)
         {
 #if UNITY_EDITOR
-            if (_source == Source.SCENE)
+            if (_source == Source.PREFAB)
                 Debug.LogWarning($"[{name}] Setting instance from scene even though source is set to 'Prefab'.");
 #endif
             if (_instance.TryGetValue(out GameObject instanceToDestroy))
