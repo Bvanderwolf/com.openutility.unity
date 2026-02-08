@@ -10,7 +10,7 @@ namespace OpenUtility.Data
     /// Represents a group of game objects. Used with the 'GroupGameObject' component to
     /// organize game objects into groups and access their components.
     /// </summary>
-    [CreateAssetMenu(fileName = "GameObjectGroup", menuName = "OpenUtility/Data/GameObjectGroup")]
+    [CreateAssetMenu(fileName = "GameObjectGroup", menuName = "OpenUtility/GameObject/GameObjectGroup")]
     public class GameObjectGroup : ScriptableList<ScriptableGameObject>
     {
         /// <summary>
@@ -32,7 +32,8 @@ namespace OpenUtility.Data
         {
             ThrowIf.UnityObjectNull(gameObject);
 
-            var list = GetValue();
+            IList<ScriptableGameObject> list = GetValue();
+            
             for (int i = list.Count - 1; i >= 0; i--)
             {
                 ScriptableGameObject instance = list[i];
@@ -59,7 +60,7 @@ namespace OpenUtility.Data
             if (Application.exitCancellationToken.IsCancellationRequested)
                 return (false);
             
-            IList<ScriptableGameObject> list = value;
+            IList<ScriptableGameObject> list = GetValue();
             if (list.Count == 0)
                 return (false);
             
@@ -84,7 +85,7 @@ namespace OpenUtility.Data
             if (Application.exitCancellationToken.IsCancellationRequested)
                 return (null);
             
-            IList<ScriptableGameObject> list = value;
+            IList<ScriptableGameObject> list = GetValue();
             if (list.Count == 0)
                 return (null);
 
@@ -106,7 +107,7 @@ namespace OpenUtility.Data
             
             using var pooled = ListPool<T>.Get(out List<T> components);
 
-            IList<ScriptableGameObject> list = value;
+            IList<ScriptableGameObject> list = GetValue();
 
             for (int i = 0; i < list.Count; i++)
                 if (list[i].TryGetComponent(out T component))
@@ -123,7 +124,7 @@ namespace OpenUtility.Data
             if (Application.exitCancellationToken.IsCancellationRequested)
                 return;
             
-            IList<ScriptableGameObject> list = value;
+            IList<ScriptableGameObject> list = GetValue();
 
             for (int i = 0; i < list.Count; i++)
                 if (list[i].TryGetComponent(out T component))

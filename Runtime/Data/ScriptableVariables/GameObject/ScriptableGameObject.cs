@@ -8,7 +8,7 @@ namespace OpenUtility.Data
     /// assign a prefab to the 'prefab' field and instantiate it at runtime or set the source to 'Scene' and assign a
     /// value directly to the variable by adding a 'ShareGameObject' component to a GameObject in a scene.
     /// </summary>
-    [CreateAssetMenu(fileName = "ScriptableGameObject", menuName = "OpenUtility/Data/ScriptableGameObject")]
+    [CreateAssetMenu(fileName = "ScriptableGameObject", menuName = "OpenUtility/GameObject/ScriptableGameObject")]
     public class ScriptableGameObject : ScriptableVariable<GameObject>
     {
         public enum Source

@@ -44,11 +44,11 @@ namespace OpenUtility.Data
         protected abstract IDictionary<TKey, TValue> CreateValue(int capacity);
 
         public override IDictionary<TKey, TValue> GetValue() => value;
-        public TValue GetValue(TKey key) => value[key];
-        public TValue GetValue(TKey key, TValue defaultValue) => value.TryGetValue(key, out TValue result) ? result : defaultValue; 
+        public TValue GetValue(TKey key) => GetValue()[key];
+        public TValue GetValue(TKey key, TValue defaultValue) =>  GetValue().TryGetValue(key, out TValue result) ? result : defaultValue; 
 
         public override void SetValue(IDictionary<TKey, TValue> newValue) => value = newValue;
-        public void SetValue(TKey key, TValue newValue) => value[key] = newValue;
+        public void SetValue(TKey key, TValue newValue) =>  GetValue()[key] = newValue;
 
         public void Add(TKey key, TValue newValue)
         {
@@ -59,12 +59,12 @@ namespace OpenUtility.Data
                 void OnDestroy(object data) => Remove((TKey)data);
             }
             
-            value.Add(key, newValue);
+            GetValue().Add(key, newValue);
         }
         
         public void Remove(TKey key)
         {
-            value.Remove(key);
+            GetValue().Remove(key);
         }
 
         public TValue this[TKey key]

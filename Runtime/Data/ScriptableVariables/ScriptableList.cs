@@ -50,11 +50,11 @@ namespace OpenUtility.Data
 
         public override IList<T> GetValue() => value;
 
-        public T GetValue(int index) => value[index];
+        public T GetValue(int index) => GetValue()[index];
 
         public override void SetValue(IList<T> newValue) => value = newValue;
 
-        public void SetValue(int index, T newValue) => value[index] = newValue;
+        public void SetValue(int index, T newValue) => GetValue()[index] = newValue;
         
         public void Add(T newValue)
         {
@@ -65,17 +65,17 @@ namespace OpenUtility.Data
                 void OnDestroy(object instance) => Remove((T)instance);
             }
             
-            value.Add(newValue);
+            GetValue().Add(newValue);
         }
 
         public void Remove(T valueToRemove)
         {
-            value.Remove(valueToRemove);
+            GetValue().Remove(valueToRemove);
         }
         
         public void RemoveAt(int index)
         {
-            value.RemoveAt(index);
+            GetValue().RemoveAt(index);
         }
         
         public T this[int index]
