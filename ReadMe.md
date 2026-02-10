@@ -270,7 +270,7 @@ Use the **ScriptableGameObject** variable to share a reference to a GameObject a
 Use the **GameObjectGroup** variable to share a group of GameObject instances across different scenes and prefabs.
 
 1. **Create Asset:** Create a new **GameObjectGroup** asset via `Create > OpenUtility > Data > GameObjectGroup`.
-2. **Add Values:** Add **ScriptableGameObject** values by setting the 'group' variable if their source is set to 'Prefab'. Or add values by adding a **GroupGameObject** component to game objects in a scene.
+2. **Add Values:** Add **ScriptableGameObject** values by assigning their values in the inspector. You can also add values by adding a **GroupGameObject** component to game objects in a scene.
 
 > ℹ️ The `DefaultExecutionOrder` attribute on the **GroupGameObject** component ensures values are set before any `Awake` methods are called. 
 
