@@ -262,8 +262,9 @@ Created to work as a proxy for single or multiple (grouped) GameObject reference
 
 Use the **ScriptableGameObject** variable to share a reference to a GameObject across different scenes and prefabs. 
 
-- **Share Script:** Right click on a csharp script in your project window and press 'Share' via > `OpenUtility > Share`. This will set up a shared prefab setup automatically for you using the selected script.
-- **Share Prefab:** Right click on a prefab in your project window and press 'Share' via > `OpenUtility > Share`. This will set up a shared prefab setup automatically for you.
+- **Share Script:** Right click on a csharp script in your project window and press 'Share' via > `OpenUtility > Share`. This will set up a shared prefab source setup automatically for you using the selected script.
+- **Share Prefab:** Right click on a prefab in your project window and press 'Share' via > `OpenUtility > Share`. This will set up a shared prefab source setup automatically for you.
+- **Share Scene Object:** Right click on a game object in your scene hierarchy and press 'Share' via > `OpenUtility > Share`. This will set up a shared scene source setup automatically for you using the selected game object.
 
 or (manual setup)
 
