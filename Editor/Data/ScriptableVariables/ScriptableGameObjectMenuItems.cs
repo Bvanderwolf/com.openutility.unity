@@ -24,7 +24,6 @@ namespace OpenUtility.Data.Editor
                 
                 GameObject instance = new GameObject(script.name);
                 instance.AddComponent(typeOfComponent);
-                instance.AddComponent<ShareGameObject>();
 
                 string assetPath = ScriptableVariableFactory.GetAssetPathForNewVariable(selected);
                 string assetPathAndName = $"{assetPath}/{instance.name}.prefab";
@@ -43,29 +42,19 @@ namespace OpenUtility.Data.Editor
 
             void CreateVariableForPrefab(GameObject prefab)
             {
-               if (!prefab.TryGetComponent(out ShareGameObject component))
-                    component = prefab.AddComponent<ShareGameObject>();
-               
                AssetCreationOptions options = new AssetCreationOptions
                 {
                     creationMethod = ScriptableObject.CreateInstance,
                     inheritNameFromTarget = true
                 };
             
-                ScriptableVariableFactory.CreateNewAsset(component, typeof(ScriptableGameObject), OnAssetCreated, options);
+                ScriptableVariableFactory.CreateNewAsset(prefab, typeof(ScriptableGameObject), OnAssetCreated, options);
 
                 void OnAssetCreated(Object asset, Object target, string propertyPath)
                 {
-                    SerializedObject serializedObject = new SerializedObject(target);
-                    SerializedProperty property = serializedObject.FindProperty("_variable");
-                    property.objectReferenceValue = asset;
-                
-                    serializedObject.ApplyModifiedProperties();
-                    serializedObject.Dispose();
-
-                    serializedObject = new SerializedObject(asset);
-                    property = serializedObject.FindProperty("_prefab");
-                    property.objectReferenceValue = ((ShareGameObject)target).gameObject;
+                    SerializedObject serializedObject = new SerializedObject(asset);
+                    SerializedProperty property = serializedObject.FindProperty("_prefab");
+                    property.objectReferenceValue = target;
                     
                     serializedObject.ApplyModifiedProperties();
                     serializedObject.Dispose();
