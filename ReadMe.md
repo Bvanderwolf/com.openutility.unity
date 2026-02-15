@@ -265,6 +265,7 @@ Use the **ScriptableGameObject** variable to share a reference to a GameObject a
 - **Share Script:** Right click on a csharp script in your project window and press 'Share' via > `OpenUtility > Share`. This will set up a shared prefab source setup automatically for you using the selected script.
 - **Share Prefab:** Right click on a prefab in your project window and press 'Share' via > `OpenUtility > Share`. This will set up a shared prefab source setup automatically for you.
 - **Share Scene Object:** Right click on a game object in your scene hierarchy and press 'Share' via > `OpenUtility > Share`. This will set up a shared scene source setup automatically for you using the selected game object.
+- **Share Component in Scene:** Open the context menu on a component using the triple dots. Press share via `OpenUtility > Share`. This will set up a shared scene source automatically for you using the selected component.
 
 or (manual setup)
 
