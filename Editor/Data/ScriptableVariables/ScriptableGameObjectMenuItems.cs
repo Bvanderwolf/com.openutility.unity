@@ -62,19 +62,34 @@ namespace OpenUtility.Data.Editor
             }
         }
 
+        [MenuItem("CONTEXT/Component/OpenUtility/Share", false)]
+        private static void ExecuteShareOnOnComponentInstance(MenuCommand command)
+        {
+            Component selected = (Component)command.context;
+            if (selected == null)
+                return;
+            
+            ShareGameObjectInstance(selected.gameObject);
+        }
+
         [MenuItem("GameObject/OpenUtility/Share", false, 3)]
-        private static void ExcecuteShareOnGameObjectInstance()
+        private static void ExecuteShareOnGameObjectInstance()
         {
             GameObject selected = Selection.activeGameObject;
             if (selected == null)
                 return;
 
-            if (!selected.TryGetComponent(out ShareGameObject component))
-                component = selected.AddComponent<ShareGameObject>();
+            ShareGameObjectInstance(selected);
+        }
+
+        private static void ShareGameObjectInstance(GameObject instance)
+        {
+            if (!instance.TryGetComponent(out ShareGameObject component))
+                component = instance.AddComponent<ShareGameObject>();
 
             AssetCreationOptions options = new AssetCreationOptions
             {
-                creationMethod = ScriptableObject.CreateInstance,
+                creationMethod = CreateInstance,
                 inheritNameFromTarget = true
             };
             
@@ -89,6 +104,8 @@ namespace OpenUtility.Data.Editor
                 serializedObject.ApplyModifiedProperties();
                 serializedObject.Dispose();
             }
+
+            ScriptableObject CreateInstance(Type variableType) => ScriptableGameObject.FromScene();
         }
 
         [MenuItem("GameObject/OpenUtility/Share", true)]
