@@ -265,6 +265,11 @@ Use the **ScriptableGameObject** variable to share a reference to a GameObject a
 1. **Create Asset:** Create a new **ScriptableGameObject** asset via `Create > OpenUtility > Data > ScriptableGameObject`.
 2. **Set Source:** Either set the source to 'Prefab', assign a prefab to the 'prefab' field and instantiate it at runtime. Or set the source to 'Scene' and assign a value directly to the variable by adding a **ShareGameObject** component to a GameObject in a scene.
 
+or
+
+- **Share Script:** Right click on a csharp script in your project window and press 'Share' via > `OpenUtility > Share`. This will set up a shared prefab setup automatically for you using the selected script.
+- **Share Prefab:** Right click on a prefab in your project window and press 'Share' via > `OpenUtility > Share`. This will set up a shared prefab setup automatically for you.
+
 > ℹ️ The `DefaultExecutionOrder` attribute on the `ShareGameObject` component ensures values are set before any `Awake` methods are called. 
 
 Use the **GameObjectGroup** variable to share a group of GameObject instances across different scenes and prefabs.
