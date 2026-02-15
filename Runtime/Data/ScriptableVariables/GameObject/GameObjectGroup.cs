@@ -20,7 +20,7 @@ namespace OpenUtility.Data
         {
             ThrowIf.UnityObjectNull(gameObject);
 
-            var instance = ScriptableGameObject.CreateInstance(gameObject);
+            var instance = ScriptableGameObject.FromScene(gameObject);
             
             Add(instance);
         }

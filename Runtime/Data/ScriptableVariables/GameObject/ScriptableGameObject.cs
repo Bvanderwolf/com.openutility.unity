@@ -235,11 +235,18 @@ namespace OpenUtility.Data
                 _instance = Optional<GameObject>.None();
         }
         
-        public static ScriptableGameObject CreateInstance(GameObject instance)
+        public static ScriptableGameObject FromScene(GameObject instance)
         {
             var variable = CreateInstance<ScriptableGameObject>();
             variable._source = Source.SCENE;
             variable.SetValue(instance);
+            return (variable);
+        }
+
+        public static ScriptableGameObject FromScene()
+        {
+            var variable = CreateInstance<ScriptableGameObject>();
+            variable._source = Source.SCENE;
             return (variable);
         }
     }

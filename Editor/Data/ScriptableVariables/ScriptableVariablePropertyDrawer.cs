@@ -1,5 +1,6 @@
 #if UNITY_EDITOR
 
+using System;
 using UnityEditor;
 using UnityEngine;
 using Object = UnityEngine.Object;
@@ -37,13 +38,32 @@ namespace OpenUtility.Data.Editor
             
             Rect buttonRect = new Rect(position.x + position.width - 18, position.y, 18, position.height);
             if (GUI.Button(buttonRect, buttonContent, buttonStyle))
-                ScriptableVariableFactory.CreateNewAsset(property, fieldInfo.FieldType, OnAssetCreated);
+            {
+                AssetCreationOptions options = CreateOptions(fieldInfo.FieldType);
+                ScriptableVariableFactory.CreateNewAsset(property, fieldInfo.FieldType, OnAssetCreated, options);
+            }
         }
 
-        private void OnAssetCreated(Object asset, Object target, string propertyName)
+        private AssetCreationOptions CreateOptions(Type variableType)
+        {
+            if (typeof(ScriptableGameObject).IsAssignableFrom(variableType))
+            {
+                return (new AssetCreationOptions
+                {
+                    creationMethod = CreateScriptableGameObjectInstance,
+                    inheritNameFromTarget = true
+                });
+            }
+            
+            return (AssetCreationOptions.Default);
+        }
+        
+        private ScriptableObject CreateScriptableGameObjectInstance(Type scriptableObjectType) => (ScriptableGameObject.FromScene());
+
+        private void OnAssetCreated(Object asset, Object target, string propertyPath)
         {
             SerializedObject serializedObject = new SerializedObject(target);
-            SerializedProperty property = serializedObject.FindProperty(propertyName);
+            SerializedProperty property = serializedObject.FindProperty(propertyPath);
             property.objectReferenceValue = asset;
                 
             serializedObject.ApplyModifiedProperties();

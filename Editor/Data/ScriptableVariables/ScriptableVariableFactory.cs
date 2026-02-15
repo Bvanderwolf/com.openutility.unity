@@ -16,6 +16,20 @@ using Object = UnityEngine.Object;
 
 namespace OpenUtility.Data.Editor
 {
+    public struct AssetCreationOptions
+    {
+        public AssetCreationMethod creationMethod;
+        public bool inheritNameFromTarget;
+        
+        public static AssetCreationOptions Default => new()
+        {
+            creationMethod = ScriptableObject.CreateInstance,
+            inheritNameFromTarget = false
+        };
+    }
+    
+    public delegate ScriptableObject AssetCreationMethod(Type variableType);
+    
     public static class ScriptableVariableFactory
     {
         public delegate void AssetCreatedCallback(Object asset, Object target, string propertyPath);
@@ -26,18 +40,25 @@ namespace OpenUtility.Data.Editor
             private string _propertyPath;
             private Type _variableType;
             private AssetCreatedCallback _callback;
+            private AssetCreationOptions _options;
 
-            public void Setup(Object target, string propertyPath, Type scriptableObjectType, AssetCreatedCallback callback)
+            public void Setup(Object target, string propertyPath, Type scriptableObjectType, AssetCreatedCallback callback) => Setup(target, propertyPath, scriptableObjectType, callback, AssetCreationOptions.Default);
+            
+            public void Setup(Object target, string propertyPath, Type scriptableObjectType, AssetCreatedCallback callback, AssetCreationOptions options)
             {
                 _target = target;
                 _propertyPath = propertyPath;
                 _variableType = scriptableObjectType;
                 _callback = callback;
+                _options = options;
             }
 
             public override void Action(int instanceId, string pathName, string resourceFile)
             {
-                ScriptableObject asset = CreateInstance(_variableType);
+                ScriptableObject asset = _options.creationMethod.Invoke(_variableType);
+
+                if (_options.inheritNameFromTarget)
+                    asset.name = _target.name;
                 
                 AssetDatabase.CreateAsset(asset, pathName);
                 AssetDatabase.SaveAssets();
@@ -717,8 +738,53 @@ namespace OpenUtility.Data.Editor
                 AssignFloatVariableToInputFieldEvent((TMP_InputField)target, asset, bindingType);
             }
         }
+
+        public static void CreateNewAsset(Object targetObject, Type variableType, AssetCreatedCallback callback, AssetCreationOptions options)
+        {
+            string assetPath = GetAssetPathForNewVariable(targetObject);
+            
+            ScriptableObject newVariable = options.creationMethod.Invoke(variableType);
+
+            AssetCreationCallback action = ScriptableObject.CreateInstance<AssetCreationCallback>();
+            action.Setup(targetObject, null, variableType, callback, options);
+            
+            string defaultName = options.inheritNameFromTarget ? $"{targetObject.name}.asset" :  $"New{variableType.Name}.asset";
+            string assetPathAndName = AssetDatabase.GenerateUniqueAssetPath($"{assetPath}/{defaultName}");
+
+            ProjectWindowUtil.StartNameEditingIfProjectWindowExists(
+                0,
+                action, 
+                assetPathAndName,
+                AssetPreview.GetMiniThumbnail(newVariable),
+                null);
+        }
         
-        public static void CreateNewAsset(Object targetObject, Type variableType, AssetCreatedCallback callback)
+        public static void CreateNewAsset(Object targetObject, Type variableType, AssetCreatedCallback callback) => CreateNewAsset(targetObject, variableType, callback, AssetCreationOptions.Default);
+
+        public static void CreateNewAsset(SerializedProperty property, Type variableType, AssetCreatedCallback callback, AssetCreationOptions options)
+        {
+            string assetPath = GetAssetPathForNewVariable(property);
+            
+            ScriptableObject newVariable = options.creationMethod.Invoke(variableType);
+
+            Object targetObject = property.serializedObject.targetObject;
+            AssetCreationCallback action = ScriptableObject.CreateInstance<AssetCreationCallback>();
+            action.Setup(targetObject, property.propertyPath, variableType, callback, options);
+            
+            string defaultName = options.inheritNameFromTarget ? $"{targetObject.name}.asset" :  $"New{variableType.Name}.asset";
+            string assetPathAndName = AssetDatabase.GenerateUniqueAssetPath($"{assetPath}/{defaultName}");
+
+            ProjectWindowUtil.StartNameEditingIfProjectWindowExists(
+                0,
+                action, 
+                assetPathAndName,
+                AssetPreview.GetMiniThumbnail(newVariable),
+                null);
+        }
+        
+        public static void CreateNewAsset(SerializedProperty property, Type variableType, AssetCreatedCallback callback) => CreateNewAsset(property, variableType, callback, AssetCreationOptions.Default);
+
+        public static string GetAssetPathForNewVariable(Object targetObject)
         {
             string path = AssetDatabase.GetAssetPath(Selection.activeObject);
             if (string.IsNullOrEmpty(path))
@@ -746,68 +812,11 @@ namespace OpenUtility.Data.Editor
             {
                 path = Path.GetDirectoryName(path);
             }
-            
-            ScriptableObject newVariable = ScriptableObject.CreateInstance(variableType);
 
-            AssetCreationCallback action = ScriptableObject.CreateInstance<AssetCreationCallback>();
-            action.Setup(targetObject, null, variableType, callback);
-            
-            string defaultName = $"New{variableType.Name}.asset";
-            string assetPathAndName = AssetDatabase.GenerateUniqueAssetPath($"{path}/{defaultName}");
-
-            ProjectWindowUtil.StartNameEditingIfProjectWindowExists(
-                0,
-                action, 
-                assetPathAndName,
-                AssetPreview.GetMiniThumbnail(newVariable),
-                null);
+            return (path);
         }
         
-        public static void CreateNewAsset(SerializedProperty property, Type variableType, AssetCreatedCallback callback)
-        {
-            string path = AssetDatabase.GetAssetPath(Selection.activeObject);
-            if (string.IsNullOrEmpty(path))
-            {
-                if (property.serializedObject.targetObject is Component component)
-                {
-                    Scene scene = component.gameObject.scene;
-                    
-                    if (scene.IsValid() && !string.IsNullOrEmpty(scene.path))
-                    {
-                        path = Path.GetDirectoryName(scene.path);
-                    }
-                    else
-                    {
-                        GameObject prefab = PrefabUtility.GetNearestPrefabInstanceRoot(component.gameObject);
-                        path = prefab == null ? "Assets" : Path.GetDirectoryName(AssetDatabase.GetAssetPath(prefab));
-                    }
-                }
-                else
-                {
-                    path = "Assets";
-                }
-            }
-            else if (!Directory.Exists(path)) 
-            {
-                path = Path.GetDirectoryName(path);
-            }
-            
-            ScriptableObject newVariable = ScriptableObject.CreateInstance(variableType);
-
-            Object target = property.serializedObject.targetObject;
-            AssetCreationCallback action = ScriptableObject.CreateInstance<AssetCreationCallback>();
-            action.Setup(target, property.propertyPath, variableType, callback);
-            
-            string defaultName = $"New{variableType.Name}.asset";
-            string assetPathAndName = AssetDatabase.GenerateUniqueAssetPath($"{path}/{defaultName}");
-
-            ProjectWindowUtil.StartNameEditingIfProjectWindowExists(
-                0,
-                action, 
-                assetPathAndName,
-                AssetPreview.GetMiniThumbnail(newVariable),
-                null);
-        }
+        public static string GetAssetPathForNewVariable(SerializedProperty property) => GetAssetPathForNewVariable(property.serializedObject.targetObject);
     }
 }
 
