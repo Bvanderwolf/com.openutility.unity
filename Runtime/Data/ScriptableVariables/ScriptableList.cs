@@ -23,6 +23,12 @@ namespace OpenUtility.Data
         /// </summary>
         public int Count => value.Count;
 
+        public T this[int index]
+        {
+            get => GetValue(index);
+            set => SetValue(index, value);
+        }
+
         protected virtual void OnEnable()
         {
             value ??= CreateValue(_capacity.HasValue ? _capacity.Value : _values.Count);
@@ -55,7 +61,7 @@ namespace OpenUtility.Data
         public override void SetValue(IList<T> newValue) => value = newValue;
 
         public void SetValue(int index, T newValue) => GetValue()[index] = newValue;
-        
+
         public void Add(T newValue)
         {
             if (newValue is MonoBehaviour behaviour)
@@ -72,16 +78,15 @@ namespace OpenUtility.Data
         {
             GetValue().Remove(valueToRemove);
         }
-        
+
         public void RemoveAt(int index)
         {
             GetValue().RemoveAt(index);
         }
-        
-        public T this[int index]
+
+        public void Clear()
         {
-            get => GetValue(index);
-            set => SetValue(index, value);
+            GetValue().Clear();
         }
     }
 }
