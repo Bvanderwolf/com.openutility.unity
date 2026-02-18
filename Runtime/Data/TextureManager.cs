@@ -8,17 +8,19 @@ namespace OpenUtility.Data
     /// </summary>
     public static class TextureManager
     {
-        private static readonly Dictionary<Texture, Sprite> _textureToSpriteCache = new Dictionary<Texture, Sprite>();
-        private static readonly Dictionary<Sprite, Texture2D> _spriteToTextureCache = new Dictionary<Sprite, Texture2D>();
-        private static readonly Dictionary<string, Texture2D> _namedTextureCache = new Dictionary<string, Texture2D>();
+        private static readonly Dictionary<Texture, Sprite> _textureToSpriteCache = new();
+        private static readonly Dictionary<Sprite, Texture2D> _spriteToTextureCache = new();
+        private static readonly Dictionary<string, Texture2D> _namedTextureCache = new();
 
         /// <summary>
         /// Clears all cached textures and sprites.
         /// </summary>
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
         public static void ClearCache()
         {
             _textureToSpriteCache.Clear();
             _spriteToTextureCache.Clear();
+            _namedTextureCache.Clear();
         }
         
         /// <summary>
@@ -49,7 +51,7 @@ namespace OpenUtility.Data
         }
 
         /// <summary>
-        /// returns the texture from a sprite. Accounts for sprites that are not the same size as the texture
+        /// Returns the texture from a sprite. Accounts for sprites that are not the same size as the texture
         /// (sprites that are part of an atlas for example). Caches created textures for future requests of the same sprite.
         /// </summary>
         public static Texture2D SpriteToTexture(Sprite sprite)
@@ -78,16 +80,29 @@ namespace OpenUtility.Data
         }
         
         /// <summary>
-        /// Returns a Texture2D from a byte array. Caches the texture if a name is provided to allow reuse
+        /// Returns a Texture2D from a byte array. Does not cache the value.
+        /// </summary>
+        public static Texture2D BytesToTexture(byte[] bytes) => BytesToTexture(bytes, null);
+        
+        /// <summary>
+        /// Returns a Texture2D from a byte array. Caches the texture using the name to allow reuse
         /// if the same name is requested again.
         /// </summary>
-        public static Texture2D BytesToTexture(byte[] bytes, string name = null)
+        public static Texture2D BytesToTexture(byte[] bytes, string name)
         {
+            if (!string.IsNullOrEmpty(name))
+            {
+                if (_namedTextureCache.TryGetValue(name, out Texture2D cachedTexture))
+                {
+                    if (cachedTexture != null)
+                        return cachedTexture;
+
+                    _namedTextureCache.Remove(name);
+                }
+            }
+            
             if (bytes == null || bytes.Length == 0)
                 return (null);
-            
-            if (!string.IsNullOrEmpty(name) && _namedTextureCache.TryGetValue(name, out Texture2D cachedTexture))
-                return (cachedTexture);
             
             Texture2D texture = new Texture2D(2, 2);
             if (!texture.LoadImage(bytes))
