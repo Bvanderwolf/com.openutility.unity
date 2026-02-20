@@ -44,13 +44,19 @@ namespace OpenUtility.DelayedExecution
             }
         }
 
-        public YieldInstruction WaitForOperation(AsyncOperation operation, Action<AsyncOperation> callback = null)
+        public YieldInstruction WaitForOperation(AsyncOperation operation, Action<AsyncOperation> callback = null, Action<float> progress = null)
         { 
             return (StartCoroutine(RunOperation()));
             
             IEnumerator RunOperation()
             {
-                yield return operation;
+                do
+                {
+                    progress?.Invoke(operation.progress);
+                    
+                    yield return null;
+                    
+                } while (!operation.isDone);
                 
                 callback?.Invoke(operation);
             }

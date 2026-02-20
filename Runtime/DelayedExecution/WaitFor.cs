@@ -121,7 +121,7 @@ namespace OpenUtility.DelayedExecution
         /// <summary>
         /// Invokes the callback when the operation is complete.
         /// </summary>
-        public static YieldInstruction Operation(AsyncOperation operation, Action<AsyncOperation> callback = null)
+        public static YieldInstruction Operation(AsyncOperation operation, Action<AsyncOperation> callback = null, Action<float> progress = null)
         {
             ThrowIf.SystemObjectNull(operation);
             
