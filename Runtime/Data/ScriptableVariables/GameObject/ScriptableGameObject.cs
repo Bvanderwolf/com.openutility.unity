@@ -185,15 +185,15 @@ namespace OpenUtility.Data
             if (_source == Source.PREFAB)
                 Debug.LogWarning($"[{name}] Setting instance from scene even though source is set to 'Prefab'.");
 #endif
-            if (_instance.TryGetValue(out GameObject instanceToDestroy))
+            if (_instance.TryGetValue(out GameObject instanceToDestroy) && instanceToDestroy != null)
             {
-                Debug.Log($"[{name}] Replacing instance '{instanceToDestroy.name}' with new instance.");
+                Debug.Log($"[{name}] Replacing instance '{instanceToDestroy.name}' with new instance {newValue.name}.");
                 
                 Destroy(instanceToDestroy);
             }
             
             if (_parent.TryGetValue(out Transform parent))
-                _instance.Value.transform.SetParent(parent);
+                newValue.transform.SetParent(parent);
             
             if (_dontDestroyOnLoad)
             {
