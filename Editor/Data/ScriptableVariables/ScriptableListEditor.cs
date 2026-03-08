@@ -11,7 +11,7 @@ namespace OpenUtility.Data.Editor
     {
         private PropertyInfo _valueProperty;
 
-        private void OnEnable()
+        protected virtual void OnEnable()
         {
             _valueProperty = target.GetType().GetProperty("value", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Public);
             EditorApplication.update += RepaintWhilePlaying;

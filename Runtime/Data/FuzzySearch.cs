@@ -19,6 +19,16 @@ namespace OpenUtility.Data
 
     public static class FuzzySearch
     {
+        private class DescendingComparer : IComparer<int>
+        {
+            public int Compare(int x, int y)
+            {
+                return y.CompareTo(x);
+            }
+        }
+        
+        private static readonly DescendingComparer Comparer = new();
+        
         public static int LevenshteinDistance(string a, string b)
         {
             if (string.IsNullOrEmpty(a))
@@ -66,14 +76,14 @@ namespace OpenUtility.Data
 
             string queryToLower = query.ToLower();
             int maxAllowedDistance = Math.Max(1, query.Length / errorMargin);
-            SortedList<int, List<string>> sorted = new SortedList<int, List<string>>(items.Count);
+            SortedList<int, List<string>> sorted = new SortedList<int, List<string>>(items.Count, Comparer);
 
             foreach (string item in items)
             {
                 if (searchType == SearchType.AutoComplete && query.Length > item.Length)
                     continue;
 
-                int distance = GetDistanceBetweenItemAndQuery(item.ToLower(), queryToLower);
+                int distance = GetDistanceBetweenItemAndQuery(item.ToLower(), queryToLower, maxAllowedDistance);
                 if (distance > maxAllowedDistance)
                     continue;
 
@@ -120,14 +130,14 @@ namespace OpenUtility.Data
 
             string queryToLower = query.ToLower();
             int maxAllowedDistance = Math.Max(1, query.Length / errorMargin);
-            var sorted = new SortedList<int, List<GameObject>>(items.Count);
+            var sorted = new SortedList<int, List<GameObject>>(items.Count, Comparer);
 
             foreach (GameObject item in items)
             {
                 if (searchType == SearchType.AutoComplete && query.Length > item.name.Length)
                     continue;
 
-                int distance = GetDistanceBetweenItemAndQuery(item.name.ToLower(), queryToLower);
+                int distance = GetDistanceBetweenItemAndQuery(item.name.ToLower(), queryToLower, maxAllowedDistance);
                 if (distance > maxAllowedDistance)
                     continue;
 
@@ -156,16 +166,16 @@ namespace OpenUtility.Data
 
         /// <summary>
         /// Returns a list of string that closely match the query using Levenshtein Distance.
-        /// Implement the IObjectIdentifier interface on your items to use this method.
+        /// Uses UnityEngine.Object.name or IObjectIdentifier.Identifier. Falls back on .ToString() if neither of those are available.
         /// </summary>
-        /// <param name="items">The items implementing IObjectIdentifier to pick from.</param>
+        /// <param name="items">The items to pick from.</param>
         /// <param name="query">The query to base the results on.</param>
         /// <param name="maxResults">The maximum amount of results to take.</param>
         /// <param name="errorMargin">Represents how many incorrect characters it accepts relative to the length of the item.
         /// For example: 3 means to accept 1 incorrect character every 3 characters.</param>
         /// <param name="searchType">The search type to use for the search.</param>
         /// <returns></returns>
-        public static T[] Search<T>(List<T> items, string query, int maxResults, int errorMargin = 3, SearchType searchType = SearchType.AutoComplete) where T : IObjectIdentifier
+        public static T[] Search<T>(List<T> items, string query, int maxResults, int errorMargin = 3, SearchType searchType = SearchType.AutoComplete) where T : class
         {
             if (string.IsNullOrEmpty(query))
                 return (items.ToArray());
@@ -175,15 +185,15 @@ namespace OpenUtility.Data
 
             string queryToLower = query.ToLower();
             int maxAllowedDistance = Math.Max(1, query.Length / errorMargin);
-            SortedList<int, List<T>> sorted = new SortedList<int, List<T>>(items.Count);
+            SortedList<int, List<T>> sorted = new SortedList<int, List<T>>(items.Count, Comparer);
 
             foreach (T item in items)
             {
-                string identifier = item.Identifier;
+                string identifier = ResolveIdentifierForItem(item);
                 if (searchType == SearchType.AutoComplete && query.Length > identifier.Length)
                     continue;
 
-                int distance = GetDistanceBetweenItemAndQuery(identifier.ToLower(), queryToLower);
+                int distance = GetDistanceBetweenItemAndQuery(identifier.ToLower(), queryToLower, maxAllowedDistance);
                 if (distance > maxAllowedDistance)
                     continue;
 
@@ -207,6 +217,17 @@ namespace OpenUtility.Data
             }
 
             return (results.ToArray());
+
+            string ResolveIdentifierForItem(T item)
+            {
+                if (item is UnityEngine.Object unityObject)
+                    return (unityObject.name);
+                
+                if (item is IObjectIdentifier identifier)
+                    return (identifier.Identifier);
+
+                return (item.ToString());
+            }
         }
 
         /// <summary>
@@ -230,7 +251,7 @@ namespace OpenUtility.Data
 
             string queryToLower = query.ToLower();
             int maxAllowedDistance = Math.Max(1, query.Length / errorMargin);
-            SortedList<int, List<T>> sorted = new SortedList<int, List<T>>(items.Length);
+            SortedList<int, List<T>> sorted = new SortedList<int, List<T>>(items.Length, Comparer);
 
             foreach (T item in items)
             {
@@ -238,7 +259,7 @@ namespace OpenUtility.Data
                 if (searchType == SearchType.AutoComplete && query.Length > identifier.Length)
                     continue;
 
-                int distance = GetDistanceBetweenItemAndQuery(identifier.ToLower(), queryToLower);
+                int distance = GetDistanceBetweenItemAndQuery(identifier.ToLower(), queryToLower, maxAllowedDistance);
                 if (distance > maxAllowedDistance)
                     continue;
 
@@ -264,15 +285,27 @@ namespace OpenUtility.Data
             return (results.ToArray());
         }
 
-        private static int GetDistanceBetweenItemAndQuery(string item, string query)
+        private static int GetDistanceBetweenItemAndQuery(string item, string query, int maxAllowedDistance)
         {
             if (item == query)
                 return (0);
 
-            if (item.StartsWith(query))
-                return (1);
+            if (TryGetDistanceFromContainment(item, query, out int distance))
+                return (maxAllowedDistance - (Mathf.Abs(maxAllowedDistance - distance)) + 1);
 
             return (LevenshteinDistance(item, query));
+        }
+
+        private static bool TryGetDistanceFromContainment(string item, string query, out int distance)
+        {
+            distance = int.MaxValue;
+            
+            int index = item.IndexOf(query, StringComparison.Ordinal);
+            if (index == -1)
+                return (false);
+            
+            distance = index;
+            return (true);
         }
     }
 }

@@ -32,7 +32,7 @@ namespace OpenUtility.DelayedExecution
             }
         }
 
-        public YieldInstruction WaitForWebRequest(UnityWebRequest request, Action<UnityWebRequest> callback = null)
+        public YieldInstruction WaitForWebRequest(UnityWebRequest request, object state, Action<UnityWebRequest, object> callback = null)
         { 
             return (StartCoroutine(SendWebRequest()));
             
@@ -40,7 +40,9 @@ namespace OpenUtility.DelayedExecution
             {
                 yield return request.SendWebRequest();
                 
-                callback?.Invoke(request);
+                callback?.Invoke(request, state);
+                
+                request.Dispose();
             }
         }
 
@@ -62,6 +64,22 @@ namespace OpenUtility.DelayedExecution
             }
         }
 
+        public YieldInstruction WaitForOperation(AsyncOperation operation, object state, Action<AsyncOperation, object> callback)
+        { 
+            return (StartCoroutine(RunOperation()));
+            
+            IEnumerator RunOperation()
+            {
+                do
+                {
+                    yield return null;
+                    
+                } while (!operation.isDone);
+                
+                callback?.Invoke(operation, state);
+            }
+        }
+        
         public YieldInstruction WaitForOperation<T>(AsyncOperationBase<T> operation, Action<AsyncOperationBase<T>> callback = null)
         { 
             return (StartCoroutine(RunOperation()));

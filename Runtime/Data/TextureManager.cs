@@ -22,6 +22,8 @@ namespace OpenUtility.Data
             _spriteToTextureCache.Clear();
             _namedTextureCache.Clear();
         }
+
+        public static bool TryGetTexture(string name, out Texture2D texture) => _namedTextureCache.TryGetValue(name, out texture);
         
         /// <summary>
         /// Clears the render texture with a clear color.

@@ -8,11 +8,11 @@ namespace OpenUtility.Data
     /// </summary>
     public abstract class ScriptableList<T> : ScriptableVariable<IList<T>>
     {
-        [Header("State")]
+        [Header("List State")]
         [SerializeField, Tooltip("The values used to start the list with.")]
         private List<T> _values = new List<T>();
 
-        [Header("Settigs")]
+        [Header("List Settings")]
         [SerializeField, Tooltip("Optionally determine capacity by this value instead of the 'values' property")]
         private Optional<int> _capacity;
         

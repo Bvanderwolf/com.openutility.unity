@@ -97,8 +97,7 @@ namespace OpenUtility.DelayedExecution
         }
         
         /// <summary>
-        /// Issues the web request to the specified url and invokes the callback when complete. You have to
-        /// dispose of the request yourself.
+        /// Issues the web request to the specified url and invokes the callback when complete.
         /// </summary>
         public static YieldInstruction GetRequest(string url, Action<UnityWebRequest> callback = null)
         {
@@ -119,6 +118,16 @@ namespace OpenUtility.DelayedExecution
         }
         
         /// <summary>
+        /// Issues the web request and invokes the callback when complete.
+        /// </summary>
+        public static YieldInstruction WebRequest(UnityWebRequest request, object state, Action<UnityWebRequest, object> callback)
+        {
+            ThrowIf.SystemObjectNull(request);
+            
+            return (GetOrCreateAwaiter().WaitForWebRequest(request, state, callback));
+        }
+        
+        /// <summary>
         /// Invokes the callback when the operation is complete.
         /// </summary>
         public static YieldInstruction Operation(AsyncOperation operation, Action<AsyncOperation> callback = null, Action<float> progress = null)
@@ -126,6 +135,16 @@ namespace OpenUtility.DelayedExecution
             ThrowIf.SystemObjectNull(operation);
             
             return (GetOrCreateAwaiter().WaitForOperation(operation, callback));
+        }
+        
+        /// <summary>
+        /// Invokes the callback when the operation is complete.
+        /// </summary>
+        public static YieldInstruction Operation(AsyncOperation operation, object state, Action<AsyncOperation, object> callback)
+        {
+            ThrowIf.SystemObjectNull(operation);
+            
+            return (GetOrCreateAwaiter().WaitForOperation(operation, state, callback));
         }
         
         /// <summary>

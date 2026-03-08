@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace OpenUtility.Data.Pooling
@@ -10,11 +11,13 @@ namespace OpenUtility.Data.Pooling
         /// </summary>
         public void Release()
         {
-            if (value.Count == 0)
+            IList<PoolGameObject> instance = GetValue();
+            
+            if (instance.Count == 0)
                 return;
 
-            for (int i = value.Count - 1; i >= 0; i--)
-                value[i].Release();
+            for (int i = instance.Count - 1; i >= 0; i--)
+                instance[i].Release();
         }
     }
 }

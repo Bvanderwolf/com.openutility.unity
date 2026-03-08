@@ -175,7 +175,9 @@ namespace OpenUtility.Data.Addressable
                 if (result.success)
                 {
                     catalogs.Add(result.data);
+#if UNITY_EDITOR
                     Debug.Log($"Catalog downloaded. Id: {result.data.LocatorId}, keys: {string.Join(", ", result.data.Keys)}");
+#endif
                     callback?.Invoke(RequestResult.CreateSuccess());
                 }
                 else
@@ -381,6 +383,54 @@ namespace OpenUtility.Data.Addressable
                     Debug.LogError($"Download of updated catalogs failed: {result.error}");
 
                     callback?.Invoke(RequestResult.CreateError(result.error));
+                }
+            }
+        }
+        
+        /// <summary>
+        /// Loads an asset from a given catalog. Will download required catalog and/or content if necessary. Use this for smaller assets
+        /// like Scriptable Object Asset settings. It is adviced to place these settings in a seperate addressable group
+        /// to reduce download size.
+        /// </summary>
+        public static void LoadAsset<T>(string catalogPath, string key, Action<DataRequestResult<T>> callback, Action<DownloadStatus> statusCallback = null)
+        {
+            if (HasLoadedCatalog(catalogPath))
+            {
+                AsyncOperationHandle<T> operation = Addressables.LoadAssetAsync<T>(key);
+                WaitFor.Operation(operation, OnAssetLoaded, statusCallback);
+            }
+            else
+            {
+                DownloadContentCatalog(catalogPath, OnCatalogLoaded);
+                
+                void OnCatalogLoaded(RequestResult result)
+                {
+                    if (result.success)
+                    {
+                        AsyncOperationHandle<T> operation = Addressables.LoadAssetAsync<T>(key);
+                        WaitFor.Operation(operation, OnAssetLoaded, statusCallback);
+                    }
+                    else
+                    {
+#if UNITY_EDITOR
+                        Debug.LogError($"Failed to download catalog at path {catalogPath}: {result.error}");
+#endif
+                        
+                        callback?.Invoke(DataRequestResult<T>.CreateError(result.error));
+                    }
+                }
+            }
+            
+            void OnAssetLoaded(DataRequestResult<T> result)
+            {
+                if (result.success)
+                {
+                    callback?.Invoke(DataRequestResult<T>.CreateSuccess(result.data));
+                }
+                else
+                {
+                    Debug.LogError($"[AddressableContentSystem] Failed to load {typeof(T).Name} asset with key {key}: {result.error}");
+                    callback?.Invoke(DataRequestResult<T>.CreateError($"Failed to load {typeof(T).Name} asset with key {key}: {result.error}"));
                 }
             }
         }

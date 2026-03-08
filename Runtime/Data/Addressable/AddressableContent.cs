@@ -224,6 +224,9 @@ namespace OpenUtility.Data.Addressable
         /// </summary>
         public static void DeleteCacheFiles()
         {
+#if UNITY_WEBGL && !UNITY_EDITOR
+            return;
+#else
             string companyName = Application.companyName;
             string productName = Application.productName;
             string appDataDirectory = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
@@ -231,17 +234,29 @@ namespace OpenUtility.Data.Addressable
             string unityDirectory = Path.Combine(localLowDirectory, "Unity", $"{companyName}_{productName}");
             string companyDirectory = Path.Combine(localLowDirectory, companyName, productName.ToLower(), "com.unity.addressables");
 
-            if (Directory.Exists(unityDirectory))
+            try
             {
-                Directory.Delete(unityDirectory, true);
-                Debug.Log("Unity directory cache cleared.");
-            }
+                if (Directory.Exists(unityDirectory))
+                {
+                    Directory.Delete(unityDirectory, true);
+                    Debug.Log("Unity directory cache cleared.");
+                }
 
-            if (Directory.Exists(companyDirectory))
-            {
-                Directory.Delete(companyDirectory, true);
-                Debug.Log("Company directory cache cleared.");
+                if (Directory.Exists(companyDirectory))
+                {
+                    Directory.Delete(companyDirectory, true);
+                    Debug.Log("Company directory cache cleared.");
+                }
             }
+            catch (IOException)
+            {
+                Debug.Log("Cache files are currently in use. Please close the application and try again to clear the cache.");
+            }
+            catch (Exception)
+            {
+                Debug.LogError($"Exception occurred while trying to clear cache files. Please try to clear the cache manually by deleting the following directories: {unityDirectory} and {companyDirectory}");
+            }
+#endif
         }
 
         /// <summary>
@@ -249,6 +264,9 @@ namespace OpenUtility.Data.Addressable
         /// </summary>
         public static bool CacheExists()
         {
+#if UNITY_WEBGL && !UNITY_EDITOR
+            return (false);
+#else
             string companyName = Application.companyName;
             string productName = Application.productName;
             string appDataDirectory = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
@@ -257,6 +275,7 @@ namespace OpenUtility.Data.Addressable
             string companyDirectory = Path.Combine(localLowDirectory, companyName, productName.ToLower(), "com.unity.addressables");
 
             return (Directory.Exists(unityDirectory) && Directory.Exists(companyDirectory));
+#endif
         }
 
         /// <summary>
@@ -264,7 +283,7 @@ namespace OpenUtility.Data.Addressable
         /// </summary>
         public static bool CacheExists(IResourceLocator catalog)
         {
-#if UNITY_WEBGL
+#if UNITY_WEBGL && !UNITY_EDITOR
             return (false);
 #else
             List<Hash128> versions = new List<Hash128>();

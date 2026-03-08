@@ -68,6 +68,16 @@
       "displayName": "Advanced Addressables Setup",
       "description": "Contains a scene demonstrating an advanced setup for Unity Addressables.\n-Everything from Simple Addressables Setup\n-Sas token usage\n-Selective downloading of content\n-Build properties",
       "path": "Samples~/Advanced Addressables Setup"
+    },
+    {
+      "displayName": "Managing Textures",
+      "description": "Contains a scene demonstrating and advanced setup of a ScriptableList that can manage textures in your project.",
+      "path": "Samples~/Managing Textures"
+    },
+    {
+      "displayName": "ListView Using Variables",
+      "description": "Contains a scene demonstrating a simple list view setup using pooling of list entry objects.",
+      "path": "Samples~/ListView Using Variables"
     }
   ],
   "unity": "6000.0"
