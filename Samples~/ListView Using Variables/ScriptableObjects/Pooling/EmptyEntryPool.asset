@@ -1,0 +1,22 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d70590ef3f98b304ea309aa3aac89fd1, type: 3}
+  m_Name: EmptyEntryPool
+  m_EditorClassIdentifier: 
+  _collectionCheck: 0
+  _defaultCapacity: 5
+  _maxSize: 15
+  _clearOnSceneUnload: 1
+  _prefab: {fileID: 6450736591432779660, guid: 9185f4348b521a54bb501fa3bff848fe, type: 3}
+  _references:
+    _hasValue: 1
+    _value: {fileID: 11400000, guid: 8bf3ca6fefefb014f8d8a598b5198a26, type: 2}
