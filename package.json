@@ -3,7 +3,7 @@
   "displayName": "OpenUtility",
   "description": "A public library of utility code, usefull for the unity game engine.",
   "keywords": [],
-  "version": "0.5.1",
+  "version": "0.6.0",
   "dependencies": {
     "com.unity.localization": "1.5.9",
     "com.unity.addressables": "2.7.6"
