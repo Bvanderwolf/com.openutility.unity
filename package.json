@@ -3,7 +3,7 @@
   "displayName": "OpenUtility",
   "description": "A public library of utility code, usefull for the unity game engine.",
   "keywords": [],
-  "version": "0.6.1",
+  "version": "0.7.0",
   "dependencies": {
     "com.unity.localization": "1.5.9",
     "com.unity.addressables": "2.7.6"
@@ -78,6 +78,11 @@
       "displayName": "ListView Using Variables",
       "description": "Contains a scene demonstrating a simple list view setup using pooling of list entry objects.",
       "path": "Samples~/ListView Using Variables"
+    },
+    {
+      "displayName": "Addressable Variables",
+      "description": "Contains 'AddressableVariableExtensions' providing ScriptableGameObject with addressable value retrieval. ",
+      "path": "Samples~/Addressable Variables"
     }
   ],
   "unity": "6000.0"

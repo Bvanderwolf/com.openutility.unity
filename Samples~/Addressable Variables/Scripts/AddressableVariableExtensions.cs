@@ -1,0 +1,76 @@
+using System;
+using OpenUtility.Data;
+using OpenUtility.DelayedExecution;
+using UnityEngine;
+using UnityEngine.AddressableAssets;
+using UnityEngine.ResourceManagement.AsyncOperations;
+using UnityEngine.ResourceManagement.ResourceProviders;
+
+namespace OpenUtility.Samples.Data
+{
+    public static class AddressableVariableExtensions
+    {
+        ///<summary>
+        /// Creates a new instance of the game object using the addressables library. If no key is set, uses the game object's name as key.
+        /// Returns a promise of the created instance value. If an instance already exists, it will be destroyed before creating a new one.
+        /// </summary>
+        public static Promised<GameObject> CreateAddressableValueAsync(this ScriptableGameObject gameObject, string key = null, Action<DownloadStatus> progress = null)
+        {
+            if (gameObject.HasValue)
+            {
+                Debug.Log($"[{gameObject.name}] Replacing instance '{gameObject.name}' with new instance.");
+                
+                gameObject.DestroyValue();
+            }
+
+            key ??= gameObject.name;
+
+            AsyncOperationHandle<GameObject> operation = Addressables.LoadAssetAsync<GameObject>(key);
+            Promised<GameObject> promise = CreatePromiseFromOperation(operation, progress).Then(gameObject.SetValue);
+
+            return (promise);
+        }
+        
+        /// <summary>
+        /// Returns the current instance of the game object. If 'instantiateLazy' is set and no instance is set yet,
+        /// creates a new instance using the addressables library. If no key is set, uses the game object's name as key.
+        /// Returns a promise to the (created) instance value.
+        /// </summary>
+        public static Promised<GameObject> GetAddressableValueAsync(this ScriptableGameObject gameObject, string key = null, Action<DownloadStatus> progress = null)
+        {
+            if (gameObject.HasValue || !gameObject.InstantiatedLazily)
+                return Promised<GameObject>.FromResult(gameObject.GetValue());
+
+            key ??= gameObject.name;
+
+            AsyncOperationHandle<GameObject> operation = Addressables.LoadAssetAsync<GameObject>(key);
+            Promised<GameObject> promise = CreatePromiseFromOperation(operation, progress).Then(gameObject.SetValue);
+
+            return (promise);
+        }
+        
+        /// <summary>
+        /// Returns a promise that is fullfilled if given addressable operation is completed.
+        /// </summary>
+        public static Promised<T> CreatePromiseFromOperation<T>(AsyncOperationHandle<T> operation, Action<DownloadStatus> progress = null)
+        {
+            Promised<T> promise = PromisePool<T>.Get();
+
+            WaitFor.Operation(operation, OnComplete, progress);
+
+            return (promise);
+
+            void OnComplete(DataRequestResult<T> result)
+            {
+                if (result.success)
+                {
+                    promise.Value = result.data;
+                }
+                else
+                {
+                    promise.Error = result.error;
+                }
+            }
+        }
+    }
+}
