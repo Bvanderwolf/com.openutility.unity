@@ -16,16 +16,13 @@ namespace OpenUtility.Data
             public TValue value;
         }
 
-        [Header("State")]
-        [SerializeField]
+        [Header("Dictionary State")]
+        [SerializeField, Tooltip("The values used to start the dictionary with.")]
         private KeyValuePair[] _values = Array.Empty<KeyValuePair>();
         
-        [Header("Settigs")]
-        [SerializeField, Tooltip("Optionally determine capacity by this value instead of the 'values' property")]
+        [Header("Settings")]
+        [SerializeField, Tooltip("Optionally determine capacity by this value instead of the 'values' property.")]
         private Optional<int> _capacity;
-
-        [SerializeField, Tooltip("Remove mono behaviours from the list if they are destroyed, leaving no null references.")]
-        private bool _cleanupOnDestroy;
         
         protected IDictionary<TKey, TValue> value { get; private set; }
 
@@ -41,7 +38,7 @@ namespace OpenUtility.Data
             OnEnable();
         }
 
-        protected abstract IDictionary<TKey, TValue> CreateValue(int capacity);
+        protected virtual IDictionary<TKey, TValue> CreateValue(int capacity) => new Dictionary<TKey, TValue>(capacity);
 
         public override IDictionary<TKey, TValue> GetValue() => value;
         public TValue GetValue(TKey key) => GetValue()[key];
@@ -52,7 +49,7 @@ namespace OpenUtility.Data
 
         public void Add(TKey key, TValue newValue)
         {
-            if (_cleanupOnDestroy && newValue is MonoBehaviour behaviour)
+            if (newValue is MonoBehaviour behaviour)
             {
                 behaviour.destroyCancellationToken.Register(OnDestroy, key);
 
@@ -86,7 +83,13 @@ namespace OpenUtility.Data
         private void RebuildDictionary()
         {
             for (int i = 0; i < _values.Length; i++)
-                value[_values[i].key] = _values[i].value;
+            {
+                var kvp = _values[i];
+                if (kvp.key == null)
+                    continue;
+                
+                value[kvp.key] = _values[i].value;
+            }
         }
     }
 }
