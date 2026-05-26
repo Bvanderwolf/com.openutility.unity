@@ -4,7 +4,7 @@ using UnityEngine;
 namespace OpenUtility.Data
 {
     /// <summary>
-    /// A base class for creating scriptable list variables of various key-value types.
+    /// A base class for creating scriptable list variables of various types.
     /// </summary>
     public abstract class ScriptableList<T> : ScriptableVariable<IList<T>>
     {
@@ -62,7 +62,7 @@ namespace OpenUtility.Data
 
         public void SetValue(int index, T newValue) => GetValue()[index] = newValue;
 
-        public void Add(T newValue)
+        public virtual void Add(T newValue)
         {
             if (newValue is MonoBehaviour behaviour)
             {
@@ -74,17 +74,17 @@ namespace OpenUtility.Data
             GetValue().Add(newValue);
         }
 
-        public void Remove(T valueToRemove)
+        public virtual void Remove(T valueToRemove)
         {
             GetValue().Remove(valueToRemove);
         }
 
-        public void RemoveAt(int index)
+        public virtual void RemoveAt(int index)
         {
             GetValue().RemoveAt(index);
         }
 
-        public void Clear()
+        public virtual void Clear()
         {
             GetValue().Clear();
         }
