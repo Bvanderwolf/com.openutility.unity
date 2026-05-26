@@ -17,7 +17,10 @@ namespace OpenUtility.Data
             PREFAB,
             
             [InspectorName("Scene")]
-            SCENE  
+            SCENE,
+            
+            [InspectorName("Other")]
+            OTHER,
         }
 
         [Header("Settings")]
@@ -34,6 +37,8 @@ namespace OpenUtility.Data
         private bool _instantiateLazy;
 
         public bool HasValue => _instance.HasValue && !Application.exitCancellationToken.IsCancellationRequested;
+
+        public bool InstantiatedLazily => _instantiateLazy;
 
         private Optional<GameObject> _instance;
         private Optional<Transform> _parent;
@@ -145,20 +150,54 @@ namespace OpenUtility.Data
                 return (null);
             }
             
-            _instance = _parent.TryGetValue(out Transform parent) ? Instantiate(_prefab, parent) : Instantiate(_prefab);
-
-            if (_dontDestroyOnLoad)
-            {
-                DontDestroyOnLoad(_instance.Value);
-
-                _scene = null;
-            }
-            else
-            {
-                _scene = _instance.Value.scene;
-            }
+            GameObject value = _parent.TryGetValue(out Transform parent) ? Instantiate(_prefab, parent) : Instantiate(_prefab);
+            
+            AssignInstance(value);
+            AssignScene(value);
             
             return (_instance.Value);
+        }
+
+        /// <summary>
+        /// Creates a new instance of the game object asynchronously using the assigned prefab.
+        /// If 'dontDestroyOnLoad' is set, the instance will persist across scene loads.
+        /// Returns a promise of the created instance value.
+        /// </summary>
+        public Promised<GameObject> CreateValueAsync()
+        {
+#if UNITY_EDITOR
+            if (_source == Source.SCENE)
+                Debug.LogWarning($"[{name}] Creating instance from prefab even though source is set to 'Scene'.");
+#endif
+            if (_instance.TryGetValue(out GameObject instanceToDestroy))
+            {
+                Debug.Log($"[{name}] Replacing instance '{instanceToDestroy.name}' with new instance.");
+                
+                Destroy(instanceToDestroy);
+            }
+
+            Promised<GameObject> promise;
+
+            if (_prefab == null)
+            {
+                string message = $"[{name} Can't create value because prefab did not have a value.";
+                
+                Debug.LogWarning(message);
+
+                promise = Promised<GameObject>.FromError(message);
+                
+                return (promise);
+            }
+
+            AsyncInstantiateOperation<GameObject> operation = _parent.TryGetValue(out Transform parent)
+                ? InstantiateAsync(_prefab, parent)
+                : InstantiateAsync(_prefab);
+
+            promise = Promised<GameObject>.FromInstantiation(operation)
+                .Then(AssignInstance)
+                .Then(AssignScene);
+
+            return (promise);
         }
         
         /// <summary>
@@ -194,19 +233,9 @@ namespace OpenUtility.Data
             
             if (_parent.TryGetValue(out Transform parent))
                 newValue.transform.SetParent(parent);
-            
-            if (_dontDestroyOnLoad)
-            {
-                DontDestroyOnLoad(newValue);
 
-                _scene = null;
-            }
-            else
-            {
-                _scene = newValue.scene;
-            }
-
-            _instance = newValue;
+            AssignInstance(newValue);
+            AssignScene(newValue);
         }
 
         /// <summary>
@@ -219,7 +248,11 @@ namespace OpenUtility.Data
                 return (null);
             
             if (_instance.HasValue && _instance.Value == null)
+            {
+                Debug.LogWarning($"Can't retrieve {name} instance because its value does not exist anymore.");
+                
                 return (null);
+            }
             
             if (_instantiateLazy)
                 return (_instance.TryGetValue(out GameObject instance) ? instance : CreateValue());
@@ -227,7 +260,60 @@ namespace OpenUtility.Data
             return (_instance.GetValueOrDefault());
         }
 
+        /// <summary>
+        /// Returns the current instance of the game object. If 'instantiateLazy' is set and no instance is set yet,
+        /// creates a new instance asynchronously using the assigned prefab. Returns a promise of the (created) instance value.
+        /// </summary>
+        public Promised<GameObject> GetValueAsync()
+        {
+            if (Application.exitCancellationToken.IsCancellationRequested)
+                return (null);
+            
+            Promised<GameObject> promise;
+            
+            if (_instance.HasValue && _instance.Value == null)
+            {
+                string message = $"Can't retrieve {name} instance because its value does not exist anymore.";
+                
+                Debug.LogWarning(message);
+
+                promise = Promised<GameObject>.FromError(message);
+                
+                return (promise);
+            }
+
+            if (_instantiateLazy)
+            {
+                promise = _instance.TryGetValue(out GameObject instance) ? Promised<GameObject>.FromResult(instance) : CreateValueAsync();
+            }
+            else
+            {
+                promise = Promised<GameObject>.FromResult(_instance.GetValueOrDefault());
+            }
+
+            return (promise);
+        }
+
         public override string ToString() => _instance.TryGetValue(out GameObject instance) ? instance.name : $"{name} -> (null)";
+
+        private void AssignInstance(GameObject gameObject)
+        {
+            _instance = gameObject;
+        }
+
+        private void AssignScene(GameObject gameObject)
+        {
+            if (_dontDestroyOnLoad)
+            {
+                DontDestroyOnLoad(gameObject);
+
+                _scene = null;
+            }
+            else
+            {
+                _scene = gameObject.scene;
+            }
+        }
 
         private void OnSceneUnloaded(Scene unloadedScene)
         {

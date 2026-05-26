@@ -166,10 +166,12 @@ namespace OpenUtility.Data
                 _error = value;
                 
                 if (!previouslyHadError)
+                {
                     _errorReceived?.Invoke(this);
-            
-                if (_releaseOnCompletion)
-                    Release();
+                    
+                    if (_releaseOnCompletion)
+                        Release();
+                }
             }
         }
         
@@ -187,10 +189,12 @@ namespace OpenUtility.Data
                 _value = value;
                 
                 if (!previouslyHadValue)
+                {
                     _valueReceived?.Invoke(value);
-                
-                if (_releaseOnCompletion)
-                    Release();
+                    
+                    if (_releaseOnCompletion)
+                        Release();
+                }
             }
         }
 
@@ -440,7 +444,7 @@ namespace OpenUtility.Data
             _value = Optional<T>.None();
             _valueReceived = null;
             _errorReceived = null;
-            Error = null;
+            _error = null;
         }
         
         /// <summary>
