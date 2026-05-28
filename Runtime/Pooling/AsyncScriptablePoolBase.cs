@@ -4,11 +4,7 @@ using UnityEngine.SceneManagement;
 
 namespace OpenUtility.Data.Pooling
 {
-    /// <summary>
-    /// Inherit from this class to create a scriptable object asset that manages a pool of MonoBehaviour instances.
-    /// Implement IPoolGameObject{T} or inherit from PoolGameObject{T} to get a reference to the pool on creation.
-    /// </summary>
-    public abstract class ScriptablePoolBase<T> : ScriptableObject where T : MonoBehaviour
+    public abstract class AsyncScriptablePoolBase<T> : ScriptableObject where T : MonoBehaviour
     {
         [Header("Settings")]
         [SerializeField, Tooltip("Collection checks are performed when an instance is returned back to the pool. An exception will be thrown if the instance is already in the pool. Collection checks are only performed in the Editor.")]
@@ -19,14 +15,14 @@ namespace OpenUtility.Data.Pooling
 
         [SerializeField, Tooltip("The maximum size of the pool. When the pool reaches the max size then any further instances returned to the pool will be ignored and can be garbage collected. This can be used to prevent the pool growing to a very large size.")]
         private int _maxSize = 100;
-
+        
         [SerializeField, Tooltip("If the scene the pool is used in, is unloaded, the pool will be cleared automatically. Only set to false if you are certain the pooled game objects will stay alive across scene loads.")]
         private bool _clearOnSceneUnload = true;
-
+        
         /// <summary>
         /// The internal object pool instance.
         /// </summary>
-        protected ObjectPool<T> pool { get; private set; }
+        protected ObjectPool<Promised<T>> pool { get; private set; }
         
         /// <summary>
         /// The parent transform for pooled instances.
@@ -37,7 +33,7 @@ namespace OpenUtility.Data.Pooling
         /// The scene this pool is currently being used in.
         /// </summary>
         protected Scene? scene { get; private set; }
-
+        
         private void OnEnable()
         {
             SceneManager.sceneUnloaded += OnSceneUnloaded;
@@ -66,47 +62,47 @@ namespace OpenUtility.Data.Pooling
             parent = transform;
         }
 
-        public T Get()
+        public Promised<T> Get()
         {
             pool = GetOrCreatePool();
 
             bool createsNewInstance = pool.CountInactive == 0;
-            T instance = pool.Get();
+            Promised<T> promise = pool.Get();
             
-            if (parent.HasValue && instance.transform.parent != parent.Value)
-                instance.transform.SetParent(parent.Value);
+            if (parent.HasValue && promise.Value.transform.parent != parent.Value)
+                promise.Then(SetParentOfPromisedGameObject);
 
             bool createdFirstInstance = createsNewInstance && pool.CountAll == 1;
             if (createdFirstInstance && _clearOnSceneUnload)
-                scene = instance.gameObject.scene;
+                promise.Then(SetSceneFromPromisedGameObject);
 
-            if (createsNewInstance && instance is IPoolGameObject<T> behaviour)
-                behaviour.OnCreatedByPool(this);
-
-            return (instance);
+            if (createsNewInstance)
+                promise.Then(CallbackOnCreatedBehaviourIfPossible);
+            
+            return (promise);
         }
 
-        public PooledObject<T> Get(out T instance)
+        public PooledObject<Promised<T>> Get(out Promised<T> promise)
         {
             pool = GetOrCreatePool();
 
             bool createsNewInstance = pool.CountInactive == 0;
-            PooledObject<T> pooled = pool.Get(out instance);
+            PooledObject<Promised<T>> pooled = pool.Get(out promise);
             
-            if (parent.HasValue && instance.transform.parent != parent.Value)
-                instance.transform.SetParent(parent.Value);
+            if (parent.HasValue)
+                promise.Then(SetParentOfPromisedGameObject);
             
             bool createdFirstInstance = createsNewInstance && pool.CountAll == 1;
             if (createdFirstInstance && _clearOnSceneUnload)
-                scene = instance.gameObject.scene;
-
-            if (createsNewInstance && instance is IPoolGameObject<T> behaviour)
-                behaviour.OnCreatedByPool(this);
+                promise.Then(SetSceneFromPromisedGameObject);
+            
+            if (createsNewInstance)
+                promise.Then(CallbackOnCreatedBehaviourIfPossible);
 
             return (pooled);
         }
 
-        public virtual bool Release(T element)
+        public virtual bool Release(Promised<T> promise)
         {
             if (pool == null)
             {
@@ -114,23 +110,23 @@ namespace OpenUtility.Data.Pooling
                 return (false);
             }
 
-            pool.Release(element);
+            pool.Release(promise);
             return (true);
         }
 
-        private ObjectPool<T> GetOrCreatePool()
+        private ObjectPool<Promised<T>> GetOrCreatePool()
         {
-            return (pool ??= new ObjectPool<T>(
-                OnCreateInstance,
-                OnGetInstance,
-                OnReleaseInstance,
+            return (pool ??= new ObjectPool<Promised<T>>(
+                OnCreatePromise,
+                OnGetPromise,
+                OnReleasePromise,
                 OnDestroyInstance,
                 _collectionCheck,
                 _defaultCapacity,
                 _maxSize
             ));
         }
-        
+
         private void OnSceneUnloaded(Scene unloadedScene)
         {
             if (!_clearOnSceneUnload)
@@ -143,24 +139,60 @@ namespace OpenUtility.Data.Pooling
             Clear();
         }
 
-        protected abstract T OnCreateInstance();
-        protected abstract void OnGetInstance(T instance);
-        protected abstract void OnReleaseInstance(T instance);
+        protected abstract Promised<T> OnCreatePromise();
 
-        protected virtual void OnDestroyInstance(T instance)
+        protected abstract void OnGetPromise(Promised<T> promise);
+
+        protected abstract void OnReleasePromise(Promised<T> promise);
+
+        private void OnDestroyInstance(Promised<T> promise)
         {
-#if UNITY_EDITOR
-            if (Application.isPlaying)
+            if (promise.HasValue)
             {
-                Destroy(instance);
+                DestroyInstance(promise.Value);
             }
             else
             {
-                DestroyImmediate(instance);
+                promise.Then(DestroyInstance);
             }
+
+            void DestroyInstance(T instance)
+            {
+                if (instance == null)
+                    return;
+                
+#if UNITY_EDITOR
+                if (Application.isPlaying)
+                {
+                    Destroy(instance.gameObject);
+                }
+                else
+                {
+                    DestroyImmediate(instance.gameObject);
+                }
 #else
-            Destroy(instance);
-#endif
+                Destroy(instance.gameObject);
+#endif 
+            }
+        }
+
+        private void SetParentOfPromisedGameObject(T instance)
+        {
+            if (instance.transform.parent == parent.Value)
+                return;
+            
+            instance.transform.SetParent(parent.Value);
+        }
+
+        private void SetSceneFromPromisedGameObject(T instance)
+        {
+            scene = instance.gameObject.scene;
+        }
+
+        private void CallbackOnCreatedBehaviourIfPossible(T instance)
+        {
+            if (instance is IPoolAsyncGameObject<T> behaviour)
+                behaviour.OnCreatedByPool(this);
         }
     }
 }
