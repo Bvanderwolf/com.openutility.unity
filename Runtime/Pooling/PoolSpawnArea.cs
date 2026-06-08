@@ -15,9 +15,6 @@ namespace OpenUtility.Data.Pooling
 
         [Header("Settings")]
         [SerializeField]
-        private IntReference _spawnCount;
-
-        [SerializeField]
         private FloatReference _spawnDelay;
 
         private Coroutine _spawnRoutine;
@@ -28,8 +25,8 @@ namespace OpenUtility.Data.Pooling
                 _pool.SetParent(_parent.Value);
         }
 
-        public void Spawn() => Spawn(_spawnCount, _spawnDelay);
-
+        public void Spawn() => Spawn(1, _spawnDelay);
+        public void Spawn(int spawnCount) => Spawn(spawnCount, _spawnDelay);
         public void Spawn(int spawnCount, float spawnDelay)
         {
             if (_spawnRoutine != null)
@@ -42,7 +39,7 @@ namespace OpenUtility.Data.Pooling
             else
             {
                 for (int i = 0; i < spawnCount; i++)
-                    _pool.Get();
+                    _pool.Get().transform.position = transform.position;
             }
         }
 
@@ -50,7 +47,7 @@ namespace OpenUtility.Data.Pooling
         {
             for (int i = 0; i < amount; i++)
             {
-                _pool.Get();
+                _pool.Get().transform.position = transform.position;
 
                 float endTime = Time.time + delay;
                 while (Time.time < endTime)
