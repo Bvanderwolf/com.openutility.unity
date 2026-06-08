@@ -28,6 +28,10 @@ namespace OpenUtility.Data.Pooling
         /// </summary>
         protected ObjectPool<T> pool { get; private set; }
         
+        public int CountAll => pool.CountAll;
+        public int CountActive => pool.CountActive;
+        public int CountInactive => pool.CountInactive;
+        
         /// <summary>
         /// The parent transform for pooled instances.
         /// </summary>
