@@ -23,7 +23,7 @@ namespace OpenUtility.Data.Pooling
         /// <summary>
         /// Releases this instance back to the pool. Returns true if successful.
         /// </summary>
-        public virtual bool Release()
+        public virtual bool TryRelease()
         {
             pool.Release(this as T);
             return (true);

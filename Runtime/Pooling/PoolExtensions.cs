@@ -10,7 +10,7 @@ namespace OpenUtility.Data.Pooling
         public static void Release(this GameObject gameObject)
         {
             if (gameObject.TryGetComponent<IPoolGameObject>(out var component))
-                component.Release();
+                component.TryRelease();
         }
     }
 }

@@ -7,5 +7,10 @@ namespace OpenUtility.Data.Pooling
         /// not part of a pool or if the pool has no references.
         /// </summary>
         public PoolGameObjectList List => pool == null ? null : ((ScriptablePool)pool).References;
+
+        /// <summary>
+        /// Releases this instance back to the pool.
+        /// </summary>
+        public void Release() => TryRelease();
     }
 }

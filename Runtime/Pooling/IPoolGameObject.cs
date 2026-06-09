@@ -7,7 +7,7 @@ namespace OpenUtility.Data.Pooling
         /// <summary>
         /// Should release this instance back to the pool. Should return true if successful.
         /// </summary>
-        bool Release();
+        bool TryRelease();
     }
 
     /// <summary>

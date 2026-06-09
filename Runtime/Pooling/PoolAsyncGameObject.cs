@@ -7,5 +7,7 @@ namespace OpenUtility.Data.Pooling
         /// not part of a pool or if the pool has no references.
         /// </summary>
         public PoolAsyncGameObjectList List => pool == null ? null : ((AsyncScriptablePool)pool).References;
+
+        public void Release() => TryRelease();
     }
 }
