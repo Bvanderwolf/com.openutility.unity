@@ -24,5 +24,11 @@ namespace OpenUtility.Data.Pooling
         {
             _pool.Get().transform.position = _parent.TryGetValue(out Transform parent) ? parent.position : transform.position;
         }
+
+        public void Spawn(out PoolGameObject instance)
+        {
+            instance = _pool.Get();
+            instance.transform.position = _parent.TryGetValue(out Transform parent) ? parent.position : transform.position;
+        }
     }
 }
