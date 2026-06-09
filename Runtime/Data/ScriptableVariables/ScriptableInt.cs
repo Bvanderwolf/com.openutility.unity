@@ -67,6 +67,12 @@ namespace OpenUtility.Data
             SetPlayerPrefIfNeeded();
         }
 
+        public void Increment() => Increment(1);
+        public void Increment(int increment) => SetValue(GetValue() + increment);
+        
+        public void Decrement() => Decrement(1);
+        public void Decrement(int decrement) => SetValue(GetValue() - decrement);
+
         protected void SetValueInternal(int newValue) => value = newValue;
 
         protected void OnValueChanged(int newValue) => _valueChanged?.Invoke(newValue);
