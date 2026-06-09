@@ -1,4 +1,3 @@
-using System.Collections;
 using UnityEngine;
 
 namespace OpenUtility.Data.Pooling
@@ -13,11 +12,7 @@ namespace OpenUtility.Data.Pooling
         [SerializeField]
         private Optional<Transform> _parent;
 
-        [Header("Settings")]
-        [SerializeField]
-        private FloatReference _spawnDelay;
-
-        private Coroutine _spawnRoutine;
+        public ScriptablePool Pool => _pool;
 
         private void Awake()
         {
@@ -25,39 +20,9 @@ namespace OpenUtility.Data.Pooling
                 _pool.SetParent(_parent.Value);
         }
 
-        public void Spawn() => Spawn(1, _spawnDelay);
-        public void Spawn(int spawnCount) => Spawn(spawnCount, _spawnDelay);
-        public void Spawn(int spawnCount, float spawnDelay)
+        public void Spawn()
         {
-            if (_spawnRoutine != null)
-                StopCoroutine(_spawnRoutine);
-            
-            if (spawnCount > 1 && spawnDelay > 0f)
-            {
-                _spawnRoutine = StartCoroutine(SpawnRoutine(spawnCount, spawnDelay));
-            }
-            else
-            {
-                for (int i = 0; i < spawnCount; i++)
-                    _pool.Get().transform.position = transform.position;
-            }
-        }
-
-        private IEnumerator SpawnRoutine(int amount, float delay)
-        {
-            for (int i = 0; i < amount; i++)
-            {
-                _pool.Get().transform.position = transform.position;
-
-                float endTime = Time.time + delay;
-                while (Time.time < endTime)
-                {
-                    if (Application.exitCancellationToken.IsCancellationRequested)
-                        yield break;
-
-                    yield return null;
-                }
-            }
+            _pool.Get().transform.position = _parent.TryGetValue(out Transform parent) ? parent.position : transform.position;
         }
     }
 }
