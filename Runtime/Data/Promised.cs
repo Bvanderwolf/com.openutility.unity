@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Net;
 using System.Threading.Tasks;
 using OpenUtility.DelayedExecution;
@@ -112,24 +113,18 @@ namespace OpenUtility.Data
         
         public class YieldInstruction : CustomYieldInstruction
         {
-            public override bool keepWaiting => !_completed;
-
-            private bool _completed;
+            internal Promised<T> promise;
             
-            public YieldInstruction(Promised<T> promise)
+            public override bool keepWaiting
             {
-                promise.Then(OnValueReceived);
-                promise.Catch(OnErrorReceived);
-            }
-
-            private void OnValueReceived(T result)
-            {
-                _completed = true;
-            }
-
-            private void OnErrorReceived(Promised<T> promise)
-            {
-                _completed = true;
+                get
+                {
+                    if (!promise.HasValue && !promise.HasError)
+                        return (true);
+                
+                    GenericPool<YieldInstruction>.Release(this);
+                    return (false);
+                }
             }
         }
         
@@ -202,7 +197,12 @@ namespace OpenUtility.Data
         /// Return a yield instruction to use to wait for completion in coroutines.
         /// </summary>
         /// <returns></returns>
-        public YieldInstruction Yield() => new YieldInstruction(this);
+        public YieldInstruction Yield()
+        {
+            YieldInstruction instruction = GenericPool<YieldInstruction>.Get();
+            instruction.promise = this;
+            return (instruction);
+        }
 
         /// <summary>
         /// Adds a callback when the promise is fullfilled.
@@ -444,6 +444,7 @@ namespace OpenUtility.Data
             _value = Optional<T>.None();
             _valueReceived = null;
             _errorReceived = null;
+            _releaseOnCompletion = false;
             _error = null;
         }
         
