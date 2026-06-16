@@ -6,7 +6,7 @@ using UnityEngine;
 using UnityEngine.ResourceManagement.AsyncOperations;
 using UnityEngine.UI;
 
-namespace OpenUtility.Samples.Addressables
+namespace OpenUtility.Samples.AddressablesSetup
 {
     public class AdvancedAddressablesSystem : MonoBehaviour
     {
