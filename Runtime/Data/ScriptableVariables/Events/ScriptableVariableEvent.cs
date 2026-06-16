@@ -30,6 +30,18 @@ namespace OpenUtility.Data
             OnValueChanged(GetValue());
         }
 
+        protected virtual void OnValidate()
+        {
+            try
+            {
+                OnValueChanged(GetValue());
+            }
+            catch
+            {
+                // ignored
+            }
+        }
+
         protected abstract UnityEvent<T> GetChangedEvent();
         protected abstract T GetValue();
         
