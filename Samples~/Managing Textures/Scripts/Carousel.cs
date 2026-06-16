@@ -24,7 +24,19 @@ namespace OpenUtility.Samples.Data
         [SerializeField, Min(0.5f)]
         private float _timePerImage = 1f;
 
-        private IEnumerator Start()
+        [ContextMenu("StartCorousel")]
+        public void StartCorousel()
+        {
+            if (_fileNames.Length == 0)
+            {
+                Debug.LogWarning("No file names provided for the carousel.");
+                return;
+            }
+            
+            StartCoroutine(CarouselRoutine());
+        }
+        
+        private IEnumerator CarouselRoutine()
         {
             while (true)
             {
@@ -48,6 +60,8 @@ namespace OpenUtility.Samples.Data
 
                     yield return FadeOutImage();
                 }
+
+                yield return null;
             }
         }
 

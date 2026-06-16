@@ -466,7 +466,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _image: {fileID: 2037552177}
   _textures: {fileID: 11400000, guid: 2ff6b0710d09b064d8ed6825bb844842, type: 2}
-  _fileNames: []
+  _fileNames:
+  - https://upload.wikimedia.org/wikipedia/commons/2/2c/Antilope_cervicapra_from_velavadar.JPG
+  - https://upload.wikimedia.org/wikipedia/commons/5/5e/Blackbuck_male_female.jpg
   _timePerImage: 1
 --- !u!1 &2097458860
 GameObject:
