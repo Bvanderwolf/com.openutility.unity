@@ -1,9 +1,13 @@
+using System;
 using UnityEngine;
 
 namespace OpenUtility.Data.Pooling
 {
     public class PoolSpawnArea : MonoBehaviour
     {
+        [Serializable]
+        private class SpawnEvent : UnityEngine.Events.UnityEvent<GameObject> { }
+        
         [Header("Project References")]
         [SerializeField, Tooltip("The pool to spawn game objects from.")]
         private ScriptablePool _pool;
@@ -11,6 +15,10 @@ namespace OpenUtility.Data.Pooling
         [Header("Scene References")]
         [SerializeField]
         private Optional<Transform> _parent;
+
+        [Header("Events")]
+        [SerializeField]
+        private SpawnEvent _spawnEvent;
 
         public ScriptablePool Pool => _pool;
 
@@ -22,13 +30,18 @@ namespace OpenUtility.Data.Pooling
 
         public void Spawn()
         {
-            _pool.Get().transform.position = _parent.TryGetValue(out Transform parent) ? parent.position : transform.position;
+            var component = _pool.Get();
+            component.transform.position = _parent.TryGetValue(out Transform parent) ? parent.position : transform.position;
+            
+            _spawnEvent?.Invoke(component.gameObject);
         }
 
         public void Spawn(out PoolGameObject instance)
         {
             instance = _pool.Get();
             instance.transform.position = _parent.TryGetValue(out Transform parent) ? parent.position : transform.position;
+            
+            _spawnEvent?.Invoke(instance.gameObject);
         }
     }
 }
