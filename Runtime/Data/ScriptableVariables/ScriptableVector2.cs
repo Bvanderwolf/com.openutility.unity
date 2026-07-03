@@ -1,19 +1,17 @@
 using System;
 using UnityEngine;
-using UnityEngine.UI;
 
 namespace OpenUtility.Data
 {
-    [ScriptableVariableBinder(typeof(Slider), typeof(float), DisplayName = "Default Decimal Variable")]
-    [CreateAssetMenu(fileName = "ScriptableFloat", menuName = "OpenUtility/Scriptable Variable/Float")]
-    public class ScriptableFloat : ScriptableVariable<float>, ICanLoadValueFromPlayerPrefs
+    [CreateAssetMenu(fileName = "ScriptableVector2", menuName = "OpenUtility/Scriptable Variable/Vector2")]
+    public class ScriptableVector2 : ScriptableVariable<Vector2>, ICanLoadValueFromPlayerPrefs
     {
         [Serializable]
-        public class ChangedEvent : UnityEngine.Events.UnityEvent<float> { }
+        public class ChangedEvent : UnityEngine.Events.UnityEvent<Vector2> { }
 
         [Header("State")]
         [SerializeField]
-        private float _value;
+        private Vector2 _value;
         
         [Header("Optional")]
         [SerializeField]
@@ -26,7 +24,7 @@ namespace OpenUtility.Data
         public ChangedEvent ValueChanged => _valueChanged;
         public Optional<string> PlayerPref => _playerPref;
         
-        protected float value { get; private set; }
+        protected Vector2 value { get; private set; }
 
         protected virtual void OnEnable()
         {
@@ -52,23 +50,23 @@ namespace OpenUtility.Data
             }
         }
         
-        public override float GetValue() => value;
+        public override Vector2 GetValue() => value;
 
-        public override void SetValue(float newValue)
+        public override void SetValue(Vector2 newValue)
         {
             SetValueInternal(newValue);
             SetPlayerPrefIfNeeded();
             OnValueChanged(newValue);
         }
 
-        public virtual void SetValueWithoutNotify(float newValue)
+        public virtual void SetValueWithoutNotify(Vector2 newValue)
         {
             SetValueInternal(newValue);
         }
 
-        protected void SetValueInternal(float newValue) => value = newValue;
+        protected void SetValueInternal(Vector2 newValue) => value = newValue;
 
-        protected void OnValueChanged(float newValue) => _valueChanged?.Invoke(newValue);
+        protected void OnValueChanged(Vector2 newValue) => _valueChanged?.Invoke(newValue);
         
         protected void SetPlayerPrefIfNeeded()
         {
@@ -76,18 +74,27 @@ namespace OpenUtility.Data
                 return;
 
             var key = _playerPref.Value;
-            PlayerPrefs.SetFloat(key, value);
+            var xkey = $"{key}_X";
+            var ykey = $"{key}_Y";
+            
+            PlayerPrefs.SetFloat(xkey, value.x);
+            PlayerPrefs.SetFloat(ykey, value.y);
         }
 
-        private void SetValueFromPlayerPref(float defaultValue)
+        private void SetValueFromPlayerPref(Vector2 defaultValue)
         {
             var key = _playerPref.Value;
-            var data = PlayerPrefs.GetFloat(key, defaultValue);
+            var xkey = $"{key}_X";
+            var ykey = $"{key}_Y";
+            
+            var x = PlayerPrefs.GetFloat(xkey, defaultValue.x);
+            var y = PlayerPrefs.GetFloat(ykey, defaultValue.y);
+            var data = new Vector2(x, y);
             SetValueWithoutNotify(data);
         }
 
         public override string ToString() => value.ToString();
         
-        public static implicit operator float(ScriptableFloat reference) => reference.GetValue();
+        public static implicit operator Vector2(ScriptableVector2 reference) => reference.GetValue();
     }
 }

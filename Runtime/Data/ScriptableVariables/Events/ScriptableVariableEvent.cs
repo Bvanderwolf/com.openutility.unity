@@ -44,7 +44,7 @@ namespace OpenUtility.Data
 
         protected abstract UnityEvent<T> GetChangedEvent();
         protected abstract T GetValue();
-        
+
         private void OnValueChanged(T newValue) => _valueChanged?.Invoke(newValue);
     }
 }

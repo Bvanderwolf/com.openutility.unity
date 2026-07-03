@@ -3,7 +3,7 @@ using UnityEngine.UI;
 
 namespace OpenUtility
 {
-    [ScriptableVariableBinder(typeof(Slider), typeof(int), BindingGoal.ReceiveValue, DisplayName = "Default Integer Variable")]
+    [ScriptableVariableBinder(typeof(Slider), typeof(int), BindingGoal.ReceiveValue, DisplayName = "Default Integer")]
     public class DefaultIntegerSliderBinding : IntegerSliderBinding
     {
         public override void SetValue(float newValue)

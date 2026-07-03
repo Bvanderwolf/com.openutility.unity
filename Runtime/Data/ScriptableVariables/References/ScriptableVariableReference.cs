@@ -29,6 +29,16 @@ namespace OpenUtility.Data
 
         protected override ScriptableVariable<float> GetScriptableVariable() => _variable;
     }
+
+    [Serializable]
+    public class DoubleReference : ScriptableVariableReference<double>
+    {
+        [SerializeField]
+        private ScriptableDouble _variable;
+        
+        protected override ScriptableVariable<double> GetScriptableVariable() => _variable;
+
+    }
     
     [Serializable]
     public class IntReference : ScriptableVariableReference<int>

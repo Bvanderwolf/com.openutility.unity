@@ -59,6 +59,9 @@ namespace OpenUtility.Data
                 if (TypeOfValue == typeof(string))
                     return (typeof(ScriptableString));
 
+                if (TypeOfValue == typeof(double))
+                    return (typeof(ScriptableDouble));
+
                 throw new NotImplementedException($"No default scriptable variable implementation available for type {TypeOfValue.Name}. Make sure to the the 'typeOfScriptableVariable' parameter.");
             }
         }

@@ -26,7 +26,8 @@ namespace OpenUtility.Data.Editor
         {
             typeof(ScriptableString),
             typeof(ScriptableInt),
-            typeof(ScriptableFloat)
+            typeof(ScriptableFloat),
+            typeof(ScriptableDouble),
         };
 
         [DidReloadScripts]
@@ -238,6 +239,18 @@ namespace OpenUtility.Data.Editor
             }
             builder.EndIndent();
             
+            var doubleItems = selectionData.Where(bd => bd.Key.StartsWith("Double/")).ToArray();
+            builder.StartIndent("Precise Decimal");
+            for (int i = 0; i < doubleItems.Length; i++)
+            {
+                var item = doubleItems[i];
+                var path = item.Key;
+                var itemName = path.Substring(path.IndexOf('/') + 1);
+                
+                builder.AddItem(itemName, false, variableIcon, item.Value, OnSelectDoubleVariableBinding);
+            }
+            builder.EndIndent();
+            
             var maxItemsPerColumn = Mathf.Max(stringItems.Length, intItems.Length, floatItems.Length);
             var minimumHeight = (maxItemsPerColumn + 3) * 20f;
             var minimumSize = new Vector2(rect.width, minimumHeight);
@@ -267,6 +280,14 @@ namespace OpenUtility.Data.Editor
             var inputField = (TMP_InputField)target;
             
             ScriptableVariableFactory.AssignFloatVariableToInputFieldEvent(inputField, selectionData.variableAsset, selectionData.bindingType);
+        }
+        
+        private void OnSelectDoubleVariableBinding(object data)
+        {
+            var selectionData = (SelectionData)data;
+            var inputField = (TMP_InputField)target;
+            
+            ScriptableVariableFactory.AssignInputFieldToDoubleVariableEvent(inputField, selectionData.variableAsset, selectionData.bindingType);
         }
 
         private void OnCreateButtonBindingClicked(Rect rect)

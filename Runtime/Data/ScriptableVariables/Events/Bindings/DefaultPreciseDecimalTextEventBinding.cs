@@ -4,14 +4,13 @@ using UnityEngine;
 
 namespace OpenUtility.Data
 {
-    [ScriptableVariableBinder(typeof(TMP_Text), typeof(float), BindingGoal.DetermineValue, DisplayName = "Default Decimal")]
-    public class DefaultDecimalTextEventBinding : DecimalTextEventBinding
+    [ScriptableVariableBinder(typeof(TMP_Text), typeof(double), BindingGoal.DetermineValue, DisplayName = "Default Precise Decimal")]
+    public class DefaultPreciseDecimalTextEventBinding : PreciseDecimalTextEventBinding
     {
-        [Header("Optional")]
         [SerializeField]
         private Optional<string> _format;
         
-        protected override string ConvertDecimalToText(float newValue)
+        protected override string ConvertDecimalToText(double newValue)
         {
             return (_format.HasValue ? newValue.ToString(_format.Value) : newValue.ToString(CultureInfo.InvariantCulture));
         }

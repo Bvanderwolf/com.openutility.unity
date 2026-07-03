@@ -1,0 +1,54 @@
+using UnityEngine;
+using UnityEngine.Events;
+
+namespace OpenUtility.Data
+{
+    public abstract class PreciseDecimalTextEventBinding : ScriptableVariableEvent<string>
+    {
+        [Header("Variable")]
+        [SerializeField]
+        private ScriptableDouble _variable;
+        
+        [Header("Optional")]
+        [SerializeField]
+        private Optional<ScriptableValueProcessor<double>> _processor;
+
+        private readonly UnityEvent<string> _changedEvent = new UnityEvent<string>();
+
+        protected override void OnEnable()
+        {
+            base.OnEnable();
+            AddListener();
+        }
+
+        protected override void OnDisable()
+        {
+            base.OnDisable();
+            RemoveListener();
+        }
+
+        protected abstract string ConvertDecimalToText(double newValue);
+
+        protected override UnityEvent<string> GetChangedEvent() => _changedEvent;
+
+        protected override string GetValue()
+        {
+            double value = _variable.GetValue();
+            
+            if (_processor.TryGetValue(out ScriptableValueProcessor<double> processor))
+                value = processor.Process(value);
+            
+            return (ConvertDecimalToText(value));
+        }
+
+        private void AddListener() => _variable.ValueChanged.AddListener(OnValueChanged);
+
+        private void RemoveListener() => _variable.ValueChanged.RemoveListener(OnValueChanged);
+
+        private void OnValueChanged(double newValue)
+        {
+            string converted = ConvertDecimalToText(newValue);
+            _changedEvent?.Invoke(converted);
+        }
+    }
+}

@@ -17,13 +17,19 @@ namespace OpenUtility.Data.Editor
     [CustomEditor(typeof(ScriptableBool),true)]
     public class ScriptableBoolEditor : ScriptableVariableEditor { }
     
+    [CustomEditor(typeof(ScriptableVector2), true)]
+    public class ScriptableVector2Editor : ScriptableVariableEditor { }
+    
     public class ScriptableVariableEditor : UnityEditor.Editor
     {
         private SerializedProperty _valueProperty;
+        private SerializedProperty _playerPrefProperty;
         
         private void OnEnable()
         {
             _valueProperty = serializedObject.FindProperty("_value");
+            _playerPrefProperty = serializedObject.FindProperty("_playerPref");
+            
             EditorApplication.update += RepaintWhilePlaying;
         }
 
@@ -50,6 +56,8 @@ namespace OpenUtility.Data.Editor
 
             if (EditorGUI.EndChangeCheck())
                 serializedObject.ApplyModifiedProperties();
+            
+            DrawOptionalPlayerPrefGUI();
         }
 
         private void DrawRuntimeValue()
@@ -76,11 +84,89 @@ namespace OpenUtility.Data.Editor
                     EditorGUILayout.TextField("Current", str);
                     break;
                 
+                case ScriptableVector2 vector2:
+                    EditorGUILayout.Vector2Field("Current", vector2);
+                    break;
+                
                 default:
                     EditorGUILayout.LabelField("Current", "N/A");
                     break;
             }
             EditorGUI.EndDisabledGroup();
+        }
+
+        private void DrawOptionalPlayerPrefGUI()
+        {
+            if (_playerPrefProperty == null)
+                return;
+
+            SerializedProperty value = _playerPrefProperty.FindPropertyRelative("_value");
+            string key = value.stringValue;
+
+            if (string.IsNullOrEmpty(key))
+                return;
+            
+            EditorGUILayout.Space();
+            EditorGUILayout.LabelField("PlayerPref Info", EditorStyles.boldLabel);
+            
+            EditorGUI.BeginDisabledGroup(true);
+            switch (target)
+            {
+                case ScriptableBool:
+                    bool boolValue = PlayerPrefs.GetInt(key) == 1;
+                    EditorGUILayout.Toggle("Stored", boolValue);
+                    break;
+                
+                case ScriptableFloat:
+                    float floatValue = PlayerPrefs.GetFloat(key);
+                    EditorGUILayout.FloatField("Stored", floatValue);
+                    break;
+                
+                case ScriptableInt:
+                    int intValue = PlayerPrefs.GetInt(key);
+                    EditorGUILayout.IntField("Stored", intValue);
+                    break;
+                
+                case ScriptableString:
+                    string stringValue = PlayerPrefs.GetString(key);
+                    EditorGUILayout.TextField("Stored", stringValue);
+                    break;
+                
+                case ScriptableVector2:
+                    var xkey = $"{key}_x";
+                    var ykey = $"{key}_y";
+                    var x = PlayerPrefs.GetFloat(xkey);
+                    var y = PlayerPrefs.GetFloat(ykey);
+                    var vector2Value = new Vector2(x, y);
+                    EditorGUILayout.Vector2Field("Stored", vector2Value);
+                    break;
+                
+                default:
+                    EditorGUILayout.LabelField("Stored", "N/A");
+                    break;
+            }
+            EditorGUI.EndDisabledGroup();
+
+            if (GUILayout.Button("Delete PlayerPref"))
+            {
+                DeletePlayerPref(key);
+                Repaint();
+            }
+        }
+
+        private void DeletePlayerPref(string key)
+        {
+            switch (target)
+            {
+                case ScriptableVector2:
+                    PlayerPrefs.DeleteKey($"{key}_X");
+                    PlayerPrefs.DeleteKey($"{key}_Y");
+                    break;
+                
+                default:
+                    PlayerPrefs.DeleteKey(key);
+                    break;
+            }
         }
     }
 }

@@ -1,19 +1,18 @@
 using System;
-using TMPro;
+using System.Globalization;
 using UnityEngine;
 
 namespace OpenUtility.Data
 {
-    [ScriptableVariableBinder(typeof(TMP_Dropdown), typeof(int), DisplayName = "Default Integer Variable")]
-    [CreateAssetMenu(fileName = "ScriptableInt", menuName = "OpenUtility/Scriptable Variable/Int")]
-    public class ScriptableInt : ScriptableVariable<int>, ICanLoadValueFromPlayerPrefs
+    [CreateAssetMenu(fileName = "ScriptableDouble", menuName = "OpenUtility/Scriptable Variable/Double")]
+    public class ScriptableDouble : ScriptableVariable<double>, ICanLoadValueFromPlayerPrefs
     {
         [Serializable]
-        public class ChangedEvent : UnityEngine.Events.UnityEvent<int> { }
+        public class ChangedEvent : UnityEngine.Events.UnityEvent<double> { }
 
         [Header("State")]
         [SerializeField]
-        private int _value;
+        private double _value;
 
         [Header("Optional")]
         [SerializeField]
@@ -26,7 +25,7 @@ namespace OpenUtility.Data
         public ChangedEvent ValueChanged => _valueChanged;
         public Optional<string> PlayerPref => _playerPref;
         
-        protected int value { get; private set; }
+        protected double value { get; private set; }
 
         protected virtual void OnEnable()
         {
@@ -52,48 +51,50 @@ namespace OpenUtility.Data
             }
         }
 
-        public override int GetValue() => value;
+        public override double GetValue() => value;
 
-        public override void SetValue(int newValue)
+        public override void SetValue(double newValue)
         {
             SetValueInternal(newValue);
             SetPlayerPrefIfNeeded();
             OnValueChanged(newValue);
         }
 
-        public virtual void SetValueWithoutNotify(int newValue)
+        public virtual void SetValueWithoutNotify(double newValue)
         {
             SetValueInternal(newValue);
         }
 
         public void Increment() => Increment(1);
-        public void Increment(int increment) => SetValue(GetValue() + increment);
+        public void Increment(double increment) => SetValue(GetValue() + increment);
         
         public void Decrement() => Decrement(1);
-        public void Decrement(int decrement) => SetValue(GetValue() - decrement);
+        public void Decrement(double decrement) => SetValue(GetValue() - decrement);
 
-        protected void SetValueInternal(int newValue) => value = newValue;
+        protected void SetValueInternal(double newValue) => value = newValue;
 
-        protected void OnValueChanged(int newValue) => _valueChanged?.Invoke(newValue);
+        protected void OnValueChanged(double newValue) => _valueChanged?.Invoke(newValue);
 
-        private void SetValueFromPlayerPref(int defaultValue)
+        private void SetValueFromPlayerPref(double defaultValue)
         {
             var key = _playerPref.Value;
-            var data = PlayerPrefs.GetInt(key, defaultValue);
+            var culture = CultureInfo.InvariantCulture;
+            var data = double.Parse(PlayerPrefs.GetString(key, defaultValue.ToString(culture)), culture);
             SetValueInternal(data);
         }
 
-        protected void SetPlayerPrefIfNeeded()
+        private void SetPlayerPrefIfNeeded()
         {
             if (!_playerPref.HasValue)
                 return;
 
             var key = _playerPref.Value;
-            PlayerPrefs.SetInt(key, value);
+            var culture = CultureInfo.InvariantCulture;
+            PlayerPrefs.SetString(key, value.ToString(culture));
         }
 
-        public override string ToString() => value.ToString();
+        public override string ToString() => value.ToString(CultureInfo.InvariantCulture);
         
-        public static implicit operator int(ScriptableInt scriptableInt) => scriptableInt.GetValue();
+        public static implicit operator double(ScriptableDouble scriptableInt) => scriptableInt.GetValue();
     }
 }

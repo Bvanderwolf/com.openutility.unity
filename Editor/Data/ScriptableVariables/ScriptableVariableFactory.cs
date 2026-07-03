@@ -10,6 +10,7 @@ using UnityEditor;
 using UnityEditor.Events;
 using UnityEditor.ProjectWindowCallback;
 using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using Object = UnityEngine.Object;
@@ -211,6 +212,8 @@ namespace OpenUtility.Data.Editor
             serializedEvent.Dispose();
             
             UnityEventTools.AddPersistentListener(scriptableEvent.ValueChanged, textField.SetText);
+            
+            scriptableEvent.ValueChanged.SetPersistentListenerState(0, UnityEventCallState.EditorAndRuntime);
         }
         
         public static void CreateEnumVariableAndAssignTextFieldToEvent(TMP_Text textField, Type variableType, Type bindingType)
@@ -242,6 +245,8 @@ namespace OpenUtility.Data.Editor
             serializedEvent.Dispose();
             
             UnityEventTools.AddPersistentListener(scriptableEvent.ValueChanged, textField.SetText);
+            
+            scriptableEvent.ValueChanged.SetPersistentListenerState(0, UnityEventCallState.EditorAndRuntime);
         }
         
         public static void CreateIntVariableAndAssignTextFieldToEvent(TMP_Text textField, Type variableType, Type bindingType)
@@ -273,6 +278,8 @@ namespace OpenUtility.Data.Editor
             serializedEvent.Dispose();
             
             UnityEventTools.AddPersistentListener(scriptableEvent.ValueChanged, textField.SetText);
+            
+            scriptableEvent.ValueChanged.SetPersistentListenerState(0, UnityEventCallState.EditorAndRuntime);
         }
         
         public static void CreateFloatVariableAndAssignTextFieldToEvent(TMP_Text textField, Type variableType, Type bindingType)
@@ -304,8 +311,30 @@ namespace OpenUtility.Data.Editor
             serializedEvent.Dispose();
             
             UnityEventTools.AddPersistentListener(scriptableEvent.ValueChanged, textField.SetText);
+            
+            scriptableEvent.ValueChanged.SetPersistentListenerState(0, UnityEventCallState.EditorAndRuntime);
         }
-        
+
+        public static void AssignTextFieldToDoubleVariableEvent(TMP_Text textField, Object variableAsset, Type bindingType)
+        {
+            var scriptableDouble = (ScriptableDouble)variableAsset;
+            var scriptableEvent = (PreciseDecimalTextEventBinding)textField.gameObject.AddComponent(bindingType);
+            var serializedEvent = new SerializedObject(scriptableEvent);
+            var variableProperty = serializedEvent.FindProperty("_variable");
+            
+            var doubleValue = scriptableDouble.GetValue();
+            textField.text = doubleValue.ToString(CultureInfo.InvariantCulture);
+            
+            variableProperty.objectReferenceValue = scriptableDouble;
+            
+            serializedEvent.ApplyModifiedProperties();
+            serializedEvent.Dispose();
+            
+            UnityEventTools.AddPersistentListener(scriptableEvent.ValueChanged, textField.SetText);
+            
+            scriptableEvent.ValueChanged.SetPersistentListenerState(0, UnityEventCallState.EditorAndRuntime);
+        }
+
         public static void CreateStringVariableAndAssignTextFieldToEvent(TMP_Text textField, Type variableType)
         {
             ThrowIf.NotDerivedFrom<ScriptableString>(variableType);
@@ -334,6 +363,8 @@ namespace OpenUtility.Data.Editor
             serializedEvent.Dispose();
             
             UnityEventTools.AddPersistentListener(scriptableEvent.ValueChanged, dropdown.SetValueWithoutNotify);
+            
+            scriptableEvent.ValueChanged.SetPersistentListenerState(0, UnityEventCallState.EditorAndRuntime);
         }
         
         public static void CreateIntVariableAndAssignDropdownToEvent(TMP_Dropdown dropdown, Type variableType)
@@ -369,6 +400,8 @@ namespace OpenUtility.Data.Editor
             serializedEvent.Dispose();
             
             UnityEventTools.AddPersistentListener(scriptableEvent.ValueChanged, dropdown.SetValueWithoutNotify);
+            
+            scriptableEvent.ValueChanged.SetPersistentListenerState(0, UnityEventCallState.EditorAndRuntime);
         }
         
         public static void CreateEnumVariableAndAssignDropdownToEvent(TMP_Dropdown dropdown, Type variableType)
@@ -447,6 +480,8 @@ namespace OpenUtility.Data.Editor
             serializedEvent.Dispose();
             
             UnityEventTools.AddPersistentListener(scriptableEvent.ValueChanged, toggle.SetIsOnWithoutNotify);
+            
+            scriptableEvent.ValueChanged.SetPersistentListenerState(0, UnityEventCallState.EditorAndRuntime);
         }
         
         public static void CreateBoolVariableAndAssignToggleToEvent(Toggle toggle, Type variableType)
@@ -501,6 +536,8 @@ namespace OpenUtility.Data.Editor
             serializedEvent.Dispose();
                 
             UnityEventTools.AddPersistentListener(scriptableEvent.ValueChanged, slider.SetValueWithoutNotify);
+            
+            scriptableEvent.ValueChanged.SetPersistentListenerState(0, UnityEventCallState.EditorAndRuntime);
         }
         
         public static void CreateIntVariableAndAssignSliderToEvent(Slider slider, Type variableType, Type bindingType)
@@ -532,6 +569,8 @@ namespace OpenUtility.Data.Editor
             serializedEvent.Dispose();
                 
             UnityEventTools.AddPersistentListener(scriptableEvent.ValueChanged, slider.SetValueWithoutNotify);
+            
+            scriptableEvent.ValueChanged.SetPersistentListenerState(0, UnityEventCallState.EditorAndRuntime);
         }
 
         public static void CreateFloatVariableAndAssignSliderToEvent(Slider slider, Type variableType)
@@ -586,6 +625,8 @@ namespace OpenUtility.Data.Editor
             serializedEvent.Dispose();
             
             UnityEventTools.AddPersistentListener(scriptableEvent.ValueChanged, inputField.SetTextWithoutNotify);
+            
+            scriptableEvent.ValueChanged.SetPersistentListenerState(0, UnityEventCallState.EditorAndRuntime);
         }
         
         public static void CreateStringVariableAndAssignInputFieldToEvent(TMP_InputField inputField, Type variableType) 
@@ -616,6 +657,8 @@ namespace OpenUtility.Data.Editor
             serializedEvent.Dispose();
                 
             UnityEventTools.AddPersistentListener(scriptableEvent.ValueChanged, inputField.SetTextWithoutNotify);
+            
+            scriptableEvent.ValueChanged.SetPersistentListenerState(0, UnityEventCallState.EditorAndRuntime);
         }
         
         public static void CreateIntVariableAndAssignInputFieldToEvent(TMP_InputField inputField, Type variableType, Type bindingType)
@@ -647,6 +690,8 @@ namespace OpenUtility.Data.Editor
             serializedEvent.Dispose();
                 
             UnityEventTools.AddPersistentListener(scriptableEvent.ValueChanged, inputField.SetTextWithoutNotify);
+            
+            scriptableEvent.ValueChanged.SetPersistentListenerState(0, UnityEventCallState.EditorAndRuntime);
         }
         
         public static void AssignStringVariableToInputFieldEvent(TMP_InputField inputField, Object variableAsset)
@@ -719,6 +764,21 @@ namespace OpenUtility.Data.Editor
             serializedBinder.Dispose();
                 
             UnityEventTools.AddPersistentListener(inputField.onValueChanged, scriptableFloatBinding.SetValue);
+        }
+        
+        public static void AssignInputFieldToDoubleVariableEvent(TMP_InputField inputField, Object variableAsset, Type bindingType)
+        {
+            var scriptableDouble = (ScriptableDouble)variableAsset;
+            var scriptableDoubleBinding = (PreciseDecimalTextBinding)inputField.gameObject.AddComponent(bindingType);
+            var serializedBinder = new SerializedObject(scriptableDoubleBinding);
+            var variableProperty = serializedBinder.FindProperty("_variable");
+
+            variableProperty.objectReferenceValue = scriptableDouble;
+
+            serializedBinder.ApplyModifiedProperties();
+            serializedBinder.Dispose();
+                
+            UnityEventTools.AddPersistentListener(inputField.onValueChanged, scriptableDoubleBinding.SetValue);
         }
         
         public static void CreateAndAssignFloatVariableToInputFieldEvent(TMP_InputField inputField, Type variableType, Type bindingType)

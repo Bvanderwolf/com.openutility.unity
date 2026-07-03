@@ -64,14 +64,13 @@ namespace OpenUtility.Data
         public virtual void SetValueWithoutNotify(bool newValue)
         {
             SetValueInternal(newValue);
-            SetPlayerPrefIfNeeded();
         }
 
         protected void SetValueInternal(bool newValue) => value = newValue;
 
         protected void OnValueChanged(bool newValue) => _valueChanged?.Invoke(newValue);
 
-        private void SetPlayerPrefIfNeeded()
+        protected void SetPlayerPrefIfNeeded()
         {
             if (!_playerPref.HasValue)
                 return;

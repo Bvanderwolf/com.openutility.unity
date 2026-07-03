@@ -19,6 +19,12 @@ namespace OpenUtility.Exceptions
                 throw new FormatException($"The provided string '{str}' is not a valid float.");
         }
         
+        public static void NotDouble(string str, out double result)
+        {
+            if (!double.TryParse(str, out result))
+                throw new FormatException($"The provided string '{str}' is not a valid double.");
+        }
+        
         public static void NullOrEmpty(string str)
         {
             if (string.IsNullOrEmpty(str))
