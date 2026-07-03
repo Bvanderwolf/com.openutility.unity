@@ -8,10 +8,6 @@ namespace OpenUtility.Data
         [Header("Variable")]
         [SerializeField]
         private ScriptableDouble _variable;
-        
-        [Header("Optional")]
-        [SerializeField]
-        private Optional<ScriptableValueProcessor<double>> _processor;
 
         private readonly UnityEvent<string> _changedEvent = new UnityEvent<string>();
 
@@ -34,10 +30,6 @@ namespace OpenUtility.Data
         protected override string GetValue()
         {
             double value = _variable.GetValue();
-            
-            if (_processor.TryGetValue(out ScriptableValueProcessor<double> processor))
-                value = processor.Process(value);
-            
             return (ConvertDecimalToText(value));
         }
 
