@@ -6,7 +6,7 @@ namespace OpenUtility.Data.Events
     public class VoidEventListener : MonoBehaviour
     {
         [Header("Project References")]
-        [SerializeField]
+        [SerializeField, FlexibleAssetCreation]
         private ScriptableEvent _event;
 
         [SerializeField]
