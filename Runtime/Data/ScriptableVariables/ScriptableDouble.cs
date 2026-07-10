@@ -65,10 +65,11 @@ namespace OpenUtility.Data
             SetValueInternal(newValue);
         }
 
-        public void Increment() => Increment(1);
+        public void Increment() => Increment(1d);
         public void Increment(double increment) => SetValue(GetValue() + increment);
+        public void Increment(float increment) => SetValue(GetValue() + increment);
         
-        public void Decrement() => Decrement(1);
+        public void Decrement() => Decrement(1d);
         public void Decrement(double decrement) => SetValue(GetValue() - decrement);
 
         protected void SetValueInternal(double newValue) => value = newValue;
