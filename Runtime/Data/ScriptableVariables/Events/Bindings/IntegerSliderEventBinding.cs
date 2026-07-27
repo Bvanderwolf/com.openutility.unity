@@ -29,6 +29,9 @@ namespace OpenUtility.Data
 
         protected override float GetValue()
         {
+            if (_variable == null)
+                return (0f);
+            
             int value = _variable.GetValue();
             return (ConvertIntegerToDecimal(value));
         }

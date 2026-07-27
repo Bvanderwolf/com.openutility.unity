@@ -29,6 +29,9 @@ namespace OpenUtility.Data
 
         protected override string GetValue()
         {
+            if (_variable == null)
+                return (null);
+            
             int value = _variable.GetValue();
             return (ConvertIntegerToText(value));
         }
