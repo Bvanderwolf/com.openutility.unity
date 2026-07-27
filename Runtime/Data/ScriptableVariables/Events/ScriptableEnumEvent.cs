@@ -8,9 +8,15 @@ namespace OpenUtility.Data
         [Header("Variable")]
         [SerializeField]
         private ScriptableEnum _variable;
-        
-        protected override UnityEvent<int> GetChangedEvent() => _variable.ValueChanged;
 
-        protected override int GetValue() => _variable.GetValue();
+        protected override UnityEvent<int> GetChangedEvent()
+        {
+            return (_variable != null ? _variable.ValueChanged : null);
+        }
+
+        protected override int GetValue()
+        {
+            return (_variable != null ? _variable.GetValue() : 0);
+        }
     }
 }

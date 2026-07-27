@@ -8,8 +8,15 @@ namespace OpenUtility.Data
         [Header("Variable")]
         [SerializeField]
         private ScriptableBool _variable;
-        
-        protected override UnityEvent<bool> GetChangedEvent() => _variable.ValueChanged;
-        protected override bool GetValue() => _variable.GetValue();
+
+        protected override UnityEvent<bool> GetChangedEvent()
+        {
+            return (_variable != null) ? _variable.ValueChanged : null;
+        }
+
+        protected override bool GetValue()
+        {
+            return (_variable != null) ? _variable.GetValue() : false;
+        }
     }
 }

@@ -33,9 +33,21 @@ namespace OpenUtility.Data
             return (ConvertIntegerToDecimal(value));
         }
 
-        private void AddListener() => _variable.ValueChanged.AddListener(OnValueChanged);
+        private void AddListener()
+        {
+            if (_variable == null)
+                return;
+            
+            _variable.ValueChanged.AddListener(OnValueChanged);
+        }
 
-        private void RemoveListener() => _variable.ValueChanged.RemoveListener(OnValueChanged);
+        private void RemoveListener()
+        {
+            if (_variable == null)
+                return;
+            
+            _variable.ValueChanged.RemoveListener(OnValueChanged);
+        }
 
         private void OnValueChanged(int newValue)
         {
