@@ -17,12 +17,12 @@ namespace OpenUtility.Data
         
         protected virtual void OnEnable()
         {
-            GetChangedEvent().AddListener(OnValueChanged);
+            GetChangedEvent()?.AddListener(OnValueChanged);
         }
 
         protected virtual void OnDisable()
         {
-            GetChangedEvent().RemoveListener(OnValueChanged);
+            GetChangedEvent()?.RemoveListener(OnValueChanged);
         }
 
         private void Start()
