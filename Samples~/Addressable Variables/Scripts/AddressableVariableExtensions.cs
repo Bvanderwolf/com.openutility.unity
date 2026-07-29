@@ -1,3 +1,5 @@
+#if ENABLE_OPENUTILITY_ADDRESSABLE_SAMPLE
+
 using System;
 using OpenUtility.Data;
 using OpenUtility.DelayedExecution;
@@ -10,6 +12,46 @@ namespace OpenUtility.Samples.Data
 {
     public static class AddressableVariableExtensions
     {
+#if UNITY_EDITOR
+        [UnityEditor.Callbacks.DidReloadScripts]
+        private static void AddDefine()
+        {
+            if (UnityEditor.EditorApplication.isPlayingOrWillChangePlaymode)
+                return;
+
+            const string define = "OPENUTILITY_ADDRESSABLE_SAMPLES";
+
+            var activeBuildProfile = UnityEditor.Build.Profile.BuildProfile.GetActiveBuildProfile();
+
+            if (activeBuildProfile != null)
+            {
+                string[] defines = activeBuildProfile.scriptingDefines;
+                if (Array.IndexOf(defines, define) >= 0)
+                    return;
+
+                string[] newDefines = new string[defines.Length + 1];
+                Array.Copy(defines, newDefines, defines.Length);
+                newDefines[defines.Length] = define;
+                activeBuildProfile.scriptingDefines = newDefines;
+                UnityEditor.EditorUtility.SetDirty(activeBuildProfile);
+                UnityEditor.AssetDatabase.SaveAssetIfDirty(activeBuildProfile);
+            }
+            else
+            {
+                var namedBuildTarget = UnityEditor.Build.NamedBuildTarget.FromBuildTargetGroup(UnityEditor.EditorUserBuildSettings.selectedBuildTargetGroup);
+
+                UnityEditor.PlayerSettings.GetScriptingDefineSymbols(namedBuildTarget, out string[] defines);
+                if (Array.IndexOf(defines, define) >= 0)
+                    return;
+
+                string[] newDefines = new string[defines.Length + 1];
+                Array.Copy(defines, newDefines, defines.Length);
+                newDefines[defines.Length] = define;
+                UnityEditor.PlayerSettings.SetScriptingDefineSymbols(namedBuildTarget, newDefines);
+            }
+        }
+#endif
+        
         ///<summary>
         /// Creates a new instance of the game object using the addressables library. If no key is set, uses the game object's name as key.
         /// Returns a promise of the created instance value. If an instance already exists, it will be destroyed before creating a new one.
@@ -113,3 +155,5 @@ namespace OpenUtility.Samples.Data
         }
     }
 }
+
+#endif
