@@ -21,7 +21,7 @@ namespace OpenUtility.Samples.Data
         private ScriptableDifficulty _difficulty;
 
         [SerializeField]
-        private ScriptableItem[] _items;
+        private ScriptablePlayerItem[] _items;
         
         [Header("Settings")]
         [SerializeField]

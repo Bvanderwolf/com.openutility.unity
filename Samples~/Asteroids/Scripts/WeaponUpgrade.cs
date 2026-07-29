@@ -4,7 +4,7 @@ using UnityEngine;
 namespace OpenUtility.Samples.Data
 {
     [CreateAssetMenu(fileName = "WeaponUpgrade", menuName = "OpenUtility/Samples/WeaponUpgrade")]
-    public class WeaponUpgrade : ScriptableItem
+    public class WeaponUpgrade : ScriptablePlayerItem
     {
         [SerializeField]
         private ScriptablePool _bulletPool;

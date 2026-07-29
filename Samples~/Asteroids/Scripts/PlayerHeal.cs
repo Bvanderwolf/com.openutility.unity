@@ -4,7 +4,7 @@ using UnityEngine;
 namespace OpenUtility.Samples.Data
 {
     [CreateAssetMenu(fileName = "PlayerHeal", menuName = "OpenUtility/Samples/PlayerHeal")]
-    public class PlayerHeal : ScriptableItem
+    public class PlayerHeal : ScriptablePlayerItem
     {
         [SerializeField]
         private ScriptableInt _health;

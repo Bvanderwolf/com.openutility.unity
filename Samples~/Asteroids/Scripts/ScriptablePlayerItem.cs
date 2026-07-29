@@ -2,11 +2,13 @@ using UnityEngine;
 
 namespace OpenUtility.Samples.Data
 {
-    public abstract class ScriptableItem : ScriptableObject, IAffectPlayer
+    public abstract class ScriptablePlayerItem : ScriptableObject, IAffectPlayer
     {
         [Header("Project References")]
         [SerializeField]
         private Sprite _sprite;
+
+        public Sprite Sprite => _sprite;
 
         public virtual void OnSpawn(ItemBehaviour item)
         {
