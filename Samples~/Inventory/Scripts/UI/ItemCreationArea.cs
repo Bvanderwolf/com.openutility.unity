@@ -19,7 +19,7 @@ namespace OpenUtility.Samples.Data
         {
             for (int i = 0; i < _items.Count; i++)
             {
-                Item item = _items.GetValue(i);
+                ScriptableItem item = _items.GetValue(i);
                 GameObject entryObject = Instantiate(_entryPrefab, _entryparent);
                 ItemCreationEntry entry = entryObject.GetComponent<ItemCreationEntry>();
                 entry.Setup(item);

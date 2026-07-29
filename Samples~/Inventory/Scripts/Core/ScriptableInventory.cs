@@ -11,7 +11,7 @@ namespace OpenUtility.Samples.Data
     {
         public static ItemBundle Empty { get; } = new ItemBundle
         {
-            item = Optional<Item>.None(),
+            item = Optional<ScriptableItem>.None(),
             stackCount = 0
         };
         
@@ -23,7 +23,7 @@ namespace OpenUtility.Samples.Data
         /// <summary>
         /// The reference to the item instance in the project.
         /// </summary>
-        public Optional<Item> item;
+        public Optional<ScriptableItem> item;
 
         /// <summary>
         /// The current stack count of the item.
@@ -35,7 +35,7 @@ namespace OpenUtility.Samples.Data
         /// </summary>
         /// <param name="item">The reference to the item instance in the project.</param>
         /// <param name="stackCount">The stack limit of the item.</param>
-        public ItemBundle(Item item, int stackCount = 1)
+        public ItemBundle(ScriptableItem item, int stackCount = 1)
         {
             this.item = item;
             this.stackCount = stackCount;
@@ -43,13 +43,16 @@ namespace OpenUtility.Samples.Data
 
         public ItemBundle Add(ItemBundle other)
         {
-            if (other.IsEmpty || IsEmpty)
+            if (other.IsEmpty)
                 return (this);
+
+            if (IsEmpty)
+                return (other);
             
             if (item.Value != other.item.Value)
                 throw new InvalidOperationException("Can't add two item bundles of different item types.");
 
-            return (new ItemBundle(item.Value, stackCount + other.stackCount));
+            return (new ItemBundle(other.item.Value, stackCount + other.stackCount));
         }
         
         public override bool Equals(object other)
@@ -110,14 +113,14 @@ namespace OpenUtility.Samples.Data
     }
     
      /// <summary>
-     /// Represents an slot in an inventory, optionally containg an item.
+     /// Represents an slot in an inventory, optionally containg an item. 
      /// </summary>
      [Serializable]
     public struct InventorySlot : IEquatable<InventorySlot>, IFormattable
     {
         public static InventorySlot Empty { get; } = new InventorySlot
         {
-            item = Optional<Item>.None(),
+            item = Optional<ScriptableItem>.None(),
             stackCount = 0,
             stackLimit = 0
         };
@@ -135,7 +138,7 @@ namespace OpenUtility.Samples.Data
         /// <summary>
         /// The reference to the item instance in the project.
         /// </summary>
-        public Optional<Item> item;
+        public Optional<ScriptableItem> item;
 
         /// <summary>
         /// The current stack count of the item.
@@ -153,7 +156,7 @@ namespace OpenUtility.Samples.Data
         /// <param name="item">The reference to the item instance in the project.</param>
         /// <param name="stackLimit">The stack count of the item.</param>
         /// <param name="stackCount">The stack limit of the item.</param>
-        public InventorySlot(Item item, int stackLimit = 1, int stackCount = 1)
+        public InventorySlot(ScriptableItem item, int stackLimit = 1, int stackCount = 1)
         {
             this.item = item;
             this.stackCount = stackCount;
@@ -210,9 +213,14 @@ namespace OpenUtility.Samples.Data
         }
     }
 
-    public class Inventory : ScriptableList<InventorySlot>
+     /// <summary>
+     /// Represents an inventory as a scriptable object asset. It holds inventory slots which can contain stacks
+     /// of items. Stack limits of slots can not be overriden or ignored. Inventory size can.
+     /// </summary>
+    public class ScriptableInventory : ScriptableList<InventorySlot>
     {
         public delegate void ItemTakenAction(int index, ItemBundle bundle);
+        public delegate void ItemAddedAction(int index, InventorySlot slot);
         
         /// <summary>
         /// The size of this inventory, in other words, how many items can fit in this inventory.
@@ -222,6 +230,7 @@ namespace OpenUtility.Samples.Data
         private int _size;
 
         public event ItemTakenAction ItemTaken;
+        public event ItemAddedAction ItemAdded;
 
         /// <summary>
         /// The size of this inventory, in other words, how many items can fit
@@ -262,7 +271,7 @@ namespace OpenUtility.Samples.Data
         /// <summary>
         /// The stack limits used by items in this inventory.
         /// </summary>
-        private readonly Dictionary<Item, int> _stackLimits = new Dictionary<Item, int>();
+        private readonly Dictionary<ScriptableItem, int> _stackLimits = new Dictionary<ScriptableItem, int>();
         
         /// <summary>
         /// The default stack limit for items in the inventory.
@@ -272,9 +281,7 @@ namespace OpenUtility.Samples.Data
         /// <summary>
         /// Sets the stack limit for an item in the inventory.
         /// </summary>
-        /// <param name="item">The item to set the stack limit for.</param>
-        /// <param name="stackLimit">The stack limit used or the item.</param>
-        public void SetStackLimit(Item item, int stackLimit)
+        public void SetStackLimit(ScriptableItem item, int stackLimit)
         {
             ThrowIf.UnityObjectNull(item);
             ThrowIf.SmallerThen(stackLimit, 1, "Stack limit of an item can't be smaller than 1.");
@@ -285,13 +292,11 @@ namespace OpenUtility.Samples.Data
         /// <summary>
         /// Gets the stack limit for an item in the inventory.
         /// </summary>
-        public int GetStackLimit(Item item) => _stackLimits.GetValueOrDefault(item, DEFAULT_STACK_LIMIT);
+        public int GetStackLimit(ScriptableItem item) => _stackLimits.GetValueOrDefault(item, DEFAULT_STACK_LIMIT);
         
         /// <summary>
         /// Switches the positions of two items in the inventory.
         /// </summary>
-        /// <param name="firstIndex">The first item's index.</param>
-        /// <param name="secondIndex">The second item's index.</param>
         public void Switch(int firstIndex, int secondIndex)
         {
             ThrowIf.OutOfBounds(value, firstIndex);
@@ -306,11 +311,13 @@ namespace OpenUtility.Samples.Data
         
         /// <summary>
         /// Inserts an item at a given index in the inventory. Returns whether the item could be inserted.
+        /// Ignore size allows for overflow to new slot.
         /// </summary>
-        public bool Insert(int index, Item item, int count = 1, bool ignoreCapacity = false)
+        public bool Insert(int index, ScriptableItem item, int count = 1, bool ignoreSize = false)
         {
             ThrowIf.OutOfBounds(value, index);
             ThrowIf.UnityObjectNull(item);
+            ThrowIf.SmallerThen(count, 0);
 
             InventorySlot slot = value[index];
             
@@ -318,18 +325,23 @@ namespace OpenUtility.Samples.Data
             {
                 // If the index corresponds to an empty slot, create a new item.
                 int stackLimit = GetOrCreateStackLimitForItem(item);
-
-                slot = new InventorySlot(item, stackLimit, count);
+                int stackCount = Mathf.Min(count, stackLimit);
+                
+                slot = new InventorySlot(item, stackLimit, stackCount);
                 
                 value[index] = slot;
                 return true;
             }
             
-            if (slot.ReachedStackLimit)
-                return false; // If the existing entry reached its stack limit, the item count can't be incremented.
+            if (slot.ReachedStackLimit && !ignoreSize)
+                return false; 
+            
+            int countToLimit = slot.stackLimit - slot.stackCount;
+            if (count > countToLimit && !ignoreSize)
+                return false;
 
             // If the item exists, update its count.
-            IncrementItemCount(item, index, count, ignoreCapacity);
+            IncrementItemCount(item, index, count, ignoreSize);
             return true;
         }
 
@@ -349,33 +361,74 @@ namespace OpenUtility.Samples.Data
         /// Adds a new item to the inventory.
         /// </summary>
         /// <param name="item">The item.</param>
-        /// <param name="ignoreCapacity">Whether to ignore the capacity during this operation.</param>
+        /// <param name="ignoreSize">Whether to ignore the capacity during this operation.</param>
         /// <returns>Whether the item was added.</returns>
-        public bool Add(Item item, bool ignoreCapacity) => Add(item, 1, ignoreCapacity);
+        public bool Add(ScriptableItem item, bool ignoreSize) => Add(item, 1, ignoreSize);
 
         /// <summary>
         /// Adds a new item to the inventory.
         /// </summary>
         /// <param name="item">The item.</param>
         /// <param name="count">The amount of items to add.</param>
-        /// <param name="ignoreCapacity">Whether to ignore the capacity during this operation.</param>
+        /// <param name="ignoreSize">Whether to ignore the size during this operation.</param>
         /// <returns>Whether the item was added.</returns>
-        public bool Add(Item item, int count = 1, bool ignoreCapacity = false)
+        public bool Add(ScriptableItem item, int count = 1, bool ignoreSize = false)
         {
-            // Find the index of an existing item with given name that has not yet reached its stack slimit.
+            // Find the index of an existing item that has not yet reached its stack slimit.
             int index = ((List<InventorySlot>)value).FindIndex( slot => !slot.IsEmpty && slot.item.Value == item && !slot.ReachedStackLimit);
             if (index == -1)
             {
                 // If the item doesn't exist yet, add a new item.
                 int stackLimit = GetOrCreateStackLimitForItem(item);
-                bool couldBeAdded = AddNewItemToContent(item, stackLimit, count, ignoreCapacity);
+                bool couldBeAdded = AddNewItemToContent(item, stackLimit, count, ignoreSize);
                 return couldBeAdded;
             }
 
             // If the item exists, update its count.
-            IncrementItemCount(item, index, count, ignoreCapacity);
+            IncrementItemCount(item, index, count, ignoreSize);
 
             return true;
+        }
+
+        /// <summary>
+        /// Takes the given item from the inventory. Throws an exception if the item count is smaller then 1 or there
+        /// is no slot that has 'count' amount of the item.
+        /// </summary>
+        /// <param name="item">The item to remove.</param>
+        /// <param name="count">The amount of items to remove.</param>
+        /// <returns>The bundle of items removed.</returns>
+        public ItemBundle Take(ScriptableItem item, int count = 1)
+        {
+            ThrowIf.SmallerThen(count, 1);
+            
+            IList<InventorySlot> slots = GetValue();
+            int countAbleToTake = 0;
+            for (int i = 0; i < slots.Count; i++)
+            {
+                InventorySlot slot = slots[i];
+                if (slot.IsEmpty || slot.item.Value != item)
+                    continue;
+
+                countAbleToTake += slot.stackCount;
+            }
+
+            ThrowIf.SmallerThen(count, countAbleToTake);
+
+            ItemBundle bundle = ItemBundle.Empty;
+            for (int i = 0; i < slots.Count; i++)
+            {
+                InventorySlot slot = slots[i];
+                if (slot.IsEmpty || slot.item.Value != item)
+                    continue;
+
+                int countLeftoverToTake = countAbleToTake - bundle.stackCount;
+                int portionToTake = Mathf.Min(slot.stackCount, countLeftoverToTake);
+                ItemBundle portion = TakeAt(i, portionToTake);
+                
+                bundle = bundle.Add(portion);
+            }
+            
+            return (bundle);
         }
         
         /// <summary>
@@ -431,6 +484,22 @@ namespace OpenUtility.Samples.Data
             return (items);
         }
 
+        public int GetTotalItemCount(ScriptableItem item)
+        {
+            IList<InventorySlot> slots = GetValue();
+            int count = 0;
+            
+            for (int i = 0; i < slots.Count; i++)
+            {
+                InventorySlot slot = slots[i];
+                if (slot.IsEmpty || slot.item.Value != item)
+                    continue;
+
+                count += slot.stackCount;
+            }
+
+            return (count);
+        }
         
         protected override IList<InventorySlot> CreateValue(int capacity)
         {
@@ -454,9 +523,9 @@ namespace OpenUtility.Samples.Data
         /// <param name="item">The item.</param>
         /// <param name="stackLimit">The stack limit for the item.</param>
         /// <param name="stackCount">The stack count for the item.</param>
-        /// <param name="ignoreCapacity">Whether to ignore the capacity for this operation.</param>
+        /// <param name="ignoreSize">Whether to ignore the size for this operation.</param>
         /// <returns>Whether the adding succeeded.</returns>
-        private bool AddNewItemToContent(Item item, int stackLimit, int stackCount, bool ignoreCapacity)
+        private bool AddNewItemToContent(ScriptableItem item, int stackLimit, int stackCount, bool ignoreSize)
         {
             int currentSize = value.Count;
             
@@ -471,11 +540,11 @@ namespace OpenUtility.Samples.Data
                 }
             }
 
-            if (ignoreCapacity)
+            if (ignoreSize)
             {
-                // If there are no default entries left but we can ignore capacity, we force a resize and append the new item.
+                // If there are no default entries left but we can ignore size, we force a resize and append the new item.
                 Resize(currentSize + 1);
-                AddItemAtIndex(currentSize - 1);
+                AddItemAtIndex(currentSize);
 
                 return true;
             }
@@ -493,7 +562,7 @@ namespace OpenUtility.Samples.Data
                     InventorySlot slot = new InventorySlot(item, stackLimit, stackCount);
                     value[index] = slot;
 
-                    Add(item, leftOverCount, ignoreCapacity);
+                    Add(item, leftOverCount, ignoreSize);
                 }
                 else
                 {
@@ -512,8 +581,8 @@ namespace OpenUtility.Samples.Data
         /// <param name="item">The existing item to increment.</param>
         /// <param name="index">The index to of the existing item to increment.</param>
         /// <param name="count">The amount to increment.</param>
-        /// <param name="ignoreCapacity">Whether to ignore capacity during this operation.</param>
-        private void IncrementItemCount(Item item, int index, int count, bool ignoreCapacity)
+        /// <param name="ignoreSize">Whether to ignore size during this operation.</param>
+        private void IncrementItemCount(ScriptableItem item, int index, int count, bool ignoreSize)
         {
             InventorySlot slot = value[index];
             int countToLimit = slot.stackLimit - slot.stackCount;
@@ -524,16 +593,18 @@ namespace OpenUtility.Samples.Data
                 int leftOverCount = count - countToLimit;
 
                 slot.stackCount += countToLimit;
+                
+                value[index] = slot;
 
-                Add(item, leftOverCount, ignoreCapacity);
+                Add(item, leftOverCount, ignoreSize);
             }
             else
             {
                 // If the count is not greater than the count to limit, just assign count to the existing item.
                 slot.stackCount += count;
+                
+                value[index] = slot;
             }
-
-            value[index] = slot;
         }
         
         /// <summary>
@@ -551,7 +622,7 @@ namespace OpenUtility.Samples.Data
             
             ThrowIf.GreaterThen(removeCount, itemCount,  $"Trying to retrieve {removeCount} of item {slot.item.Value.name} at {indexOfItem} while it has {slot.stackCount}.");
             
-            Item item = slot.item.Value;
+            ScriptableItem item = slot.item.Value;
             int stackLimit = slot.stackLimit;
             int stackCount = itemCount - removeCount;
             slot = new InventorySlot(item, stackLimit, stackCount);
@@ -567,7 +638,7 @@ namespace OpenUtility.Samples.Data
         /// </summary>
         /// <param name="item">The item.</param>
         /// <returns>The stack limit for the item.</returns>
-        private int GetOrCreateStackLimitForItem(Item item)
+        private int GetOrCreateStackLimitForItem(ScriptableItem item)
         {
             if (_stackLimits.TryGetValue(item, out int result)) 
                 return (result);
@@ -616,8 +687,8 @@ namespace OpenUtility.Samples.Data
                 for (int i = 0; i < count; i++)
                     list.Add(InventorySlot.Empty);
             }
-            
-            
+
+            _size = newSize;
         }
         
         /// <summary>

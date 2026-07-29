@@ -3,6 +3,7 @@ using OpenUtility.UI;
 using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.InputSystem;
 using UnityEngine.UI;
 
 namespace OpenUtility.Samples.Data
@@ -11,7 +12,7 @@ namespace OpenUtility.Samples.Data
     {
         [Header("Project References")]
         [SerializeField]
-        private Inventory _inventory;
+        private ScriptableInventory _inventory;
 
         [SerializeField]
         private GameObject _itemBundlePrefab;
@@ -79,7 +80,7 @@ namespace OpenUtility.Samples.Data
             }
             else
             {
-                Item item = slot.item.Value;
+                ScriptableItem item = slot.item.Value;
 
                 _itemFrame.localScale = item.Scale;
                 _itemFrame.localEulerAngles = item.Rotation;
@@ -120,8 +121,9 @@ namespace OpenUtility.Samples.Data
 
         public void OnPointerDown(BaseEventData eventData)
         {
+            bool leftShiftPressed = Keyboard.current.leftShiftKey.isPressed;
             int index = transform.GetSiblingIndex();
-            int? count = Input.GetKey(KeyCode.LeftShift) ? null : 1;
+            int? count = leftShiftPressed ? null : 1;
             _currentBundleTaken = _inventory.TakeAt(index, count);
 
             InventorySlot slot = _inventory.GetValue(index);
@@ -160,7 +162,7 @@ namespace OpenUtility.Samples.Data
 
         private void OnOptionalItemBundleDrop(ItemBundle bundle)
         {
-            Item item = bundle.item.Value;
+            ScriptableItem item = bundle.item.Value;
 
             _itemFrame.localScale = item.Scale;
             _itemFrame.localEulerAngles = item.Rotation;

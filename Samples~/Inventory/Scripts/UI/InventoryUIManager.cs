@@ -7,7 +7,7 @@ namespace OpenUtility.Samples.Data
     {
         [Header("Project References")]
         [SerializeField]
-        private Inventory _inventory;
+        private ScriptableInventory _inventory;
 
         [SerializeField]
         private ScriptablePool _slotPool;

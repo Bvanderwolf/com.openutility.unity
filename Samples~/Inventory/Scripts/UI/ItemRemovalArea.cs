@@ -1,5 +1,6 @@
 using OpenUtility.UI;
 using UnityEngine;
+using UnityEngine.InputSystem;
 using UnityEngine.UI;
 
 namespace OpenUtility.Samples.Data
@@ -30,8 +31,9 @@ namespace OpenUtility.Samples.Data
             ItemBundleUIBehaviour bundle = ItemBundleUIBehaviour.DraggedInstance.Value;
             if (bundle.Origin != ItemCreationOrigin.Inventory)
                 return;
-
-            bool overlaps = RectTransformUtility.RectangleContainsScreenPoint(_body, Input.mousePosition);
+            
+            Vector2 mousePosition = Mouse.current.position.ReadValue();
+            bool overlaps = RectTransformUtility.RectangleContainsScreenPoint(_body, mousePosition);
             if (overlaps)
             {
                 OnDraggedItemBundleOverlapsBody(bundle);

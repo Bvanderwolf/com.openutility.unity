@@ -3,8 +3,8 @@ using UnityEngine;
 
 namespace OpenUtility.Samples.Data
 {
-    [CreateAssetMenu(fileName = "Item", menuName = "Scriptable Objects/Item")]
-    public class Item : ScriptableObject
+    [CreateAssetMenu(fileName = "Item", menuName = "OpenUtility/Inventory/Item")]
+    public class ScriptableItem : ScriptableObject
     {
         [Header("Required")]
         [SerializeField]
@@ -23,7 +23,7 @@ namespace OpenUtility.Samples.Data
         public Sprite Sprite => _sprite;
         public Vector3 Scale => _scale.GetValueOrDefault(Vector3.one);
         public Vector3 Rotation => _rotation.GetValueOrDefault(Vector3.zero);
-        public int StackLimit => _stackLimit.GetValueOrDefault(Inventory.DEFAULT_STACK_LIMIT);
+        public int StackLimit => _stackLimit.GetValueOrDefault(ScriptableInventory.DEFAULT_STACK_LIMIT);
 
         public ItemBundle Bundle() => (new(this));
     }

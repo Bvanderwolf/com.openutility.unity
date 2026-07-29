@@ -3,6 +3,7 @@ using OpenUtility.Data.Pooling;
 using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.InputSystem;
 using UnityEngine.UI;
 
 namespace OpenUtility.Samples.Data
@@ -20,7 +21,7 @@ namespace OpenUtility.Samples.Data
 
         [Header("Project References")]
         [SerializeField]
-        private Inventory _inventory;
+        private ScriptableInventory _inventory;
 
         [SerializeField]
         private PoolGameObjectList _slotList;
@@ -50,10 +51,12 @@ namespace OpenUtility.Samples.Data
             if (DraggedInstance.Value != this)
                 return;
 
+            Vector2 mousePosition = Mouse.current.position.ReadValue();
+            
             for (int i = 0; i < _slotList.Count; i++)
             {
                 RectTransform rect = (RectTransform)_slotList.GetValue(i).transform;
-                bool overlaps = RectTransformUtility.RectangleContainsScreenPoint(rect, Input.mousePosition);
+                bool overlaps = RectTransformUtility.RectangleContainsScreenPoint(rect, mousePosition);
                 if (overlaps)
                 {
                     OnInventorySlotRectangleOverlaps(rect);
@@ -98,7 +101,7 @@ namespace OpenUtility.Samples.Data
         public void SetupFromSlot(InventorySlotUIBehaviour slot)
         {
             ItemBundle bundle = slot.CurrentBundleTaken;
-            Item item = bundle.item.Value;
+            ScriptableItem item = bundle.item.Value;
 
             _itemFrame.localScale = item.Scale;
             _itemFrame.localEulerAngles = item.Rotation;
@@ -113,7 +116,7 @@ namespace OpenUtility.Samples.Data
         
         public void SetupFromCreationEntry(ItemCreationEntry entry)
         {
-            Item item = entry.Item;
+            ScriptableItem item = entry.Item;
             
             _itemFrame.localScale = item.Scale;
             _itemFrame.localEulerAngles = item.Rotation;

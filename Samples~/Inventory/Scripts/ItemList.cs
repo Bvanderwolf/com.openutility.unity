@@ -4,7 +4,7 @@ using UnityEngine;
 namespace OpenUtility.Samples.Data
 {
     [CreateAssetMenu(fileName = "ItemList", menuName = "OpenUtility/Inventory/ItemList")]
-    public class ItemList : ScriptableList<Item>
+    public class ItemList : ScriptableList<ScriptableItem>
     {
     }
 }

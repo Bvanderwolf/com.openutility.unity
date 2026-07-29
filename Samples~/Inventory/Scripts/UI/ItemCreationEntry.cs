@@ -21,9 +21,9 @@ namespace OpenUtility.Samples.Data
         [SerializeField]
         private GameObject _frame;
 
-        public Item Item { get; private set; }
+        public ScriptableItem Item { get; private set; }
 
-        public void Setup(Item item)
+        public void Setup(ScriptableItem item)
         {
             _icon.sprite = item.Sprite;
             _title.text = item.name;
