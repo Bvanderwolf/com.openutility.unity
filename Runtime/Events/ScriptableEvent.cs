@@ -20,6 +20,7 @@ namespace OpenUtility.Data.Events
     [CreateAssetMenu(fileName = "ScriptableEvent", menuName = "OpenUtility/Scriptable Event/Void")]
     public class ScriptableEvent : ScriptableObject
     {
+        [Header("Events")]
         [SerializeField]
         private UnityEvent _event;
 

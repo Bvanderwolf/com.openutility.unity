@@ -40,6 +40,11 @@
       "path": "Samples~/Variable bindings"
     },
     {
+      "displayName": "Asynchronous Variables",
+      "description": "Contains a scene demonstrating how to use asychronous operations with scriptable variables and events.",
+      "path": "Samples~/Asynchronous Variables"
+    },
+    {
       "displayName": "Connection Quality",
       "description": "Contains a scene demonstrating how to present connection quality in your app using scriptable variables.",
       "path": "Samples~/Connection Quality"

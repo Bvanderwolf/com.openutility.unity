@@ -4,10 +4,6 @@ namespace OpenUtility.Data.Pooling
 {
     public class ReleaseGameObject : MonoBehaviour
     {
-        [Header("Scene References")]
-        [SerializeField]
-        private PoolGameObject _poolComponent;
-
         [Header("Settings")]
         [SerializeField, Tooltip("Allowed range from the pool component's start position to release the game object. If a component is set to 0, it will be ignored.")]
         private Optional<Vector3> _range;
@@ -38,7 +34,7 @@ namespace OpenUtility.Data.Pooling
             if (_currentTimer < _timer.Value)
                 return;
 
-            _poolComponent.Release();
+            gameObject.Release();
         }
 
         private void FixedUpdate()
@@ -55,7 +51,7 @@ namespace OpenUtility.Data.Pooling
                               Mathf.Abs(position.z - _startPosition.z) > allowedZ;
             
             if (outOfRange)
-                _poolComponent.Release();
+                gameObject.Release();
         }
     }
 }

@@ -19,7 +19,25 @@ namespace OpenUtility.Data.Pooling
 
         protected override PoolGameObject OnCreateInstance()
         {
-            GameObject gameObject = parent.HasValue ? Instantiate(_prefab, parent.Value) : Instantiate(_prefab);
+            GameObject gameObject;
+
+            if (parameters.HasValue)
+            {
+                gameObject = Instantiate(_prefab, parameters.Value);
+            }
+            else if (parent.HasValue)
+            {
+                gameObject = Instantiate(_prefab, parent.Value);
+            }
+            else if (position.HasValue && rotation.HasValue)
+            {
+                gameObject = Instantiate(_prefab, position.Value, rotation.Value);
+            }
+            else
+            {
+                gameObject = Instantiate(_prefab);
+            }
+            
             if (!gameObject.TryGetComponent(out PoolGameObject instance))
             {
                 Debug.Log($"[{name}] Could not find the {nameof(PoolGameObject)} component on prefab '{_prefab.name}'. It is best practice to add your pooling component beforehand to set serialized fields. Adding it manually now...");
@@ -43,6 +61,9 @@ namespace OpenUtility.Data.Pooling
         protected override void OnReleaseInstance(PoolGameObject instance)
         {
             instance.gameObject.SetActive(false);
+            
+            if (position.HasValue && rotation.HasValue)
+                instance.transform.SetPositionAndRotation(position.Value, rotation.Value);
             
             if (_references.HasValue)
                 _references.Value.Remove(instance);

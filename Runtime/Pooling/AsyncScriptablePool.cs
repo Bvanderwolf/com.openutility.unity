@@ -20,9 +20,24 @@ namespace OpenUtility.Data.Pooling
         
         protected override Promised<PoolAsyncGameObject> OnCreatePromise()
         {
-            AsyncInstantiateOperation<GameObject> operation = parent.HasValue 
-                ? InstantiateAsync(_prefab, parent.Value) 
-                : InstantiateAsync(_prefab);
+            AsyncInstantiateOperation<GameObject> operation; 
+            
+            if (parameters.HasValue)
+            {
+                operation = InstantiateAsync(_prefab, parameters.Value);
+            }
+            else if (parent.HasValue)
+            {
+                operation = InstantiateAsync(_prefab, parent.Value);
+            }
+            else if (position.HasValue && rotation.HasValue)
+            {
+                operation = InstantiateAsync(_prefab, position.Value, rotation.Value);
+            }
+            else
+            {
+                operation = InstantiateAsync(_prefab);
+            }
 
             Promised<PoolAsyncGameObject> promise = new Promised<PoolAsyncGameObject>();
 
@@ -76,7 +91,7 @@ namespace OpenUtility.Data.Pooling
                 
                 instance.gameObject.SetActive(true);
                 
-                state.Reset();
+                state.ResetValue();
                 state.Value = instance;
                 
                 AddReferenceIfPossible(instance);
@@ -92,15 +107,23 @@ namespace OpenUtility.Data.Pooling
                 PoolAsyncGameObject instance = promise.Value;
                 
                 instance.gameObject.SetActive(false);
-
+                
+                SetPositionAndRotationIfPossible(instance);
                 RemoveReferenceIfPossible(instance);
             }
             else
             {
                 promise
                     .Then(instance => instance.gameObject.SetActive(false))
+                    .Then(SetPositionAndRotationIfPossible)
                     .Then(RemoveReferenceIfPossible);
             }
+        }
+
+        private void SetPositionAndRotationIfPossible(PoolAsyncGameObject instance)
+        {
+            if (position.HasValue && rotation.HasValue)
+                instance.transform.SetPositionAndRotation(position.Value, rotation.Value);
         }
 
         private void AddReferenceIfPossible(PoolAsyncGameObject instance)

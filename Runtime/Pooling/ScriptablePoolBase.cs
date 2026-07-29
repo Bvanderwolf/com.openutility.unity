@@ -38,6 +38,21 @@ namespace OpenUtility.Data.Pooling
         protected Optional<Transform> parent { get; private set; }
         
         /// <summary>
+        /// The position for pooled instances.
+        /// </summary>
+        protected Vector3? position { get; private set; }
+        
+        /// <summary>
+        /// The rotation for pooled instances.
+        /// </summary>
+        protected Quaternion? rotation { get; private set; }
+        
+        /// <summary>
+        /// The instantiation parameters for pooled instances.
+        /// </summary>
+        protected InstantiateParameters? parameters { get; private set; }
+        
+        /// <summary>
         /// The scene this pool is currently being used in.
         /// </summary>
         protected Scene? scene { get; private set; }
@@ -63,11 +78,30 @@ namespace OpenUtility.Data.Pooling
         }
 
         /// <summary>
-        /// Sets the parent transform for pooled instances.
+        /// Sets the parent transform for pooled instances. Instantiation parameters take presedence over parent.
         /// </summary>
         public void SetParent(Transform transform)
         {
             parent = transform;
+        }
+
+        /// <summary>
+        /// Sets the instantiation parameters for pooled instances. Nothing takes presedence over instantiation parameters.
+        /// </summary>
+        public void SetParameters(InstantiateParameters instantiateParameters)
+        {
+            parameters = instantiateParameters;
+        }
+        
+        /// <summary>
+        /// Sets the position and rotation for pooled instances.
+        /// Leaving either parameter null will default to Vector3.zero and Quaternion.identity respectively.
+        /// Instantiation parameters and Parent take presedence over position and rotation.
+        /// </summary>
+        public void SetPositionAndRotation(Vector3? worldPosition = null, Quaternion? worldRotation = null)
+        {
+            position = worldPosition ?? Vector3.zero;
+            rotation = worldRotation ?? Quaternion.identity;
         }
 
         public T Get()

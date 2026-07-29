@@ -49,6 +49,45 @@ namespace OpenUtility.Samples.Data
             return (promise);
         }
         
+        public static Promised<SceneInstance> LoadAddressableValueAsync(this ScriptableScene scene, string key = null, Action<DownloadStatus> progress = null)
+        {
+            key ??= scene.SceneName;
+
+            AsyncOperationHandle<SceneInstance> operation = Addressables.LoadSceneAsync(key);
+            Promised<SceneInstance> promise = CreatePromiseFromSceneLoad(operation, progress).Then(OnComplete);
+
+            return (promise);
+
+            void OnComplete(SceneInstance result)
+            {
+                if (!result.Scene.IsValid())
+                    return;
+                
+                scene.SetValue(result.Scene);
+            }
+        }
+        
+        public static Promised<SceneInstance> CreatePromiseFromSceneLoad(AsyncOperationHandle<SceneInstance> operation, Action<DownloadStatus> progress = null)
+        {
+            Promised<SceneInstance> promise = PromisePool<SceneInstance>.Get();
+
+            WaitFor.Operation(operation, OnComplete, progress);
+
+            return (promise);
+
+            void OnComplete(DataRequestResult<SceneInstance> result)
+            {
+                if (result.success)
+                {
+                    promise.Value = result.data;
+                }
+                else
+                {
+                    promise.Error = result.error;
+                }
+            }
+        }
+        
         /// <summary>
         /// Returns a promise that is fullfilled if given addressable operation is completed.
         /// </summary>
