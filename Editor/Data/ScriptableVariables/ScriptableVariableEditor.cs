@@ -20,6 +20,9 @@ namespace OpenUtility.Data.Editor
     [CustomEditor(typeof(ScriptableVector2), true)]
     public class ScriptableVector2Editor : ScriptableVariableEditor { }
     
+    [CustomEditor(typeof(ScriptableDouble), true)]
+    public class ScriptableDoubleEditor : ScriptableVariableEditor { }
+    
     public class ScriptableVariableEditor : UnityEditor.Editor
     {
         private SerializedProperty _valueProperty;
@@ -49,7 +52,7 @@ namespace OpenUtility.Data.Editor
             EditorGUI.BeginChangeCheck();
             serializedObject.Update();
 
-            EditorGUILayout.PropertyField(_valueProperty, new GUIContent("Default"));
+            DrawDefaultValue();
             DrawRuntimeValue();
             
             DrawPropertiesExcluding(serializedObject, "m_Script", "_value");
@@ -60,39 +63,84 @@ namespace OpenUtility.Data.Editor
             DrawOptionalPlayerPrefGUI();
         }
 
+        private void DrawDefaultValue()
+        {
+            EditorGUILayout.PropertyField(_valueProperty, new GUIContent("Default"));
+        }
+
+        private void SetValueWithNotify(object value)
+        {
+            switch (target)
+            {
+                case ScriptableBool boolean:
+                    boolean.SetValue((bool)value); 
+                    break;
+                
+                case ScriptableFloat single:
+                    single.SetValue((float)value);
+                    break;
+                
+                case ScriptableInt integer:
+                    integer.SetValue((int)value);
+                    break;
+                
+                case ScriptableString str:
+                    str.SetValue((string)value);
+                    break;
+                
+                case ScriptableVector2 vector2:
+                    vector2.SetValue((Vector2)value);
+                    break;
+                
+                case ScriptableDouble doubleValue:
+                    doubleValue.SetValue((double)value);
+                    break;
+            }
+        }
+
         private void DrawRuntimeValue()
         {
             if (!Application.isPlaying)
                 return;
 
-            EditorGUI.BeginDisabledGroup(true);
+            object value = null;
+            
+            EditorGUI.BeginChangeCheck();
             switch (target)
             {
                 case ScriptableBool boolean:
-                    EditorGUILayout.Toggle("Current", boolean);
+                    value = EditorGUILayout.Toggle("Current", boolean);
                     break;
                 
                 case ScriptableFloat single:
-                    EditorGUILayout.FloatField("Current", single);
+                    value = EditorGUILayout.FloatField("Current", single);
                     break;
                 
                 case ScriptableInt integer:
-                    EditorGUILayout.IntField("Current", integer);
+                    value = EditorGUILayout.IntField("Current", integer);
                     break;
                 
                 case ScriptableString str:
-                    EditorGUILayout.TextField("Current", str);
+                    value = EditorGUILayout.TextField("Current", str);
                     break;
                 
                 case ScriptableVector2 vector2:
-                    EditorGUILayout.Vector2Field("Current", vector2);
+                    value = EditorGUILayout.Vector2Field("Current", vector2);
+                    break;
+                
+                case ScriptableDouble doubleValue:
+                    value = EditorGUILayout.DoubleField("Current", doubleValue);
                     break;
                 
                 default:
                     EditorGUILayout.LabelField("Current", "N/A");
                     break;
             }
-            EditorGUI.EndDisabledGroup();
+            
+            if (EditorGUI.EndChangeCheck())
+                SetValueWithNotify(value);
+            
+            EditorGUILayout.HelpBox("Updating the current value will trigger change events.", MessageType.Info);
         }
 
         private void DrawOptionalPlayerPrefGUI()

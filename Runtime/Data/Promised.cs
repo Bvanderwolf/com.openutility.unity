@@ -447,10 +447,16 @@ namespace OpenUtility.Data
             _releaseOnCompletion = false;
             _error = null;
         }
-        
+
         /// <summary>
         /// Releases this promise, returning it back to the pool.
         /// </summary>
         public void Release() => PromisePool<T>.Release(this);
+
+        /// <summary>
+        /// Resets the promised value. This is used internally for reusing a promise without
+        /// resetting the events.
+        /// </summary>
+        internal void ResetValue() => _value = Optional<T>.None();
     }
 }
