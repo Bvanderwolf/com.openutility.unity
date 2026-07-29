@@ -1,3 +1,5 @@
+#if UNITY_EDITOR
+
 using UnityEditor;
 using UnityEngine;
 
@@ -15,3 +17,5 @@ namespace OpenUtility.Data.Events.Editor
         }
     }
 }
+
+#endif
